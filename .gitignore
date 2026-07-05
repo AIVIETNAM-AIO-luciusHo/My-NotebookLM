@@ -1,7 +1,7 @@
 .venv/
 __pycache__/
 node_modules/
-CLAUDE.md
+
 
 # Local environment files — never commit secrets
 .env
