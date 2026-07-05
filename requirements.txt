@@ -6,13 +6,19 @@ python-multipart==0.0.9
 # PDF parsing
 pypdf==4.1.0
 
-# LangChain core + community (includes Ollama integration)
+# LangChain core + community
 langchain==0.3.7
 langchain-community==0.3.7
 langchain-huggingface==0.1.2
 
+# Ollama LLM integration (replaces deprecated langchain_community.llms.Ollama)
+langchain-ollama>=0.2
+
 # Vector store
 chromadb==0.4.24
+
+# Knowledge graph — Hybrid GraphRAG (side-by-side with ChromaDB)
+networkx>=3.0
 
 # Embeddings model runtime
 sentence-transformers==2.6.1
@@ -25,3 +31,10 @@ gtts==2.5.1
 
 # Optional: standalone Streamlit prototype
 # streamlit==1.32.0
+
+# Phase 4 — RAGAS Evaluation Benchmark
+ragas>=0.2.0
+datasets>=2.19.0
+
+# Testing
+pytest>=8.0.0

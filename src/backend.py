@@ -1,17 +1,23 @@
 import io
 import json
+import logging
 import os
 import re
 import base64
 import tempfile
+from pathlib import Path
+from uuid import uuid4
 
+import chromadb
+import networkx as nx
+from chromadb.api.models.Collection import Collection
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from gtts import gTTS
-from langchain.prompts import PromptTemplate
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.llms import Ollama
-from langchain_community.vectorstores import Chroma
+from langchain_core.prompts import PromptTemplate
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+# Aliased: `backend.Ollama` is the patch seam used throughout this module and its tests.
+from langchain_ollama import OllamaLLM as Ollama
 from langchain_huggingface import HuggingFaceEmbeddings
 from pydantic import BaseModel
 from pypdf import PdfReader
@@ -34,8 +40,273 @@ app.add_middleware(
 # Singletons — loaded once at startup
 # ---------------------------------------------------------------------------
 
+logger = logging.getLogger("backend")
+
+_DAY3_ROOT = Path(__file__).resolve().parent.parent
+
 _embeddings = HuggingFaceEmbeddings(model_name="keepitreal/vietnamese-sbert")
-_vector_db: Chroma | None = None
+
+# ---------------------------------------------------------------------------
+# Persistent vector store — cumulative multi-file workspace (NotebookLM-style)
+# ---------------------------------------------------------------------------
+
+# Anchored to the Day3 root so the store lands at Day3/chroma_db no matter
+# which directory uvicorn is launched from.
+CHROMA_PATH = _DAY3_ROOT / "chroma_db"
+COLLECTION_NAME = "second_brain"
+
+_chroma_client: chromadb.ClientAPI | None = None
+_collection: Collection | None = None
+
+
+def _get_collection() -> Collection:
+    """Lazily open (or create) the persistent workspace collection."""
+    global _chroma_client, _collection
+    if _collection is None:
+        _chroma_client = chromadb.PersistentClient(path=str(CHROMA_PATH))
+        _collection = _chroma_client.get_or_create_collection(
+            name=COLLECTION_NAME,
+            # hnsw:space=cosine → distance = 1 − cosine_similarity, inverted in /chat
+            metadata={"hnsw:space": "cosine"},
+        )
+    return _collection
+
+
+def _list_sources(collection: Collection) -> list[str]:
+    """Unique 'source' filenames currently loaded in the workspace, sorted."""
+    if collection.count() == 0:
+        return []
+    records = collection.get(include=["metadatas"])
+    sources: set[str] = {
+        str(meta["source"])
+        for meta in records.get("metadatas") or []
+        if meta and meta.get("source")
+    }
+    return sorted(sources)
+
+
+def _query_workspace(collection: Collection, query: str, k: int) -> list[tuple[str, float, str]]:
+    """Global similarity search across ALL files. Returns (text, cosine_score, source)."""
+    count = collection.count()
+    if count == 0:
+        return []
+    result = collection.query(
+        query_embeddings=[_embeddings.embed_query(query)],
+        n_results=min(k, count),
+        include=["documents", "distances", "metadatas"],
+    )
+    documents: list[str] = (result.get("documents") or [[]])[0]
+    distances: list[float] = (result.get("distances") or [[]])[0]
+    metadatas = (result.get("metadatas") or [[]])[0]
+    hits: list[tuple[str, float, str]] = []
+    for i, text in enumerate(documents):
+        distance = float(distances[i]) if i < len(distances) else 1.0
+        meta = metadatas[i] if i < len(metadatas) else None
+        source = str(meta.get("source", "unknown")) if meta else "unknown"
+        hits.append((text, round(1.0 - distance, 4), source))
+    return hits
+
+# ---------------------------------------------------------------------------
+# Knowledge Graph — NetworkX side-car to ChromaDB (Hybrid GraphRAG)
+# ---------------------------------------------------------------------------
+
+GRAPH_PATH = _DAY3_ROOT / "knowledge_graph.graphml"
+
+# 0 (default) = extract triplets from every chunk; N > 0 caps the per-upload
+# LLM extraction calls for very large PDFs.
+_GRAPH_MAX_CHUNKS = int(os.getenv("GRAPH_MAX_CHUNKS", "0"))
+
+_TRIPLET_PROMPT = """You are a deterministic information-extraction engine. Read the TEXT and extract factual relationships between named entities and concepts.
+
+OUTPUT RULES — follow them EXACTLY:
+1. Output one triplet per line, in this exact format: (Subject, Relationship, Object)
+2. Subject and Object are short noun phrases (1-5 words). Relationship is a short verb phrase (1-4 words), e.g. "is a", "works at", "causes", "part of".
+3. NEVER use commas or parentheses inside Subject, Relationship, or Object.
+4. Extract ONLY facts stated explicitly in the TEXT. Never infer or invent.
+5. Extract at most 10 of the most important triplets.
+6. If the TEXT contains no extractable relationships, output exactly: NONE
+7. Output nothing else — no commentary, no numbering, no markdown.
+
+EXAMPLE TEXT:
+Marie Curie discovered polonium and radium. She was a professor at the University of Paris.
+
+EXAMPLE OUTPUT:
+(Marie Curie, discovered, polonium)
+(Marie Curie, discovered, radium)
+(Marie Curie, professor at, University of Paris)
+
+TEXT:
+{chunk}
+
+OUTPUT:"""
+
+_TRIPLET_RE = re.compile(r"\(\s*([^,()\n]+?)\s*,\s*([^,()\n]+?)\s*,\s*([^,()\n]+?)\s*\)")
+
+
+def _parse_triplets(raw: str) -> list[tuple[str, str, str]]:
+    """Parse '(Subject, Relationship, Object)' lines; skip anything malformed."""
+    if not raw or raw.strip().upper() == "NONE":
+        return []
+    triplets: list[tuple[str, str, str]] = []
+    for match in _TRIPLET_RE.finditer(raw):
+        subj, rel, obj = (" ".join(part.split()) for part in match.groups())
+        if subj and rel and obj:
+            triplets.append((subj, rel, obj))
+    return triplets
+
+
+def _extract_triplets_from_chunk(chunk: str) -> list[tuple[str, str, str]]:
+    """LLM triplet extraction at temperature 0.0; never raises — a failed chunk yields []."""
+    try:
+        llm = Ollama(model="llama3.2", temperature=0.0)
+        raw: str = llm.invoke(_TRIPLET_PROMPT.format(chunk=chunk))
+        return _parse_triplets(raw)
+    except Exception:
+        logger.exception("Triplet extraction failed for a chunk; skipping it.")
+        return []
+
+
+def _ingest_chunks_into_graph(graph: nx.DiGraph, chunks: list[str], source: str) -> int:
+    """Extract triplets from each chunk and merge them into *graph*. Returns edges added."""
+    added = 0
+    limit = _GRAPH_MAX_CHUNKS if _GRAPH_MAX_CHUNKS > 0 else len(chunks)
+    for idx, chunk in enumerate(chunks[:limit]):
+        for subj, rel, obj in _extract_triplets_from_chunk(chunk):
+            # Node id = lowercase key so "Marie Curie" and "marie curie" merge;
+            # original casing kept as the display label.
+            s_key, o_key = subj.lower(), obj.lower()
+            if s_key == o_key:
+                continue
+            if not graph.has_node(s_key):
+                graph.add_node(s_key, label=subj, source=source)
+            if not graph.has_node(o_key):
+                graph.add_node(o_key, label=obj, source=source)
+            if graph.has_edge(s_key, o_key):
+                existing = graph[s_key][o_key].get("relation", "")
+                if rel.lower() not in existing.lower():
+                    graph[s_key][o_key]["relation"] = f"{existing}; {rel}" if existing else rel
+            else:
+                graph.add_edge(s_key, o_key, relation=rel, source=source, chunk_index=idx)
+                added += 1
+    return added
+
+
+def _save_graph(graph: nx.DiGraph, path: Path | None = None) -> bool:
+    """Persist the graph as GraphML; returns False (never raises) on failure."""
+    target = path or GRAPH_PATH
+    try:
+        nx.write_graphml(graph, target)
+        return True
+    except Exception:
+        logger.exception("Failed to persist knowledge graph to %s", target)
+        return False
+
+
+def _load_graph(path: Path | None = None) -> nx.DiGraph:
+    """Load the persisted GraphML if present; otherwise start with an empty graph."""
+    target = path or GRAPH_PATH
+    if not target.exists():
+        return nx.DiGraph()
+    try:
+        return nx.DiGraph(nx.read_graphml(target))
+    except Exception:
+        logger.warning("Could not read %s — starting with an empty knowledge graph.", target)
+        return nx.DiGraph()
+
+
+_knowledge_graph: nx.DiGraph = _load_graph()
+
+_ENTITY_PROMPT = """You are a strict entity extractor. Extract up to 5 key entities (people, places, organizations, concepts, technical terms) from the QUERY.
+
+OUTPUT RULES:
+1. Output ONLY the entities, comma-separated, on a single line.
+2. No explanations, no numbering, no markdown.
+3. If there are no meaningful entities, output exactly: NONE
+
+QUERY:
+{query}
+
+ENTITIES:"""
+
+
+def _extract_query_entities(query: str) -> list[str]:
+    """LLM entity extraction with a deterministic keyword fallback."""
+    try:
+        llm = Ollama(model="llama3.2", temperature=0.0)
+        raw = llm.invoke(_ENTITY_PROMPT.format(query=query)).strip()
+        if raw and raw.upper() != "NONE":
+            entities = [e.strip() for e in raw.splitlines()[0].split(",") if e.strip()]
+            if entities:
+                return entities[:5]
+    except Exception:
+        logger.warning("Entity extraction LLM call failed; falling back to query keywords.")
+    tokens = re.findall(r"\w+", query.lower(), re.UNICODE)
+    return [t for t in tokens if len(t) > 2][:10]
+
+
+def _match_graph_nodes(graph: nx.DiGraph, entities: list[str]) -> list[str]:
+    """Case-insensitive exact + substring matching of entities against graph nodes."""
+    matches: list[str] = []
+    for entity in entities:
+        e = entity.strip().lower()
+        if not e:
+            continue
+        if graph.has_node(e):
+            matches.append(e)
+            continue
+        matches.extend(node for node in graph.nodes if e in node or node in e)
+    return list(dict.fromkeys(matches))
+
+
+def _get_graph_context(graph: nx.DiGraph, query: str, max_facts: int = 15) -> list[str]:
+    """Graph sub-pipeline: query entities → matching nodes → 1–2 hop triplet facts."""
+    if graph.number_of_nodes() == 0:
+        return []
+    seeds = _match_graph_nodes(graph, _extract_query_entities(query))
+    if not seeds:
+        return []
+
+    def fmt(u: str, v: str, data: dict) -> str:
+        u_label = graph.nodes[u].get("label", u)
+        v_label = graph.nodes[v].get("label", v)
+        return f"({u_label}, {data.get('relation', 'related to')}, {v_label})"
+
+    facts: list[str] = []
+    seen_edges: set[tuple[str, str]] = set()
+    visited: set[str] = set()
+    frontier = seeds
+    for _hop in range(2):
+        next_frontier: list[str] = []
+        for node in frontier:
+            if node in visited:
+                continue
+            visited.add(node)
+            edges = list(graph.out_edges(node, data=True)) + list(graph.in_edges(node, data=True))
+            for u, v, data in edges:
+                if (u, v) in seen_edges:
+                    continue
+                seen_edges.add((u, v))
+                facts.append(fmt(u, v, data))
+                if len(facts) >= max_facts:
+                    return facts
+                next_frontier.append(v if u == node else u)
+        frontier = next_frontier
+    return facts
+
+
+def _build_hybrid_context(chunks: list[str], graph_facts: list[str]) -> str:
+    """Context Fusion: raw vector-search chunks + knowledge-graph triplets."""
+    parts: list[str] = []
+    if chunks:
+        parts.append(
+            "### NGỮ CẢNH VĂN BẢN (Vector Search):\n" + "\n\n".join(chunks)
+        )
+    if graph_facts:
+        parts.append(
+            "### TRI THỨC ĐỒ THỊ — các quan hệ (Subject, Relation, Object) trích từ tài liệu (Knowledge Graph):\n"
+            + "\n".join(f"- {fact}" for fact in graph_facts)
+        )
+    return "\n\n".join(parts)
 
 # ---------------------------------------------------------------------------
 # Chain-of-Thought RAG Prompt
@@ -152,12 +423,14 @@ class MindmapRequest(BaseModel):
 class SourceDoc(BaseModel):
     text: str
     cosine_score: float
+    source: str = "unknown"
 
 
 class ChatResponse(BaseModel):
     answer: str
     audio_base64: str
     sources: list[SourceDoc]
+    graph_facts: list[str] = []
 
 
 # ---------------------------------------------------------------------------
@@ -166,20 +439,40 @@ class ChatResponse(BaseModel):
 
 
 @app.get("/health")
-def health():
+def health() -> dict[str, object]:
+    try:
+        collection = _get_collection()
+        chunk_count = collection.count()
+        files = _list_sources(collection)
+    except Exception:
+        logger.exception("Persistent vector store unavailable in /health.")
+        chunk_count, files = 0, []
     return {
         "status": "ok",
-        "document_loaded": _vector_db is not None,
+        "document_loaded": chunk_count > 0,
+        "files": files,
+        "chunk_count": chunk_count,
         "model": "llama3.2",
+        "graph_nodes": _knowledge_graph.number_of_nodes(),
+        "graph_edges": _knowledge_graph.number_of_edges(),
     }
 
 
-@app.post("/upload", summary="Upload and index a PDF document")
-async def upload_pdf(file: UploadFile = File(...)):
-    global _vector_db
+@app.get("/files", response_model=list[str], summary="List all source files in the workspace")
+def list_files() -> list[str]:
+    try:
+        return _list_sources(_get_collection())
+    except Exception as exc:
+        logger.exception("Failed to enumerate workspace sources.")
+        raise HTTPException(status_code=500, detail="Could not read the workspace store.") from exc
 
+
+@app.post("/upload", summary="Upload a PDF and append it to the persistent workspace")
+async def upload_pdf(file: UploadFile = File(...)):
     if not (file.filename or "").lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
+
+    filename: str = file.filename or "unknown.pdf"
 
     content = await file.read()
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
@@ -199,32 +492,67 @@ async def upload_pdf(file: UploadFile = File(...)):
         chunk_size=600, chunk_overlap=75, separators=["\n\n", "\n", " ", ""]
     ).split_text(raw_text)
 
-    # hnsw:space=cosine → distance = 1 − cosine_similarity, inverted in /chat
-    _vector_db = Chroma.from_texts(
-        texts=chunks,
-        embedding=_embeddings,
-        collection_metadata={"hnsw:space": "cosine"},
-    )
+    # ── Cumulative vector indexing — append, never overwrite ────────────────
+    try:
+        collection = _get_collection()
+        collection.add(
+            ids=[uuid4().hex for _ in chunks],
+            documents=chunks,
+            embeddings=_embeddings.embed_documents(chunks),
+            metadatas=[{"source": filename} for _ in chunks],
+        )
+    except Exception as exc:
+        logger.exception("Vector indexing failed for '%s'.", filename)
+        raise HTTPException(status_code=500, detail="Vector indexing failed.") from exc
 
-    return {"message": "Document indexed successfully.", "chunk_count": len(chunks)}
+    # ── Knowledge Graph extraction (Hybrid GraphRAG ingestion) ──────────────
+    triplets_added = _ingest_chunks_into_graph(_knowledge_graph, chunks, source=filename)
+    graph_persisted = _save_graph(_knowledge_graph)
+    if triplets_added == 0:
+        logger.warning("No knowledge-graph triplets extracted from '%s'.", filename)
+
+    return {
+        "message": "Document appended to workspace.",
+        "source": filename,
+        "chunk_count": len(chunks),
+        "total_chunks": collection.count(),
+        "files": _list_sources(collection),
+        "graph_triplets_added": triplets_added,
+        "graph_nodes": _knowledge_graph.number_of_nodes(),
+        "graph_edges": _knowledge_graph.number_of_edges(),
+        "graph_persisted": graph_persisted,
+    }
 
 
 @app.post("/chat", response_model=ChatResponse, summary="RAG chat with CoT, cosine scores and TTS")
 async def chat(request: ChatRequest):
-    if _vector_db is None:
-        raise HTTPException(status_code=400, detail="No document uploaded. POST to /upload first.")
+    try:
+        collection = _get_collection()
+        workspace_empty = collection.count() == 0
+    except Exception as exc:
+        logger.exception("Persistent vector store unavailable in /chat.")
+        raise HTTPException(status_code=500, detail="Could not read the workspace store.") from exc
+    if workspace_empty:
+        raise HTTPException(status_code=400, detail="Workspace is empty. POST to /upload first.")
 
-    # ── Retrieval ────────────────────────────────────────────────────────────
-    docs_and_scores = _vector_db.similarity_search_with_score(request.query, k=6)
-
-    context = "\n\n".join(doc.page_content for doc, _ in docs_and_scores)
+    # ── Hybrid Retrieval ─────────────────────────────────────────────────────
+    # 1. Vector sub-pipeline — top-4 chunks by cosine similarity across ALL files
+    hits = _query_workspace(collection, request.query, k=4)
+    chunk_texts = [text for text, _, _ in hits]
     sources = [
-        SourceDoc(
-            text=doc.page_content,
-            cosine_score=round(1.0 - float(score), 4),
-        )
-        for doc, score in docs_and_scores
+        SourceDoc(text=text, cosine_score=score, source=source)
+        for text, score, source in hits
     ]
+
+    # 2. Graph sub-pipeline — query entities → node match → 1–2 hop triplets
+    try:
+        graph_facts = _get_graph_context(_knowledge_graph, request.query)
+    except Exception:
+        logger.exception("Graph retrieval failed; falling back to vector-only context.")
+        graph_facts = []
+
+    # 3. Context Fusion — dense chunks + explicit graph relations
+    context = _build_hybrid_context(chunk_texts, graph_facts)
 
     # ── Intent classification → adaptive temperature ───────────────────────
     temperature = _classify_query(context, request.query)
@@ -242,16 +570,22 @@ async def chat(request: ChatRequest):
     except Exception:
         audio_base64 = ""
 
-    return ChatResponse(answer=answer, audio_base64=audio_base64, sources=sources)
+    return ChatResponse(
+        answer=answer,
+        audio_base64=audio_base64,
+        sources=sources,
+        graph_facts=graph_facts,
+    )
 
 
 @app.post("/generate-quiz", summary="Generate a multiple-choice quiz from indexed document")
 async def generate_quiz(request: GenerateQuizRequest):
-    if _vector_db is None:
-        raise HTTPException(status_code=400, detail="No document uploaded. POST to /upload first.")
+    collection = _get_collection()
+    if collection.count() == 0:
+        raise HTTPException(status_code=400, detail="Workspace is empty. POST to /upload first.")
 
-    docs = _vector_db.similarity_search(request.topic, k=8)
-    context = "\n\n".join(doc.page_content for doc in docs)
+    hits = _query_workspace(collection, request.topic, k=8)
+    context = "\n\n".join(text for text, _, _ in hits)
 
     difficulty_instruction = (
         f'DIFFICULTY / FOCUS DIRECTIVE: "{request.difficulty}". '
@@ -331,11 +665,12 @@ OUTPUT:"""
 
 @app.post("/generate-mindmap", summary="Generate a Mermaid.js mindmap from indexed document")
 async def generate_mindmap(request: MindmapRequest):
-    if _vector_db is None:
-        raise HTTPException(status_code=400, detail="No document uploaded. POST to /upload first.")
+    collection = _get_collection()
+    if collection.count() == 0:
+        raise HTTPException(status_code=400, detail="Workspace is empty. POST to /upload first.")
 
-    docs = _vector_db.similarity_search(request.topic, k=6)
-    context = "\n\n".join(doc.page_content for doc in docs)
+    hits = _query_workspace(collection, request.topic, k=6)
+    context = "\n\n".join(text for text, _, _ in hits)
 
     if _is_general_topic(request.topic):
         prompt = f"""You are a Mermaid.js diagram generator. Your output must be ONLY valid Mermaid graph syntax.
