@@ -6,7 +6,7 @@ Evaluates the RAG pipeline using three metrics with 100% local models:
   - Answer Relevancy     : Is the answer relevant to the question asked?
   - Context Precision    : Are the retrieved contexts relevant to the ground truth?
 
-Critic LLM  : Ollama / llama3.2  (via langchain_community.chat_models.ChatOllama)
+Critic LLM  : Ollama / llama3.2  (via langchain_ollama.ChatOllama)
 Critic Embed : keepitreal/vietnamese-sbert  (via langchain_huggingface)
 
 No OpenAI key is required.
@@ -84,7 +84,7 @@ def _build_critic_models() -> tuple[Any, Any]:
 
     Imports are lazy so the test suite can mock them without loading model weights.
     """
-    from langchain_community.chat_models import ChatOllama  # type: ignore[import]
+    from langchain_ollama import ChatOllama  # type: ignore[import]
     from langchain_huggingface import HuggingFaceEmbeddings
     from ragas.embeddings import LangchainEmbeddingsWrapper
     from ragas.llms import LangchainLLMWrapper
