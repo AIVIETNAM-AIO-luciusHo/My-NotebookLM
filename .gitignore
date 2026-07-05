@@ -7,7 +7,7 @@ node_modules/
 .env
 .env.local
 .env.*.local
-
+CLAUDE.md
 # Build output
 quiz-app/dist/
 
