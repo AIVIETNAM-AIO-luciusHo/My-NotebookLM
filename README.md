@@ -37,26 +37,21 @@ Dự án được xây dựng dựa trên nguyên tắc bảo mật dữ liệu 
 ---
 ## 📂 Cấu trúc thư mục (Project Structure)
 
-Dự án được tổ chức theo chuẩn **Monorepo**, phân tách rõ ràng giữa máy chủ xử lý AI (Backend), giao diện người dùng (Frontend) và không gian lưu trữ tri thức:
-
 ```text
 My-NotebookLM/
 │
 ├── 📁 backend/               # Phân hệ Máy chủ AI (Python/FastAPI)
 │   ├── 📁 src/               # Mã nguồn API xử lý Core RAG, AI Routing, Graph Extraction
-│   ├── 📁 tests/             # Bộ kiểm thử tự động (Unit Tests & RAGAS Benchmark)
-│   └── requirements.txt      # Danh sách thư viện Python
+│   └── 📁 tests/             # Bộ kiểm thử tự động (Unit Tests & RAGAS Benchmark)
 │
-├── 📁 frontend/              # Phân hệ Giao diện Người dùng (React/Vite)
-│   ├── 📁 src/               
-│   ├── package.json          
-│   └── vite.config.js        
+├── 📁 quiz-app/              # Phân hệ Giao diện Người dùng (React/Vite)
+│   ├── 📁 src/               # Mã nguồn UI Components (Tailwind, Mermaid)
+│   ├── package.json          # Danh sách thư viện Node.js
+│   └── vite.config.js        # Cấu hình Vite
 │
-├── 📁 data/                  # Không gian lưu trữ dữ liệu cục bộ (Được bảo mật/Ẩn khỏi Git)
-│   ├── 📁 chroma_db/         # Cơ sở dữ liệu Vector (ChromaDB Persistent)
-│   └── knowledge_graph.graphml # Cơ sở dữ liệu Đồ thị tri thức (NetworkX)
-│
-├── 📁 docs/                  # Tài liệu dự án
+├── 📁 docs/                  # Tài liệu dự án & Không gian lưu trữ
 │   └── 📁 AI_Engineer/       # Kho tri thức cá nhân (Obsidian Vault - Atomic Notes)
 │
-└── .gitignore
+├── .gitignore                # Khai báo loại trừ các file nhạy cảm (vd: chroma_db, .graphml)
+├── README.md                 # Tài liệu hướng dẫn sử dụng
+└── requirements.txt          # Danh sách thư viện Python cho Backend
