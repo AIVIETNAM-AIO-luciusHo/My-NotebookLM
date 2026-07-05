@@ -34,24 +34,16 @@ Dự án được xây dựng dựa trên nguyên tắc bảo mật dữ liệu 
 * **Tự động hóa sơ đồ cây (Auto-Trigger):** Ngay khi người dùng chuyển sang phân hệ Sơ đồ tư duy, hệ thống sẽ tự động phân tích cấu trúc tổng quan tài liệu để bóc tách từ 3-5 luận điểm cốt lõi nhất.
 * **Render thời gian thực:** Ép cấu trúc mô hình sinh mã ngôn ngữ đồ thị cấu trúc **Mermaid.js**, kết hợp thư viện frontend để biên dịch trực quan hóa thành một bản đồ tư duy dạng cây ngay trên màn hình.
 
----
 ## 📂 Cấu trúc thư mục (Project Structure)
+
+Dự án được tổ chức tinh gọn, tập trung vào xử lý AI Core và giao diện người dùng trực tiếp thông qua **Streamlit**:
 
 ```text
 My-NotebookLM/
 │
-├── 📁 backend/               # Phân hệ Máy chủ AI (Python/FastAPI)
-│   ├── 📁 src/               # Mã nguồn API xử lý Core RAG, AI Routing, Graph Extraction
-│   └── 📁 tests/             # Bộ kiểm thử tự động (Unit Tests & RAGAS Benchmark)
-│
-├── 📁 quiz-app/              # Phân hệ Giao diện Người dùng (React/Vite)
-│   ├── 📁 src/               # Mã nguồn UI Components (Tailwind, Mermaid)
-│   ├── package.json          # Danh sách thư viện Node.js
-│   └── vite.config.js        # Cấu hình Vite
-│
-├── 📁 docs/                  # Tài liệu dự án & Không gian lưu trữ
-│   └── 📁 AI_Engineer/       # Kho tri thức cá nhân (Obsidian Vault - Atomic Notes)
-│
-├── .gitignore                # Khai báo loại trừ các file nhạy cảm (vd: chroma_db, .graphml)
-├── README.md                 # Tài liệu hướng dẫn sử dụng
-└── requirements.txt          # Danh sách thư viện Python cho Backend
+├── 📁 src/                   
+│   ├── apply-knowledge.py    # Streamlit UI
+│   ├── backend.py            # RAG, ChromaDB & AI Routing
+│   └── evaluate_rag.py      
+├── .gitignore               
+└── requirements.txt         
