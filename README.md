@@ -35,74 +35,28 @@ Dự án được xây dựng dựa trên nguyên tắc bảo mật dữ liệu 
 * **Render thời gian thực:** Ép cấu trúc mô hình sinh mã ngôn ngữ đồ thị cấu trúc **Mermaid.js**, kết hợp thư viện frontend để biên dịch trực quan hóa thành một bản đồ tư duy dạng cây ngay trên màn hình.
 
 ---
-
 ## 📂 Cấu trúc thư mục (Project Structure)
 
+Dự án được tổ chức theo chuẩn **Monorepo**, phân tách rõ ràng giữa máy chủ xử lý AI (Backend), giao diện người dùng (Frontend) và không gian lưu trữ tri thức:
+
 ```text
-Day5-Notebook_and_quiz/
+My-NotebookLM/
 │
-├── 📁 quiz-app/             
+├── 📁 backend/               # Phân hệ Máy chủ AI (Python/FastAPI)
+│   ├── 📁 src/               # Mã nguồn API xử lý Core RAG, AI Routing, Graph Extraction
+│   ├── 📁 tests/             # Bộ kiểm thử tự động (Unit Tests & RAGAS Benchmark)
+│   └── requirements.txt      # Danh sách thư viện Python
+│
+├── 📁 frontend/              # Phân hệ Giao diện Người dùng (React/Vite)
 │   ├── 📁 src/               
-│   │   ├── 📁 components/   
-│   │   ├── 📁 lib/           
-│   │   ├── App.jsx           
-│   │   └── main.jsx
 │   ├── package.json          
 │   └── vite.config.js        
 │
-├── 📁 src/                  
-│   ├── apply-knowledge.py    # Ứng dụng Streamlit hỗ trợ kiểm thử tính năng độc lập
-│   └── backend.py            # API Server FastAPI (Xử lý Core RAG & AI Routing)
+├── 📁 data/                  # Không gian lưu trữ dữ liệu cục bộ (Được bảo mật/Ẩn khỏi Git)
+│   ├── 📁 chroma_db/         # Cơ sở dữ liệu Vector (ChromaDB Persistent)
+│   └── knowledge_graph.graphml # Cơ sở dữ liệu Đồ thị tri thức (NetworkX)
 │
-├── .gitignore              
-└── requirements.txt          # Danh sách các thư viện
-
-
-
- Hướng dẫn Cài đặt & Khởi chạy Cục bộ (Local Setup)
-Để chạy dự án này trên máy tính cá nhân của bạn sau khi kéo (pull) mã nguồn về, hãy thực hiện chính xác theo quy trình 3 giai đoạn dưới đây:
-
-Giai đoạn 1: Chuẩn bị Môi trường Tiền quyết
-Đảm bảo máy tính đã cài đặt Node.js (Phiên bản >= 18.x) và Python (Phiên bản 3.11 hoặc 3.12).
-
-Tải và cài đặt nền tảng Ollama phù hợp với hệ điều hành của bạn.
-
-Mở Terminal hệ thống lên và kéo mô hình Llama 3.2 về máy bằng cách chạy lệnh:
-
-Bash
-ollama run llama3.2
-Kiểm tra đảm bảo mô hình đã tải xong và chạy ổn định trong Terminal trước khi sang bước tiếp theo.
-
- Giai đoạn 2: Cấu hình và Chạy Backend (FastAPI)
-Mở một cửa sổ Terminal mới và di chuyển vào thư mục gốc của dự án (Day5-Notebook_and_quiz):
-
-Bash
-# 1. Tạo môi trường ảo Python (.venv)
-python -m venv .venv
-
-# 2. Kích hoạt môi trường ảo
-# Đối với MacOS/Linux/WSL:
-source .venv/bin/activate
-# Đối với Windows (CMD / PowerShell):
-# .venv\Scripts\activate
-
-# 3. Nâng cấp bộ cài đặt pip và cài các thư viện AI cần thiết
-pip install --upgrade pip
-pip install -r requirements.txt
-
-# 4. Khởi chạy máy chủ API FastAPI
-uvicorn src.backend:app --reload --host 127.0.0.1 --port 8000
-Khi thấy hệ thống thông báo Application startup complete. Uvicorn running on http://127.0.0.1:8000 nghĩa là cổng dịch vụ Backend đã thông suốt.
-
-Giai đoạn 3: Cấu hình và Chạy Frontend (React)
-Mở một cửa sổ Terminal khác song song và di chuyển vào phân hệ giao diện:
-
-Bash
-# 1. Di chuyển vào thư mục frontend
-cd quiz-app
-
-# 2. Cài đặt toàn bộ các gói thư viện Node.js (Bao gồm cả Tailwind và Mermaid)
-npm install
-
-# 3. Khởi chạy giao diện nhà phát triển trên môi trường cục bộ
-npm run dev
+├── 📁 docs/                  # Tài liệu dự án
+│   └── 📁 AI_Engineer/       # Kho tri thức cá nhân (Obsidian Vault - Atomic Notes)
+│
+└── .gitignore
