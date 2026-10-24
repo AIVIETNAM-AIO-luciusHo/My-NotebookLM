@@ -16,3 +16,8 @@ quiz-app/dist/
 backend/data/chroma_db/
 backend/data/knowledge_graph.graphml
 AI_Engineer/ 
+
+
+chroma_db/
+knowledge_graph.graphml
+
