@@ -34,16 +34,58 @@ Dự án được xây dựng dựa trên nguyên tắc bảo mật dữ liệu 
 * **Tự động hóa sơ đồ cây (Auto-Trigger):** Ngay khi người dùng chuyển sang phân hệ Sơ đồ tư duy, hệ thống sẽ tự động phân tích cấu trúc tổng quan tài liệu để bóc tách từ 3-5 luận điểm cốt lõi nhất.
 * **Render thời gian thực:** Ép cấu trúc mô hình sinh mã ngôn ngữ đồ thị cấu trúc **Mermaid.js**, kết hợp thư viện frontend để biên dịch trực quan hóa thành một bản đồ tư duy dạng cây ngay trên màn hình.
 
-## 📂 Cấu trúc thư mục (Project Structure)
+## Hybrid GraphRAG & Không gian làm việc đa tệp
 
-Dự án được tổ chức tinh gọn, tập trung vào xử lý AI Core và giao diện người dùng trực tiếp thông qua **Streamlit**:
+Backend FastAPI (`src/backend.py`) chạy song song hai chỉ mục trên cùng tài liệu:
+
+* **Vector (ChromaDB, cosine):** mỗi lần `/upload` sẽ *nối thêm* chunk vào workspace bền vững `chroma_db/` (không xoá, còn nguyên sau khi khởi động lại).
+* **Đồ thị tri thức (NetworkX):** `llama3.2` trích xuất bộ ba (Chủ thể, Quan hệ, Đối tượng), lưu vào `knowledge_graph.graphml`.
+* `/chat` truy xuất lai (top-4 chunk + sự kiện đồ thị 1-2 bước) trên toàn bộ tệp, trả về câu trả lời CoT, audio TTS, nguồn kèm điểm cosine và `graph_facts`.
+
+| Endpoint | Method | Chức năng |
+|---|---|---|
+| `/health` | GET | Trạng thái, số chunk, số node/cạnh đồ thị |
+| `/files` | GET | Danh sách tệp nguồn trong workspace |
+| `/upload` | POST | Nạp PDF (nối thêm vào vector + đồ thị) |
+| `/chat` | POST `{query}` | Hỏi đáp lai vector + đồ thị |
+
+`chroma_db/` và `knowledge_graph.graphml` là dữ liệu runtime, đã nằm trong `.gitignore` và không được version.
+
+## Chạy dự án
+
+```bash
+ollama serve && ollama pull llama3.2
+pip install -r requirements.txt
+
+# Backend FastAPI
+cd src && uvicorn backend:app --reload --port 8000
+
+# Quiz app React (http://localhost:5173)
+cd quiz-app && npm install && npm run dev
+
+# Streamlit độc lập (tuỳ chọn)
+streamlit run src/apply-knowledge.py
+```
+
+## Kiểm thử
+
+```bash
+pytest tests                     # backend: GraphRAG, đa tệp, đánh giá RAG (offline, mock Ollama/embeddings)
+cd quiz-app && npm test          # logic miền của quiz-app
+```
+
+## Cấu trúc thư mục
 
 ```text
 My-NotebookLM/
-│
-├── 📁 src/                   
-│   ├── apply-knowledge.py    # Streamlit UI
-│   ├── backend.py            # RAG, ChromaDB & AI Routing
-│   └── evaluate_rag.py      
-├── .gitignore               
-└── requirements.txt         
+├── src/
+│   ├── backend.py            # FastAPI: Hybrid GraphRAG (ChromaDB + NetworkX)
+│   ├── apply-knowledge.py    # Streamlit độc lập
+│   ├── evaluate_rag.py       # Đánh giá RAGAS
+│   └── daily_note.py         # Tạo nhật ký ngày (Obsidian)
+├── tests/                    # pytest: graph_rag, multi_file, evaluate_rag
+├── quiz-app/                 # React 19 + Vite + Tailwind
+├── chroma_db/                # (runtime, không track)
+├── knowledge_graph.graphml   # (runtime, không track)
+└── requirements.txt
+```
