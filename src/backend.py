@@ -52,7 +52,7 @@ _embeddings = HuggingFaceEmbeddings(model_name="keepitreal/vietnamese-sbert")
 
 # Anchored to the Day3 root so the store lands at Day3/chroma_db no matter
 # which directory uvicorn is launched from.
-CHROMA_PATH = _DAY3_ROOT / "chroma_db"
+CHROMA_PATH = Path(os.getenv("CHROMA_PATH") or _DAY3_ROOT / "chroma_db")
 COLLECTION_NAME = "second_brain"
 
 _chroma_client: chromadb.ClientAPI | None = None
@@ -85,8 +85,12 @@ def _list_sources(collection: Collection) -> list[str]:
     return sorted(sources)
 
 
-def _query_workspace(collection: Collection, query: str, k: int) -> list[tuple[str, float, str]]:
-    """Global similarity search across ALL files. Returns (text, cosine_score, source)."""
+def _query_workspace(
+    collection: Collection, query: str, k: int
+) -> list[tuple[str, float, str, int | None]]:
+    """Global similarity search across ALL files. Returns (text, cosine_score, source, page).
+
+    page is 1-based, or None for chunks indexed before page metadata existed."""
     count = collection.count()
     if count == 0:
         return []
@@ -98,19 +102,20 @@ def _query_workspace(collection: Collection, query: str, k: int) -> list[tuple[s
     documents: list[str] = (result.get("documents") or [[]])[0]
     distances: list[float] = (result.get("distances") or [[]])[0]
     metadatas = (result.get("metadatas") or [[]])[0]
-    hits: list[tuple[str, float, str]] = []
+    hits: list[tuple[str, float, str, int | None]] = []
     for i, text in enumerate(documents):
         distance = float(distances[i]) if i < len(distances) else 1.0
         meta = metadatas[i] if i < len(metadatas) else None
         source = str(meta.get("source", "unknown")) if meta else "unknown"
-        hits.append((text, round(1.0 - distance, 4), source))
+        page = meta.get("page") if meta else None
+        hits.append((text, round(1.0 - distance, 4), source, int(page) if page else None))
     return hits
 
 # ---------------------------------------------------------------------------
 # Knowledge Graph — NetworkX side-car to ChromaDB (Hybrid GraphRAG)
 # ---------------------------------------------------------------------------
 
-GRAPH_PATH = _DAY3_ROOT / "knowledge_graph.graphml"
+GRAPH_PATH = Path(os.getenv("GRAPH_PATH") or _DAY3_ROOT / "knowledge_graph.graphml")
 
 # 0 (default) = extract triplets from every chunk; N > 0 caps the per-upload
 # LLM extraction calls for very large PDFs.
@@ -166,7 +171,9 @@ def _extract_triplets_from_chunk(chunk: str) -> list[tuple[str, str, str]]:
         return []
 
 
-def _ingest_chunks_into_graph(graph: nx.DiGraph, chunks: list[str], source: str) -> int:
+def _ingest_chunks_into_graph(
+    graph: nx.DiGraph, chunks: list[str], source: str, pages: list[int] | None = None
+) -> int:
     """Extract triplets from each chunk and merge them into *graph*. Returns edges added."""
     added = 0
     limit = _GRAPH_MAX_CHUNKS if _GRAPH_MAX_CHUNKS > 0 else len(chunks)
@@ -186,7 +193,8 @@ def _ingest_chunks_into_graph(graph: nx.DiGraph, chunks: list[str], source: str)
                 if rel.lower() not in existing.lower():
                     graph[s_key][o_key]["relation"] = f"{existing}; {rel}" if existing else rel
             else:
-                graph.add_edge(s_key, o_key, relation=rel, source=source, chunk_index=idx)
+                attrs = {"page": pages[idx]} if pages and idx < len(pages) else {}
+                graph.add_edge(s_key, o_key, relation=rel, source=source, chunk_index=idx, **attrs)
                 added += 1
     return added
 
@@ -424,6 +432,7 @@ class SourceDoc(BaseModel):
     text: str
     cosine_score: float
     source: str = "unknown"
+    page: int | None = None
 
 
 class ChatResponse(BaseModel):
@@ -436,6 +445,20 @@ class ChatResponse(BaseModel):
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
+
+
+def _chunk_pages(page_texts: list[str]) -> tuple[list[str], list[int]]:
+    """Chunk page by page (600/75); chunks never cross a page. Returns (chunks, 1-based pages)."""
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=600, chunk_overlap=75, separators=["\n\n", "\n", " ", ""]
+    )
+    chunks: list[str] = []
+    pages: list[int] = []
+    for page_no, text in enumerate(page_texts, start=1):
+        for piece in splitter.split_text(text) if text.strip() else []:
+            chunks.append(piece)
+            pages.append(page_no)
+    return chunks, pages
 
 
 @app.get("/health")
@@ -481,16 +504,15 @@ async def upload_pdf(file: UploadFile = File(...)):
 
     try:
         reader = PdfReader(tmp_path)
-        raw_text = "".join(page.extract_text() or "" for page in reader.pages)
+        page_texts = [page.extract_text() or "" for page in reader.pages]
+        raw_text = "".join(page_texts)
     finally:
         os.remove(tmp_path)
 
     if not raw_text.strip():
         raise HTTPException(status_code=422, detail="No extractable text found in PDF.")
 
-    chunks = RecursiveCharacterTextSplitter(
-        chunk_size=600, chunk_overlap=75, separators=["\n\n", "\n", " ", ""]
-    ).split_text(raw_text)
+    chunks, chunk_pages = _chunk_pages(page_texts)
 
     # ── Cumulative vector indexing — append, never overwrite ────────────────
     try:
@@ -499,14 +521,16 @@ async def upload_pdf(file: UploadFile = File(...)):
             ids=[uuid4().hex for _ in chunks],
             documents=chunks,
             embeddings=_embeddings.embed_documents(chunks),
-            metadatas=[{"source": filename} for _ in chunks],
+            metadatas=[{"source": filename, "page": p} for p in chunk_pages],
         )
     except Exception as exc:
         logger.exception("Vector indexing failed for '%s'.", filename)
         raise HTTPException(status_code=500, detail="Vector indexing failed.") from exc
 
     # ── Knowledge Graph extraction (Hybrid GraphRAG ingestion) ──────────────
-    triplets_added = _ingest_chunks_into_graph(_knowledge_graph, chunks, source=filename)
+    triplets_added = _ingest_chunks_into_graph(
+        _knowledge_graph, chunks, source=filename, pages=chunk_pages
+    )
     graph_persisted = _save_graph(_knowledge_graph)
     if triplets_added == 0:
         logger.warning("No knowledge-graph triplets extracted from '%s'.", filename)
@@ -538,10 +562,10 @@ async def chat(request: ChatRequest):
     # ── Hybrid Retrieval ─────────────────────────────────────────────────────
     # 1. Vector sub-pipeline — top-4 chunks by cosine similarity across ALL files
     hits = _query_workspace(collection, request.query, k=4)
-    chunk_texts = [text for text, _, _ in hits]
+    chunk_texts = [h[0] for h in hits]
     sources = [
-        SourceDoc(text=text, cosine_score=score, source=source)
-        for text, score, source in hits
+        SourceDoc(text=text, cosine_score=score, source=source, page=page)
+        for text, score, source, page in hits
     ]
 
     # 2. Graph sub-pipeline — query entities → node match → 1–2 hop triplets
@@ -585,7 +609,7 @@ async def generate_quiz(request: GenerateQuizRequest):
         raise HTTPException(status_code=400, detail="Workspace is empty. POST to /upload first.")
 
     hits = _query_workspace(collection, request.topic, k=8)
-    context = "\n\n".join(text for text, _, _ in hits)
+    context = "\n\n".join(text for text, *_ in hits)
 
     difficulty_instruction = (
         f'DIFFICULTY / FOCUS DIRECTIVE: "{request.difficulty}". '
@@ -670,7 +694,7 @@ async def generate_mindmap(request: MindmapRequest):
         raise HTTPException(status_code=400, detail="Workspace is empty. POST to /upload first.")
 
     hits = _query_workspace(collection, request.topic, k=6)
-    context = "\n\n".join(text for text, _, _ in hits)
+    context = "\n\n".join(text for text, *_ in hits)
 
     if _is_general_topic(request.topic):
         prompt = f"""You are a Mermaid.js diagram generator. Your output must be ONLY valid Mermaid graph syntax.

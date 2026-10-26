@@ -147,7 +147,7 @@ class TestCumulativeIngestion:
         records = backend._get_collection().get(include=["documents", "metadatas"])
         assert len(records["documents"]) >= 2
         for text, meta in zip(records["documents"], records["metadatas"]):
-            assert set(meta) == {"source"}
+            assert set(meta) == {"source", "page"}
             if "Alpha" in text:
                 assert meta["source"] == "doc_a.pdf"
             else:

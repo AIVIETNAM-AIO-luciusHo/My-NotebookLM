@@ -21,3 +21,7 @@ AI_Engineer/
 chroma_db/
 knowledge_graph.graphml
 
+
+# Eval (Pha 1)
+eval/report*.json
+eval/_work/

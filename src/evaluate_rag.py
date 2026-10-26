@@ -25,6 +25,7 @@ Usage:
 
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 from typing import Any
@@ -233,10 +234,124 @@ SAMPLE_QA_PAIRS: list[dict[str, str]] = [
 
 
 # ---------------------------------------------------------------------------
+# --live : retrieval-only evaluation (hit@k theo trang, MRR) — Pha 1 Vòng A
+# ---------------------------------------------------------------------------
+
+_ROOT = Path(__file__).resolve().parent.parent
+_KS = (4, 6, 8)
+
+
+def fact_pages(graph: Any, facts: list[str]) -> list[tuple[str, int]]:
+    """(source, page) của các cạnh đồ thị đứng sau chuỗi fact "(Subj, rel, Obj)".
+
+    Chỉ dùng cho --with-graph. Cạnh không có thuộc tính page (đồ thị cũ) bị bỏ qua.
+    """
+    out: list[tuple[str, int]] = []
+    for f in facts:
+        parts = [x.strip() for x in f.strip()[1:-1].split(",")]
+        if len(parts) < 3:
+            continue
+        u, v = parts[0].lower(), parts[-1].lower()
+        data = graph.get_edge_data(u, v) or graph.get_edge_data(v, u) or {}
+        if "page" in data and "source" in data:
+            out.append((str(data["source"]), int(data["page"])))
+    return out
+
+
+def run_live(with_graph: bool = False) -> dict:
+    """Nạp 3 PDF vào Chroma/graph TẠM (eval/_work/), đo retrieval cho từng câu golden."""
+    import json
+    import os
+    import shutil
+    import subprocess
+    import sys
+    from datetime import date
+
+    work = _ROOT / "eval" / "_work" / "live"
+    shutil.rmtree(work, ignore_errors=True)
+    work.mkdir(parents=True)
+    # Phải đặt TRƯỚC khi import backend để không chạm chroma_db/ & knowledge_graph.graphml thật.
+    os.environ["CHROMA_PATH"] = str(work / "chroma_db")
+    os.environ["GRAPH_PATH"] = str(work / "knowledge_graph.graphml")
+    sys.path[:0] = [str(_ROOT), str(_ROOT / "src")]
+
+    import backend  # noqa: E402
+    from pypdf import PdfReader  # noqa: E402
+
+    from eval import metrics  # noqa: E402
+    from eval.check_quotes import find_pdf, load_golden  # noqa: E402
+
+    assert Path(backend.CHROMA_PATH).resolve() == (work / "chroma_db").resolve()
+    golden = load_golden()
+    # Tất định: HNSW xây đa luồng cho kết quả xấp xỉ khác nhau giữa các lần chạy. Tạo trước
+    # collection với 1 luồng + ef lớn hơn số chunk (~400) để tìm kiếm gần như vét cạn.
+    client = backend.chromadb.PersistentClient(path=str(backend.CHROMA_PATH))
+    client.get_or_create_collection(backend.COLLECTION_NAME, metadata={
+        "hnsw:space": "cosine", "hnsw:num_threads": 1,
+        "hnsw:construction_ef": 1000, "hnsw:search_ef": 1000})
+    del client
+    col = backend._get_collection()
+    for name in sorted({g["doc"] for g in golden}):
+        pages = [p.extract_text() or "" for p in PdfReader(find_pdf(name)).pages]
+        chunks, chunk_pages = backend._chunk_pages(pages)
+        col.add(
+            ids=[f"{name}:{i}" for i in range(len(chunks))],  # id tất định
+            documents=chunks,
+            embeddings=backend._embeddings.embed_documents(chunks),
+            metadatas=[{"source": name, "page": p} for p in chunk_pages],
+        )
+        logger.info("%s: %d chunks", name, len(chunks))
+
+    rows = []
+    for g in golden:
+        ranked = {k: [(h[2], h[3]) for h in backend._query_workspace(col, g["question"], k)] for k in _KS}
+        if with_graph:  # ponytail: chỉ cài đặt, chưa chạy thật (cần Ollama); facts không đổi thứ hạng chunk
+            ranked = {k: r + fact_pages(backend._knowledge_graph, backend._get_graph_context(
+                backend._knowledge_graph, g["question"])) for k, r in ranked.items()}
+        rows.append({
+            "id": g["id"], "type": g["type"],
+            "hits": {k: metrics.hit_at_k(ranked[k], g["doc"], g["gold_pages"], k) for k in _KS},
+            "cover": {k: metrics.full_cover_at_k(ranked[k], g["doc"], g["gold_pages"], k) for k in _KS},
+            "rr": metrics.reciprocal_rank(ranked[8], g["doc"], g["gold_pages"], 8),
+        })
+    try:
+        rev = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=_ROOT, text=True).strip()
+    except Exception:
+        rev = "unknown"
+    report = {
+        "meta": {
+            "git_rev": rev, "date": date.today().isoformat(), "k": list(_KS), "n": len(golden),
+            "mode": "vector+graph" if with_graph else "vector-only",
+            "reviewed": sum(1 for g in golden if g["reviewed"]),
+            "mrr_cutoff": 8, "status": "tạm thời (chưa AC-9)",
+        },
+        "metrics": metrics.aggregate(rows, _KS),
+        "per_question": [{"id": r["id"], "type": r["type"], "rr": round(r["rr"], 4),
+                          **{f"hit@{k}": r["hits"][k] for k in _KS}} for r in rows],
+    }
+    (_ROOT / "eval" / "report.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return report
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
+    import argparse
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--live", action="store_true", help="retrieval-only trên 3 PDF (cần EVAL_PDF_DIR)")
+    ap.add_argument("--vector-only", action="store_true", help="mặc định")
+    ap.add_argument("--with-graph", action="store_true", help="thêm trang từ facts đồ thị (cần Ollama)")
+    args = ap.parse_args()
+    if args.live:
+        logging.basicConfig(level=logging.INFO)
+        rep = run_live(with_graph=args.with_graph)
+        print(json.dumps(rep["metrics"], ensure_ascii=False, indent=2))
+        raise SystemExit(0)
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s — %(message)s",
