@@ -50,8 +50,8 @@ Tái tạo NotebookLM chạy cục bộ; R&D thực chiến, portfolio kỹ thu�
 
 ## 9. Điểm quyết định chờ chủ dự án
 - D1 [ĐÃ XONG 2026-10-27]: 6/6 ô `eval/review_sample.md` được tick bởi Leader THEO LỆNH của chủ dự án, dựa trên đối chiếu của Leader với trang PDF (chủ dự án không tự đọc lại từng câu). `golden.jsonl` giữ `reviewed:false` vì `tests/test_golden_schema.py:40` bắt buộc; 24/30 câu còn lại chưa ai duyệt.
-- D2: ngưỡng độ trễ /chat sau P0.
-- D3: golden mở rộng (>=100 câu) hay so sánh ghép cặp trên 30 câu hiện có.
+- D2 [ĐÃ CHỐT 2026-10-27]: AC P1-2 = so sánh GHÉP CẶP theo câu (cùng 10 câu golden gradient đo lúc rảnh và lúc nền chạy, tính tỉ số median theo từng câu rồi lấy median): median nền <= 1,5x median rảnh. Ngưỡng 1,5 là đề xuất, chưa có dữ liệu lúc nền chạy; nếu P1 cho thấy không khả thi thì ghi lại và đề xuất lại, không âm thầm nới.
+- D3 [ĐÃ CHỐT 2026-10-27]: so sánh ghép cặp McNemar trên 30 câu bằng `eval/compare.py` trước; chỉ mở rộng golden khi một so sánh thật sự cần độ nhạy cao hơn.
 - D4: có cần MinIO (mở PDF tại trang trích dẫn) hay hoãn.
 - D5: giữ Groq sau P3 hay không (theo số đo).
 - D6 [ĐÃ CHỐT 2026-10-27]: spike shadcn/ui chỉ tại P1.5 khi có UI Notebook; AC: Modal/Button hiện có thay bằng bản shadcn, `npm run build` và 115 test vẫn xanh, kích thước bundle được báo trước/sau.
@@ -76,8 +76,19 @@ Giả thuyết cần kiểm chứng: pytest không cần tải mô hình sbert (
 - `quiz-app` chưa có shadcn/ui, `class-variance-authority`, `clsx`, `tailwind-merge`, Radix, alias `@/`; đã có bộ UI tự viết gồm 18 file trong `components/ui`.
 - PDF gốc không được lưu (file tạm bị xoá sau khi đọc); cổng ObjectStore là chức năng mới, không phải di chuyển.
 
+## 7b. Kết quả P0 đã nghiệm thu (2026-10-27, mẫu nhỏ, một máy, chưa có CI)
+Nguồn: `eval/p0/latency_v2.json`, `eval/p0/triplet_noise_v2.json` (Coder đo; Leader tự tính lại từ `per_call`, khớp). Vòng 1 (`latency.json`, `triplet_noise.json`) giữ làm bằng chứng nhưng KHÔNG dùng để chốt ngưỡng vì Tester chạy lại ra số khác.
+- `/chat` lúc rảnh, gTTS stub, 30 lượt (10 câu golden × 3 lượt, seed 1): median 3,44 s; Q1 1,97; Q3 6,44; mean 5,97; sd 8,95; p90 9,31; max 51,11 (một lượt q07). Trung bình theo câu từ 1,5 s (q01) đến 22,3 s (q07): phụ thuộc mạnh vào câu hỏi. Nguyên nhân outlier 51 s: chưa xác định.
+- Vòng 1 và Tester: mean 7,97 s và 6,24 s (n=10), tức dao động giữa các lần chạy; upload (giới hạn 30 đoạn): 91,8 / 46,3 / 47,7 s.
+- Triplet (40 đoạn, 3 lượt, temperature 0,0 đọc từ kwargs thật): 153/153/153, Jaccard 1,0. Vòng 1 từng cho 154/153 (Jaccard 0,953); chưa giải thích được khác biệt.
+- gTTS thật: vòng 1 mean 59 s (max 270), Tester 11,7 s (max 40,7): bị nhiễu mạng, không dùng làm ngưỡng; củng cố quyết định tắt TTS ở notebook local.
+- Công cụ: `python -m eval.compare A.json B.json` (McNemar chính xác, ghép theo id; lỗi người dùng -> thông báo tiếng Việt, exit 2). 88 test pass.
+Hệ quả cho P1: P1-2 nên so sánh GHÉP CẶP theo từng câu và dùng median/IQR, không dùng mean hay p95 với n nhỏ; P1-3 khả thi (nhiễu 0 đến 0,65%).
+
 ## 8. Nhật ký thay đổi
 - 2026-10-27: bản nháp đầu; thêm P1.5 (Notebook); AC P1 tinh chỉnh.
+- 2026-10-27: P0 (đo độ trễ, nhiễu triplet, compare.py) nghiệm thu sau 2 vòng; kết quả ở mục 7b.
+- 2026-10-27: chốt D2 (ghép cặp, median nền <= 1,5x rảnh) và D3 (McNemar trên 30 câu); chủ dự án tự commit kết quả P0.
 - 2026-10-27: tick 6/6 review_sample theo lệnh chủ dự án (D1); `docs/book/` đưa vào .gitignore (D10: không version sách); commit nhóm tài liệu.
 - 2026-10-27: bản đồ công nghệ gắn vào pha; thêm P0.7 (cắt đoạn theo token, phát hiện 15–20% đoạn >256 token); chốt D6, D7, D8.
 - 2026-10-27: thêm P0.5 (CI) theo quyết định chủ dự án; P9 đổi thành Docker + CD xuất bản sản phẩm (không backend cloud); bật branch protection `main`.
