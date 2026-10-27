@@ -1,0 +1,47 @@
+%% TRẠNG THÁI ĐÍCH (ports and adapters), chưa cài đặt
+flowchart TB
+    U["Trình duyệt: React 19 + IndexedDB<br/>chọn notebook, xem trạng thái nạp, chế độ bảo mật"]
+    subgraph APP["FastAPI: api/ + core/ (mặt tiền backend.py)"]
+        API["upload 202 + job_id, jobs, chat,<br/>studio: quiz, mindmap, slide"]
+        POL{{"data_policy theo notebook<br/>local hoặc cloud"}}
+    end
+    subgraph PORTS["5 cổng"]
+        VS["VectorStore"]
+        GS["GraphStore"]
+        LL["LLM"]
+        OS["ObjectStore"]
+        JQ["JobQueue"]
+    end
+    subgraph LOC["Adapter local, mặc định"]
+        Chroma[("Chroma")]
+        NX[("NetworkX")]
+        Oll["Ollama llama3.2"]
+        FS[("đĩa uploads/")]
+        INP["ThreadPool + jobs.sqlite"]
+    end
+    subgraph CLD["Adapter cloud và học, tuỳ chọn, gói miễn phí"]
+        Pine[("Pinecone Serverless")]
+        Neo[("Neo4j AuraDB")]
+        Groq["Groq"]
+        Minio[("MinIO qua boto3")]
+        Red[("Redis + Celery")]
+    end
+    W1[["Worker pha nhanh:<br/>parse, chunk theo trang và token,<br/>embed sbert cục bộ, ghi vector"]]
+    W2[["Worker pha chậm, 1 luồng nhường /chat:<br/>trích triplet, ghi đồ thị"]]
+    EV["eval/: golden, so sánh ghép cặp<br/>chạy lại sau mỗi đổi adapter"]
+    TTS["gTTS: chỉ bật ở notebook cloud"]
+    U --> API --> POL
+    POL -->|"local: chỉ adapter local"| PORTS
+    POL -->|"cloud: chỉ khi cấu hình đủ, lỗi thì từ chối"| PORTS
+    API --> JQ
+    JQ --> W1 --> VS
+    JQ --> W2 --> LL
+    W2 --> GS
+    API --> OS
+    VS -.-> Chroma & Pine
+    GS -.-> NX & Neo
+    LL -.-> Oll & Groq
+    OS -.-> FS & Minio
+    JQ -.-> INP & Red
+    API -.->|"chỉ khi cloud"| TTS
+    EV -.-> API
