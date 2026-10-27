@@ -52,6 +52,9 @@ Tái tạo NotebookLM chạy cục bộ; R&D thực chiến, portfolio kỹ thu�
 - D1 [ĐÃ XONG 2026-10-27]: 6/6 ô `eval/review_sample.md` được tick bởi Leader THEO LỆNH của chủ dự án, dựa trên đối chiếu của Leader với trang PDF (chủ dự án không tự đọc lại từng câu). `golden.jsonl` giữ `reviewed:false` vì `tests/test_golden_schema.py:40` bắt buộc; 24/30 câu còn lại chưa ai duyệt.
 - D2 [ĐÃ CHỐT 2026-10-27]: AC P1-2 = so sánh GHÉP CẶP theo câu (cùng 10 câu golden gradient đo lúc rảnh và lúc nền chạy, tính tỉ số median theo từng câu rồi lấy median): median nền <= 1,5x median rảnh. Ngưỡng 1,5 là đề xuất, chưa có dữ liệu lúc nền chạy; nếu P1 cho thấy không khả thi thì ghi lại và đề xuất lại, không âm thầm nới.
 - D3 [ĐÃ CHỐT 2026-10-27]: so sánh ghép cặp McNemar trên 30 câu bằng `eval/compare.py` trước; chỉ mở rộng golden khi một so sánh thật sự cần độ nhạy cao hơn.
+- D12 [ĐÃ CHỐT 2026-10-27]: CI backend dùng `requirements-ci.txt` rút gọn (không torch/sentence-transformers/ragas/datasets), ghim đúng bộ đã thử (kèm `httpx<0.28`); `requirements.txt` giữ nguyên (sửa cho khớp môi trường thật là việc riêng, vì file đó đang lệch: ghi `fastapi==0.110.0`/`langchain==0.3.7` nhưng máy dev chạy `fastapi 0.138.1`/`langchain 1.3.11`, và thiếu `httpx` mà `TestClient` cần).
+- D13 [ĐÃ CHỐT]: branch protection cho `main` KHÔNG cho admin bỏ qua (chủ dự án cũng phải qua PR và CI xanh).
+- D14 [ĐÃ CHỐT]: CI chạy cho PR vào `main` và push vào `main`, không chạy trên mọi nhánh.
 - D4: có cần MinIO (mở PDF tại trang trích dẫn) hay hoãn.
 - D5: giữ Groq sau P3 hay không (theo số đo).
 - D6 [ĐÃ CHỐT 2026-10-27]: spike shadcn/ui chỉ tại P1.5 khi có UI Notebook; AC: Modal/Button hiện có thay bằng bản shadcn, `npm run build` và 115 test vẫn xanh, kích thước bundle được báo trước/sau.
@@ -66,7 +69,7 @@ Tái tạo NotebookLM chạy cục bộ; R&D thực chiến, portfolio kỹ thu�
 | CI-3 | PR cố ý thêm chuỗi giống khoá API (đã xoá sau khi thử, không dùng khoá thật) | gitleaks đỏ |
 | CI-4 | branch protection `main` yêu cầu job `ci` xanh | không merge được khi đỏ |
 | CI-5 | pytest trong CI chạy với bộ phụ thuộc rút gọn | số test chạy bằng số test local (74 hoặc hơn); nếu không chạy được thì ghi nguyên nhân và dùng bộ đầy đủ + cache |
-Giả thuyết cần kiểm chứng: pytest không cần tải mô hình sbert (test mock embeddings). Quy tắc: `.github/workflows/**` KHÔNG nằm trong allowlist của Coder; chỉ dispatch riêng của Leader được sửa (tránh CI xanh giả). `eval/` đo thật, RAGAS, adapter cloud KHÔNG chạy trong CI (cần mô hình, Ollama, khoá); chỉ chạy tay. Khoá API không bao giờ đưa vào PR từ fork.
+Đã thử (2026-10-27, máy dev, Python 3.12.3, venv rút gọn 639 MB, cài 100 s): `pytest tests -q` = 88 passed trong 29 s khi thêm `httpx<0.28`; không có `httpx<0.28` thì `starlette 0.36.3` (kéo bởi `fastapi==0.110.0`) lỗi `TypeError` ở `testclient.py:429`. Chưa kiểm trên runner GitHub. Quy tắc: `.github/workflows/**` KHÔNG nằm trong allowlist của Coder; chỉ dispatch riêng của Leader được sửa (tránh CI xanh giả). `eval/` đo thật, RAGAS, adapter cloud KHÔNG chạy trong CI (cần mô hình, Ollama, khoá); chỉ chạy tay. Khoá API không bao giờ đưa vào PR từ fork.
 
 ## 7. Phát hiện kiểm chứng được khi lập bản đồ công nghệ (2026-10-27)
 - Tokenizer của `keepitreal/vietnamese-sbert` là `PhobertTokenizer`; `max_seq_length` 256. Chia theo 600 ký tự + 75 chồng (như `_chunk_pages`) rồi đếm token (kèm token đặc biệt): gradient27 24/119 đoạn (20,2%) vượt 256, max 373; prob55 20/137 (14,6%), max 364; kmeans53 29/142 (20,4%), max 332 [lệnh chạy bằng `AutoTokenizer.from_pretrained(..., local_files_only=True)`]. Phần vượt bị cắt khi embedding (chưa đo ảnh hưởng lên hit@k).
@@ -90,5 +93,6 @@ Hệ quả cho P1: P1-2 nên so sánh GHÉP CẶP theo từng câu và dùng med
 - 2026-10-27: P0 (đo độ trễ, nhiễu triplet, compare.py) nghiệm thu sau 2 vòng; kết quả ở mục 7b.
 - 2026-10-27: chốt D2 (ghép cặp, median nền <= 1,5x rảnh) và D3 (McNemar trên 30 câu); chủ dự án tự commit kết quả P0.
 - 2026-10-27: tick 6/6 review_sample theo lệnh chủ dự án (D1); `docs/book/` đưa vào .gitignore (D10: không version sách); commit nhóm tài liệu.
+- 2026-10-27: chốt D12 (requirements-ci.txt), D13 (không bypass), D14 (PR+main); thí nghiệm venv rút gọn: 88 passed.
 - 2026-10-27: bản đồ công nghệ gắn vào pha; thêm P0.7 (cắt đoạn theo token, phát hiện 15–20% đoạn >256 token); chốt D6, D7, D8.
 - 2026-10-27: thêm P0.5 (CI) theo quyết định chủ dự án; P9 đổi thành Docker + CD xuất bản sản phẩm (không backend cloud); bật branch protection `main`.
