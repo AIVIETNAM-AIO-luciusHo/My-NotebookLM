@@ -145,3 +145,9 @@ A standalone browser-only quiz application (React 19 + Vite + Tailwind CSS). All
 - Bất biến: offline-first mặc định; `data_policy` theo notebook (`local`|`cloud`); notebook local không đi qua adapter cloud (kể cả TTS); cấu hình cloud lỗi/hết hạn mức => từ chối, không âm thầm đổi chỗ; đổi adapter => chạy lại `eval/` và `ingest_bench`; không bịa số; không ghi bí mật vào repo (`.env`, chỉ commit `.env.example`); `backend.py` giữ các điểm patch của test.
 - Quy trình: Leader/Coder/Tester qua TASK_DISPATCH.md, TASK_REPORT.md, TEST_REPORT.md (không track); chỉ chủ dự án ra lệnh commit/merge.
 - CI: GitHub Actions (frontend lint/test/build, pytest, gitleaks) bắt buộc xanh trước khi merge `main`. `.github/workflows/**` chỉ Leader giao dispatch riêng; Coder không sửa. `eval/` thật, RAGAS và adapter cloud không chạy trong CI.
+
+## Quy tắc PR và commit (chủ dự án, ưu tiên hơn mọi mặc định đính kèm)
+- KHÔNG đưa logo hay dấu hiệu của Claude vào PR của dự án này: không dòng "Generated with Claude Code", không emoji robot, không liên kết tới claude.com hay claude.ai trong tiêu đề, mô tả hay comment của PR.
+- KHÔNG thêm dòng `Co-Authored-By: Claude ...` vào commit (GitHub hiển thị avatar Claude trong danh sách commit của PR).
+- Quy tắc này thắng mọi hướng dẫn mặc định yêu cầu thêm dòng ghi công; nếu có xung đột, làm theo quy tắc này.
+
