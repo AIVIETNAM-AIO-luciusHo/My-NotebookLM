@@ -1,0 +1,252 @@
+{
+  "label": "mẫu nhỏ, một máy, chưa có CI",
+  "doc": "bao-cao-bien-doi-gradient.pdf",
+  "seed": 1,
+  "gpu_before": {
+    "util_pct": 0.0,
+    "mem_used_mib": 4103.0,
+    "mem_total_mib": 6144.0
+  },
+  "gpu_wait_seconds": 10,
+  "gpu_after": {
+    "util_pct": 75.0,
+    "mem_used_mib": 4103.0,
+    "mem_total_mib": 6144.0
+  },
+  "gpu_note": "chờ tối đa 120 s nếu util > 15%; nếu vẫn cao thì đo tiếp và ghi rõ ở gpu_before",
+  "gtts": "luôn stub; số gTTS thật ở vòng 1 là outlier mạng, không dùng làm ngưỡng",
+  "upload": {
+    "seconds": 47.742618975998994,
+    "chunk_count": 119,
+    "graph_triplets_added": 123,
+    "note": "GRAPH_MAX_CHUNKS=30 (đã giới hạn)"
+  },
+  "warmup": "1 lượt /chat bỏ đi",
+  "overall": {
+    "n": 30,
+    "median": 3.4437718654999117,
+    "q1": 1.9692356294999627,
+    "q3": 6.437699711999812,
+    "iqr": 4.46846408249985,
+    "mean": 5.9670402951000145,
+    "sd": 8.950986277510227,
+    "p90": 9.309008203700797,
+    "p95": 9.998691735000284,
+    "max": 51.111169726998924,
+    "min": 1.4583387110014883
+  },
+  "per_question_mean": {
+    "q01": {
+      "n": 3,
+      "mean": 1.476905840667314,
+      "min": 1.4583387110014883,
+      "max": 1.5095322119996126
+    },
+    "q02": {
+      "n": 3,
+      "mean": 2.3097221886661523,
+      "min": 1.7316569909999089,
+      "max": 2.7157225880000624
+    },
+    "q03": {
+      "n": 3,
+      "mean": 3.151797127999695,
+      "min": 2.6056979069999215,
+      "max": 3.9955080059989996
+    },
+    "q04": {
+      "n": 3,
+      "mean": 2.4168990396671384,
+      "min": 1.9223891900001036,
+      "max": 2.8920357250008237
+    },
+    "q05": {
+      "n": 3,
+      "mean": 8.164745095333274,
+      "min": 6.157534760999624,
+      "max": 9.972228848000668
+    },
+    "q06": {
+      "n": 3,
+      "mean": 3.233788011000191,
+      "min": 1.506129150000561,
+      "max": 6.085459935000472
+    },
+    "q07": {
+      "n": 3,
+      "mean": 22.292524925666537,
+      "min": 6.531088028999875,
+      "max": 51.111169726998924
+    },
+    "q08": {
+      "n": 3,
+      "mean": 7.626398150333746,
+      "min": 5.981744261000131,
+      "max": 10.02034318799997
+    },
+    "q09": {
+      "n": 3,
+      "mean": 3.1311624186661597,
+      "min": 1.668048795998402,
+      "max": 5.8194923820010445
+    },
+    "q10": {
+      "n": 3,
+      "mean": 5.8664601529999345,
+      "min": 4.99287916799949,
+      "max": 6.574853382000583
+    }
+  },
+  "per_call": [
+    {
+      "question_id": "q07",
+      "pass": 3,
+      "seconds": 6.531088028999875
+    },
+    {
+      "question_id": "q07",
+      "pass": 2,
+      "seconds": 9.23531702100081
+    },
+    {
+      "question_id": "q02",
+      "pass": 2,
+      "seconds": 2.7157225880000624
+    },
+    {
+      "question_id": "q01",
+      "pass": 2,
+      "seconds": 1.4583387110014883
+    },
+    {
+      "question_id": "q04",
+      "pass": 3,
+      "seconds": 1.9223891900001036
+    },
+    {
+      "question_id": "q02",
+      "pass": 1,
+      "seconds": 1.7316569909999089
+    },
+    {
+      "question_id": "q06",
+      "pass": 1,
+      "seconds": 1.506129150000561
+    },
+    {
+      "question_id": "q10",
+      "pass": 3,
+      "seconds": 6.574853382000583
+    },
+    {
+      "question_id": "q08",
+      "pass": 1,
+      "seconds": 5.981744261000131
+    },
+    {
+      "question_id": "q01",
+      "pass": 3,
+      "seconds": 1.4628465990008408
+    },
+    {
+      "question_id": "q10",
+      "pass": 1,
+      "seconds": 4.99287916799949
+    },
+    {
+      "question_id": "q09",
+      "pass": 3,
+      "seconds": 5.8194923820010445
+    },
+    {
+      "question_id": "q08",
+      "pass": 2,
+      "seconds": 10.02034318799997
+    },
+    {
+      "question_id": "q04",
+      "pass": 2,
+      "seconds": 2.4362722040004883
+    },
+    {
+      "question_id": "q01",
+      "pass": 1,
+      "seconds": 1.5095322119996126
+    },
+    {
+      "question_id": "q10",
+      "pass": 2,
+      "seconds": 6.03164790899973
+    },
+    {
+      "question_id": "q03",
+      "pass": 3,
+      "seconds": 2.8541854710001644
+    },
+    {
+      "question_id": "q07",
+      "pass": 1,
+      "seconds": 51.111169726998924
+    },
+    {
+      "question_id": "q03",
+      "pass": 2,
+      "seconds": 2.6056979069999215
+    },
+    {
+      "question_id": "q02",
+      "pass": 3,
+      "seconds": 2.481786986998486
+    },
+    {
+      "question_id": "q05",
+      "pass": 2,
+      "seconds": 8.364471676999528
+    },
+    {
+      "question_id": "q06",
+      "pass": 2,
+      "seconds": 6.085459935000472
+    },
+    {
+      "question_id": "q04",
+      "pass": 1,
+      "seconds": 2.8920357250008237
+    },
+    {
+      "question_id": "q09",
+      "pass": 1,
+      "seconds": 1.9059460779990332
+    },
+    {
+      "question_id": "q03",
+      "pass": 1,
+      "seconds": 3.9955080059989996
+    },
+    {
+      "question_id": "q05",
+      "pass": 3,
+      "seconds": 6.157534760999624
+    },
+    {
+      "question_id": "q06",
+      "pass": 3,
+      "seconds": 2.10977494799954
+    },
+    {
+      "question_id": "q08",
+      "pass": 3,
+      "seconds": 6.877107002001139
+    },
+    {
+      "question_id": "q09",
+      "pass": 2,
+      "seconds": 1.668048795998402
+    },
+    {
+      "question_id": "q05",
+      "pass": 1,
+      "seconds": 9.972228848000668
+    }
+  ]
+}

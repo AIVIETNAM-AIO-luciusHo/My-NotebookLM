@@ -1,27 +1,26 @@
+# Dependencies and build output
 .venv/
 __pycache__/
 node_modules/
-
-
-# Local environment files — never commit secrets
-.env
-.env.local
-.env.*.local
-CLAUDE.md
-# Build output
 quiz-app/dist/
-
-# HuggingFace model cache
 .cache/
-backend/data/chroma_db/
-backend/data/knowledge_graph.graphml
-AI_Engineer/ 
 
+# Secrets and local config: never commit (commit only .env.example)
+.env
+.env.*
+!.env.example
+CLAUDE.local.md
+AI_Engineer/
 
+# Runtime data: lost twice when switching branches, back up before touching (see PLAN.md D8)
 chroma_db/
 knowledge_graph.graphml
+uploads/
+jobs.sqlite*
 
+# Sách LaTeX (không version theo quyết định chủ dự án 2026-10-27)
+docs/book/
 
-# Eval (Pha 1)
+# Eval
 eval/report*.json
 eval/_work/

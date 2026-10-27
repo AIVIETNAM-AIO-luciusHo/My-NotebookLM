@@ -1,0 +1,27 @@
+%% HIỆN TRẠNG (đã kiểm chứng 2026-10-27)
+flowchart TB
+    U["Trình duyệt: React 19 + IndexedDB<br/>quiz-app, BACKEND cứng 127.0.0.1:8000"]
+    subgraph API["FastAPI: src/backend.py, một tiến trình"]
+        UP["POST /upload<br/>async def nhưng gọi đồng bộ, chặn"]
+        CH["POST /chat<br/>3 lần gọi LLM mỗi câu hỏi"]
+        ST["/generate-quiz, /generate-mindmap"]
+        MS["GET /files, GET /health"]
+    end
+    subgraph DISK["Lưu trữ cục bộ, gốc repo"]
+        CR[("chroma_db/<br/>cosine, metadata source + page")]
+        GR[("knowledge_graph.graphml<br/>NetworkX, biến toàn cục")]
+    end
+    EMB["sbert 768 chiều, max 256 token<br/>nạp mô hình ~45 s khi khởi động"]
+    OL["Ollama llama3.2<br/>RTX 3050 6 GB"]
+    TTS["gTTS<br/>gửi văn bản tới Google"]
+    EV["eval/: golden 30 câu, hit@k, MRR<br/>chạy tay, không có CI"]
+    U --> UP & CH & ST & MS
+    UP --> EMB --> CR
+    UP -->|"trích triplet 1,4 đến 1,7 s mỗi đoạn"| OL --> GR
+    CH --> CR
+    CH --> GR
+    CH --> OL
+    CH --> TTS
+    ST --> CR
+    ST --> OL
+    EV -.->|"nạp vào Chroma tạm"| CR

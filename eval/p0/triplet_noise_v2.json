@@ -1,0 +1,25 @@
+{
+  "label": "mẫu nhỏ, một máy, chưa có CI",
+  "doc": "bao-cao-bien-doi-gradient.pdf",
+  "n_chunks": 40,
+  "runs": 3,
+  "temperature": [
+    0.0
+  ],
+  "temperature_source": "bắt kwargs thật của backend.Ollama khi chạy",
+  "note": "so khớp tập triplet chữ thường (khử trùng lặp trong đoạn)",
+  "triplets_per_run": [
+    153,
+    153,
+    153
+  ],
+  "relative_diff": 0.0,
+  "mean_jaccard_per_chunk": 1.0,
+  "chunks_differing": 0,
+  "jaccard_pairs_mean": {
+    "1-2": 1.0,
+    "1-3": 1.0,
+    "2-3": 1.0
+  },
+  "jaccard_mean_all_pairs": 1.0
+}

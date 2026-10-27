@@ -1,0 +1,15 @@
+{
+  "label": "mẫu nhỏ, một máy, chưa có CI",
+  "doc": "bao-cao-bien-doi-gradient.pdf",
+  "n_chunks": 40,
+  "runs": 2,
+  "temperature": 0.0,
+  "note": "temperature mặc định của repo (0.0); so khớp tập triplet chữ thường (khử trùng lặp trong đoạn)",
+  "triplets_per_run": [
+    154,
+    153
+  ],
+  "relative_diff": 0.006493506493506494,
+  "mean_jaccard_per_chunk": 0.9533333333333334,
+  "chunks_differing": 3
+}

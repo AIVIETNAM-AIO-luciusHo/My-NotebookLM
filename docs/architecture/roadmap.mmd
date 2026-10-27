@@ -1,0 +1,22 @@
+%% LỘ TRÌNH các pha (xem PLAN.md)
+flowchart LR
+    P0["P0: bạn tick review,<br/>đo /chat, golden"]
+    P05["P0.5: CI + branch protection"]
+    P07["P0.7: cắt đoạn theo token"]
+    P1["P1: nạp hai pha"]
+    P15["P1.5: Notebook + data_policy"]
+    P2["P2: tách 5 cổng"]
+    P3["P3: Groq"]
+    P4["P4: MinIO + Redis/Celery"]
+    P5["P5: Pinecone + Neo4j"]
+    P6["P6: hybrid + reranker"]
+    P7["P7: slide sửa được"]
+    P8["P8: quiz đa dạng"]
+    P9["P9: Docker + CD"]
+    P0 --> P05 --> P07 --> P1 --> P15 --> P2
+    P2 --> P3 & P4 & P5 & P8
+    P0 --> P6
+    P07 --> P6
+    P6 --> P7
+    P05 --> P9
+    P2 --> P9
