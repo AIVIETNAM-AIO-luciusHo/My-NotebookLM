@@ -1,0 +1,8 @@
+%% QUY TẮC data_policy theo notebook, đích của P1.5
+flowchart TD
+    R["Yêu cầu theo notebook_id"] --> N{"data_policy"}
+    N -->|"local"| L["Nhà máy adapter: chỉ local<br/>Chroma, NetworkX, Ollama, đĩa, hàng đợi trong tiến trình<br/>TTS tắt"]
+    N -->|"cloud"| C{"Cấu hình cloud đủ và còn hạn mức?"}
+    C -->|"đủ"| CA["Adapter cloud đã chọn<br/>Groq, Pinecone, Neo4j, MinIO<br/>gTTS được bật"]
+    C -->|"thiếu, lỗi, hết hạn mức"| X["Từ chối, báo lỗi rõ<br/>KHÔNG chuyển dữ liệu sang chỗ khác<br/>KHÔNG tự trả phí"]
+    L --> T["Test spy trong CI:<br/>notebook local gọi adapter cloud thì thất bại"]

@@ -1,0 +1,41 @@
+{
+ "_nguon": "Leader tự đo 2026-10-26 trên máy dự án (WSL2, RTX 3050 6GB Laptop, 12 luồng CPU, 11 GB RAM, Ollama llama3.2). Script: bench_ingest.py (tuần tự, Chroma tạm) và bench_par.py (song song, 16 đoạn); lưu ở thư mục scratchpad của phiên, không nằm trong repo.",
+ "_luu_y": [
+  "llm_triplet_s_per_chunk chỉ lấy mẫu 5 đoạn đầu; llm_total_est_s là ngoại suy = giây/đoạn x số đoạn, KHÔNG phải đo toàn bộ.",
+  "import_and_load_embedding_model_s gồm nạp mô hình vietnamese-sbert; chỉ trả một lần khi khởi động.",
+  "Mẫu nhỏ, một lần chạy mỗi cấu hình, chưa lặp để lấy độ lệch chuẩn; lần tuần tự trong bench_par (2,07 giây/đoạn) khác lần trong bench_ingest (1,36–1,73 giây/đoạn) vì đoạn khác nhau và trạng thái máy.",
+  "Không đo được thiết bị chạy embedding (CPU hay GPU): chưa kiểm chứng."
+ ],
+ "tuan_tu_theo_giai_doan": {
+  "import_and_load_embedding_model_s": 45.18,
+  "gradient27": {
+   "pages": 27,
+   "chunks": 119,
+   "extract_s": 1.02,
+   "chunk_s": 0.001,
+   "embed_s": 2.04,
+   "chroma_add_s": 0.193,
+   "llm_triplet_s_per_chunk": 1.36,
+   "llm_total_est_s": 162
+  },
+  "prob55": {
+   "pages": 55,
+   "chunks": 137,
+   "extract_s": 1.28,
+   "chunk_s": 0.001,
+   "embed_s": 1.31,
+   "chroma_add_s": 0.105,
+   "llm_triplet_s_per_chunk": 1.73,
+   "llm_total_est_s": 237
+  }
+ },
+ "song_song_trich_triplet_16_doan": {
+  "n_chunks": 16,
+  "sequential_s": 33.11,
+  "threads2_s": 21.51,
+  "threads2_triplets": 49,
+  "threads4_s": 23.54,
+  "threads4_triplets": 49,
+  "sequential_triplets": 48
+ }
+}

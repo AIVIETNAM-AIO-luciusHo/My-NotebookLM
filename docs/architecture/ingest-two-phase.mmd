@@ -1,0 +1,29 @@
+%% LUỒNG NẠP HAI PHA, đích của P1
+sequenceDiagram
+    participant U as Người dùng
+    participant A as API
+    participant J as jobs.sqlite
+    participant F as Worker nhanh
+    participant S as Worker chậm
+    participant V as VectorStore
+    participant O as LLM
+    participant G as GraphStore
+    U->>A: POST /upload PDF
+    A->>J: tạo job, trạng thái queued
+    A-->>U: 202 + job_id, ngay lập tức
+    J->>F: pha nhanh
+    F->>V: chunk theo trang, embed, ghi vector
+    F->>J: fast_done, hỏi đáp được
+    U->>A: GET /jobs/id, poll hoặc SSE
+    A-->>U: fast_done, graph_ready=false
+    U->>A: POST /chat
+    A->>V: top-k vector
+    A-->>U: trả lời, graph_facts rỗng, graph_ready=false
+    J->>S: pha chậm, 1 luồng, nhường /chat
+    S->>O: trích triplet từng đoạn
+    S->>G: ghi cạnh, có khoá
+    S->>J: graph_done
+    U->>A: POST /chat
+    A->>V: top-k vector
+    A->>G: mở rộng 1 đến 2 hop
+    A-->>U: trả lời + graph_facts, graph_ready=true
