@@ -24,3 +24,10 @@ docs/book/
 # Eval
 eval/report*.json
 eval/_work/
+
+# Kết quả eval thô (sinh lại bằng script); chỉ giữ bản tóm tắt
+eval/p07/*
+!eval/p07/summary.json
+eval/p1/
+eval/p17/
+eval/p18/**/*.json
