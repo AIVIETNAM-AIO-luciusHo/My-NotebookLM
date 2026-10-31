@@ -121,6 +121,7 @@ def _upload(client: TestClient, filename: str, text: str) -> dict:
         files={"file": (filename, text.encode("utf-8"), "application/pdf")},
     )
     assert response.status_code == 200, response.text
+    backend.wait_for_jobs()  # P1: chờ pha chậm (đồ thị) xong
     return response.json()
 
 

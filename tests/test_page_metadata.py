@@ -43,6 +43,7 @@ def client(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> TestClient:
 def _up(client: TestClient, name: str, pages: list[str]) -> None:
     r = client.post("/upload", files={"file": (name, "\f".join(pages).encode(), "application/pdf")})
     assert r.status_code == 200, r.text
+    backend.wait_for_jobs()  # P1: chờ pha chậm xong
 
 
 def _metas() -> list[dict]:
