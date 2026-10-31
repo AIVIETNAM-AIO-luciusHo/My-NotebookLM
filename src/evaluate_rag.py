@@ -258,7 +258,14 @@ def fact_pages(graph: Any, facts: list[str]) -> list[tuple[str, int]]:
     return out
 
 
-def run_live(with_graph: bool = False) -> dict:
+def _pctl(xs: list[float], q: float) -> float:
+    xs = sorted(xs)
+    return xs[min(len(xs) - 1, round(q * (len(xs) - 1)))]
+
+
+def run_live(with_graph: bool = False, chunking: str = "char", out: str | None = None,
+             retrieval: str | None = None, embedding: str | None = None,
+             golden_path: str | None = None, bm25_tokens: str | None = None) -> dict:
     """Nạp 3 PDF vào Chroma/graph TẠM (eval/_work/), đo retrieval cho từng câu golden."""
     import json
     import os
@@ -273,27 +280,38 @@ def run_live(with_graph: bool = False) -> dict:
     # Phải đặt TRƯỚC khi import backend để không chạm chroma_db/ & knowledge_graph.graphml thật.
     os.environ["CHROMA_PATH"] = str(work / "chroma_db")
     os.environ["GRAPH_PATH"] = str(work / "knowledge_graph.graphml")
+    for k_, v_ in (("RETRIEVAL", retrieval), ("EMBEDDING", embedding), ("BM25_TOKENS", bm25_tokens)):
+        if v_:
+            os.environ[k_] = v_
     sys.path[:0] = [str(_ROOT), str(_ROOT / "src")]
 
     import backend  # noqa: E402
     from pypdf import PdfReader  # noqa: E402
 
     from eval import metrics  # noqa: E402
-    from eval.check_quotes import find_pdf, load_golden  # noqa: E402
+    from eval.check_quotes import find_pdf  # noqa: E402
 
     assert Path(backend.CHROMA_PATH).resolve() == (work / "chroma_db").resolve()
-    golden = load_golden()
+    import resource
+    import time
+
+    gp = Path(golden_path) if golden_path else _ROOT / "eval" / "golden.jsonl"
+    golden = [json.loads(l) for l in gp.read_text(encoding="utf-8").splitlines() if l.strip()]
     # Tất định: HNSW xây đa luồng cho kết quả xấp xỉ khác nhau giữa các lần chạy. Tạo trước
     # collection với 1 luồng + ef lớn hơn số chunk (~400) để tìm kiếm gần như vét cạn.
     client = backend.chromadb.PersistentClient(path=str(backend.CHROMA_PATH))
-    client.get_or_create_collection(backend.COLLECTION_NAME, metadata={
-        "hnsw:space": "cosine", "hnsw:num_threads": 1,
-        "hnsw:construction_ef": 1000, "hnsw:search_ef": 1000})
+    cmeta = {"hnsw:space": "cosine", "hnsw:num_threads": 1,
+             "hnsw:construction_ef": 1000, "hnsw:search_ef": 1000}
+    if backend.EMBEDDING != "sbert":
+        cmeta["embedding"] = backend.EMBEDDING
+    client.get_or_create_collection(
+        backend.retrieval.collection_name(backend.COLLECTION_NAME, backend.EMBEDDING), metadata=cmeta)
     del client
     col = backend._get_collection()
+    t_index = time.perf_counter()
     for name in sorted({g["doc"] for g in golden}):
         pages = [p.extract_text() or "" for p in PdfReader(find_pdf(name)).pages]
-        chunks, chunk_pages = backend._chunk_pages(pages)
+        chunks, chunk_pages = backend._chunk_pages(pages, chunking)
         col.add(
             ids=[f"{name}:{i}" for i in range(len(chunks))],  # id tất định
             documents=chunks,
@@ -301,9 +319,21 @@ def run_live(with_graph: bool = False) -> dict:
             metadatas=[{"source": name, "page": p} for p in chunk_pages],
         )
         logger.info("%s: %d chunks", name, len(chunks))
+    index_s = time.perf_counter() - t_index
 
+    # Giai đoạn truy hồi (gồm nhúng truy vấn): lượt 1 = lạnh (câu đầu) + xếp hạng; lượt 2 = nóng.
+    perf: dict = {}
+    if backend.RETRIEVAL != "vector":
+        t0 = time.perf_counter()
+        backend._bm25_index(col)
+        perf["bm25_build_s"] = round(time.perf_counter() - t0, 3)
     rows = []
+    cold: list[float] = []
     for g in golden:
+        if not cold:
+            t0 = time.perf_counter()
+            backend._query_workspace(col, g["question"], 8)
+            cold.append((time.perf_counter() - t0) * 1000)
         ranked = {k: [(h[2], h[3]) for h in backend._query_workspace(col, g["question"], k)] for k in _KS}
         if with_graph:  # ponytail: chỉ cài đặt, chưa chạy thật (cần Ollama); facts không đổi thứ hạng chunk
             ranked = {k: r + fact_pages(backend._knowledge_graph, backend._get_graph_context(
@@ -314,6 +344,24 @@ def run_live(with_graph: bool = False) -> dict:
             "cover": {k: metrics.full_cover_at_k(ranked[k], g["doc"], g["gold_pages"], k) for k in _KS},
             "rr": metrics.reciprocal_rank(ranked[8], g["doc"], g["gold_pages"], 8),
         })
+    hot = []
+    for g in golden:
+        t0 = time.perf_counter()
+        backend._query_workspace(col, g["question"], 8)
+        hot.append((time.perf_counter() - t0) * 1000)
+    try:
+        gpu = subprocess.check_output(["nvidia-smi", "--query-gpu=memory.used", "--format=csv,noheader,nounits"],
+                                      text=True).strip()
+    except Exception:
+        gpu = None
+    perf.update({
+        "index_s": round(index_s, 1), "chunks": col.count(),
+        "index_bytes": sum(f.stat().st_size for f in Path(backend.CHROMA_PATH).rglob("*") if f.is_file()),
+        "cold_first_query_ms": round(cold[0], 1),
+        "hot_p50_ms": round(_pctl(hot, 0.5), 1), "hot_p95_ms": round(_pctl(hot, 0.95), 1),
+        "rss_peak_mb": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024),
+        "gpu_used_mib_at_end_all_processes": gpu,
+    })
     try:
         rev = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=_ROOT, text=True).strip()
     except Exception:
@@ -322,14 +370,17 @@ def run_live(with_graph: bool = False) -> dict:
         "meta": {
             "git_rev": rev, "date": date.today().isoformat(), "k": list(_KS), "n": len(golden),
             "mode": "vector+graph" if with_graph else "vector-only",
+            "retrieval": backend.RETRIEVAL, "embedding": backend.EMBEDDING,
+            "bm25_tokens": backend.BM25_TOKENS, "golden": gp.name,
             "reviewed": sum(1 for g in golden if g["reviewed"]),
             "mrr_cutoff": 8, "status": "tạm thời (chưa AC-9)",
         },
+        "perf": perf,
         "metrics": metrics.aggregate(rows, _KS),
         "per_question": [{"id": r["id"], "type": r["type"], "rr": round(r["rr"], 4),
                           **{f"hit@{k}": r["hits"][k] for k in _KS}} for r in rows],
     }
-    (_ROOT / "eval" / "report.json").write_text(
+    (Path(out) if out else _ROOT / "eval" / "report.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report
 
@@ -345,10 +396,17 @@ if __name__ == "__main__":
     ap.add_argument("--live", action="store_true", help="retrieval-only trên 3 PDF (cần EVAL_PDF_DIR)")
     ap.add_argument("--vector-only", action="store_true", help="mặc định")
     ap.add_argument("--with-graph", action="store_true", help="thêm trang từ facts đồ thị (cần Ollama)")
+    ap.add_argument("--chunking", choices=["char", "token"], default="char", help="cách chia đoạn khi nạp")
+    ap.add_argument("--out", default=None, help="đường dẫn report (mặc định eval/report.json)")
+    ap.add_argument("--retrieval", choices=["vector", "hybrid", "hybrid_rerank"], default=None, help="mặc định vector")
+    ap.add_argument("--embedding", choices=["sbert", "bge-m3"], default=None, help="mặc định sbert")
+    ap.add_argument("--bm25-tokens", choices=["uni", "uni_bi"], default=None, help="mặc định uni")
+    ap.add_argument("--golden", default=None, help="tệp golden (mặc định eval/golden.jsonl)")
     args = ap.parse_args()
     if args.live:
         logging.basicConfig(level=logging.INFO)
-        rep = run_live(with_graph=args.with_graph)
+        rep = run_live(with_graph=args.with_graph, chunking=args.chunking, out=args.out, retrieval=args.retrieval,
+                       embedding=args.embedding, golden_path=args.golden, bm25_tokens=args.bm25_tokens)
         print(json.dumps(rep["metrics"], ensure_ascii=False, indent=2))
         raise SystemExit(0)
 

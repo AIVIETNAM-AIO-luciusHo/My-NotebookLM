@@ -1,0 +1,74 @@
+{
+  "quality": {
+    "char": {
+      "all": {
+        "mrr": 0.4393,
+        "cover@8": 0.5333,
+        "hit@4": 0.4667,
+        "hit@6": 0.5333,
+        "hit@8": 0.7667
+      },
+      "by_type": {
+        "fact": {
+          "mrr": 0.5143,
+          "cover@8": 0.6
+        },
+        "number": {
+          "mrr": 0.4176,
+          "cover@8": 0.9
+        },
+        "multi-hop": {
+          "mrr": 0.3861,
+          "cover@8": 0.1
+        }
+      }
+    },
+    "token": {
+      "all": {
+        "mrr": 0.3762,
+        "cover@8": 0.5333,
+        "hit@4": 0.5,
+        "hit@6": 0.6333,
+        "hit@8": 0.7
+      },
+      "by_type": {
+        "fact": {
+          "mrr": 0.3843,
+          "cover@8": 0.6
+        },
+        "number": {
+          "mrr": 0.4125,
+          "cover@8": 0.7
+        },
+        "multi-hop": {
+          "mrr": 0.3317,
+          "cover@8": 0.3
+        }
+      }
+    }
+  },
+  "cost": {
+    "char": {
+      "chunks": 398,
+      "embed_seconds": 4.56
+    },
+    "token": {
+      "chunks": 338,
+      "embed_seconds": 3.59
+    },
+    "ratio_chunks_token_over_char": 0.849,
+    "ratio_embed_time_token_over_char": 0.787,
+    "triplet_seconds_est": {
+      "char": {
+        "x1.4": 557,
+        "x1.7": 677
+      },
+      "token": {
+        "x1.4": 473,
+        "x1.7": 575
+      }
+    },
+    "note": "embedding: đo thật 1 lần, 1 máy, sau 1 lần khởi động; triplet: ngoại suy từ docs/data/ingest_bench.json (1,4 và 1,7 s/đoạn), không đo"
+  },
+  "label": "mẫu nhỏ (n=30), một máy"
+}
