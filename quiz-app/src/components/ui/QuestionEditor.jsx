@@ -75,7 +75,7 @@ const QuestionEditor = ({ question, index, onChange, onRemove, canRemove }) => {
   return (
     <div className={`${cardBg} rounded-xl p-5 space-y-4 animate-fadeInUp`}>
       <div className="flex items-start justify-between gap-3">
-        <h3 className={`text-lg font-bold ${classes.textColor}`}>Question {index + 1}</h3>
+        <h3 className={`text-lg font-bold ${classes.textColor}`}>Câu hỏi {index + 1}</h3>
         {canRemove && (
           <button
             type="button"
@@ -85,41 +85,41 @@ const QuestionEditor = ({ question, index, onChange, onRemove, canRemove }) => {
                 ? 'bg-red-900/40 text-red-300 hover:bg-red-900/60'
                 : 'bg-red-100 text-red-700 hover:bg-red-200'
             }`}
-            title="Remove question"
+            title="Xoá câu hỏi"
           >
-            Remove
+            Xoá
           </button>
         )}
       </div>
 
       <div>
         <label className={`block text-sm font-medium ${classes.mutedText} mb-1`}>
-          Question text
+          Nội dung câu hỏi
         </label>
         <textarea
           value={question.question}
           onChange={(e) => updateField('question', e.target.value)}
           rows={2}
           className={`w-full px-3 py-2 border-2 ${inputBg} rounded-lg focus:outline-none focus:border-indigo-500 resize-y`}
-          placeholder="Enter the question..."
+          placeholder="Nhập câu hỏi…"
         />
       </div>
 
       <div>
-        <label className={`block text-sm font-medium ${classes.mutedText} mb-2`}>Answer type</label>
+        <label className={`block text-sm font-medium ${classes.mutedText} mb-2`}>Kiểu đáp án</label>
         <div className="flex flex-wrap gap-2">
-          {typeButton('single', 'Single Choice')}
-          {typeButton('multi', 'Multiple Choice')}
+          {typeButton('single', 'Một đáp án')}
+          {typeButton('multi', 'Nhiều đáp án')}
         </div>
       </div>
 
       <div>
         <label className={`block text-sm font-medium ${classes.mutedText} mb-2`}>
-          Options{' '}
+          Các lựa chọn{' '}
           <span className="font-normal">
             ({question.type === 'single'
-              ? 'select one correct answer'
-              : 'select all that are correct'})
+              ? 'chọn một đáp án đúng'
+              : 'chọn tất cả đáp án đúng'})
           </span>
         </label>
         <div className="space-y-2">
@@ -146,20 +146,20 @@ const QuestionEditor = ({ question, index, onChange, onRemove, canRemove }) => {
               : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
           }`}
         >
-          Add Option
+          Thêm đáp án
         </button>
       </div>
 
       <div>
         <label className={`block text-sm font-medium ${classes.mutedText} mb-1`}>
-          Explanation <span className="font-normal">(optional)</span>
+          Giải thích <span className="font-normal">(tuỳ chọn)</span>
         </label>
         <textarea
           value={question.explanation}
           onChange={(e) => updateField('explanation', e.target.value)}
           rows={2}
           className={`w-full px-3 py-2 border-2 ${inputBg} rounded-lg focus:outline-none focus:border-indigo-500 resize-y`}
-          placeholder="Shown to the user after they answer..."
+          placeholder="Hiện cho người làm sau khi trả lời…"
         />
       </div>
 
@@ -171,7 +171,7 @@ const QuestionEditor = ({ question, index, onChange, onRemove, canRemove }) => {
           className="w-4 h-4 accent-indigo-600"
         />
         <span className={`text-sm ${classes.mutedText}`}>
-          Never shuffle options for this question (sets <code>shuffle: 0</code>)
+          Không xáo trộn lựa chọn của câu này (đặt <code>shuffle: 0</code>)
         </span>
       </label>
     </div>

@@ -10,7 +10,7 @@
 
 import { hashQuiz } from './storage.js';
 
-export const SAMPLE_QUIZ_NAME = 'Sample Quiz';
+export const SAMPLE_QUIZ_NAME = 'Quiz mẫu';
 
 export const sampleQuizData = {
   questions: [

@@ -69,7 +69,7 @@ const ResultPage = ({
                       ? isDarkMode ? 'bg-green-800 text-green-300' : 'bg-green-100 text-green-700'
                       : isDarkMode ? 'bg-red-800 text-red-300' : 'bg-red-100 text-red-700'
                   }`}
-                  title="Change since your most recent attempt of the same size"
+                  title="Thay đổi so với lần làm gần nhất có cùng số câu"
                 >
                   {formatDelta(delta)}
                 </span>
@@ -77,16 +77,16 @@ const ResultPage = ({
             </div>
           </div>
           <h2 className={`text-3xl font-bold ${classes.textColor} mb-2`}>
-            {isHistoryView ? 'Past Attempt' : 'Quiz Complete!'}{showPercentage && ` (${settings.quizSize}%)`}
+            {isHistoryView ? 'Lần làm trước' : 'Hoàn thành bài quiz!'}{showPercentage && ` (${settings.quizSize}%)`}
           </h2>
           <p className={classes.mutedText}>
-            {isHistoryView ? 'Reviewing a saved attempt' : 'Here are your results'}
+            {isHistoryView ? 'Xem lại một lần làm đã lưu' : 'Đây là kết quả của bạn'}
           </p>
         </div>
 
         <div className="space-y-4 mb-8">
           <div className={`flex justify-between items-center p-4 ${isDarkMode ? 'bg-green-900' : 'bg-green-50'} rounded-lg`}>
-            <span className={`font-medium ${classes.mutedText}`}>Correct Answers</span>
+            <span className={`font-medium ${classes.mutedText}`}>Câu đúng</span>
             <span className={`text-2xl font-bold ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
               {correctCount} <span className={`text-lg font-normal ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>/{totalQuestions}</span>
             </span>
@@ -94,7 +94,7 @@ const ResultPage = ({
 
           {hasMultiChoice && (
             <div className={`flex justify-between items-center p-4 ${isDarkMode ? 'bg-yellow-900' : 'bg-yellow-50'} rounded-lg`}>
-              <span className={`font-medium ${classes.mutedText}`}>Partial Correct Answers</span>
+              <span className={`font-medium ${classes.mutedText}`}>Câu đúng một phần</span>
               <span className={`text-2xl font-bold ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>
                 {partialCount} <span className={`text-lg font-normal ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>/{totalQuestions}</span>
               </span>
@@ -102,14 +102,14 @@ const ResultPage = ({
           )}
 
           <div className={`flex justify-between items-center p-4 ${isDarkMode ? 'bg-red-900' : 'bg-red-50'} rounded-lg`}>
-            <span className={`font-medium ${classes.mutedText}`}>Incorrect Answers</span>
+            <span className={`font-medium ${classes.mutedText}`}>Câu sai</span>
             <span className={`text-2xl font-bold ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
               {incorrectCount} <span className={`text-lg font-normal ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>/{totalQuestions}</span>
             </span>
           </div>
 
           <div className={`flex justify-between items-center p-4 ${isDarkMode ? 'bg-indigo-900' : 'bg-indigo-50'} rounded-lg`}>
-            <span className={`font-medium ${classes.mutedText}`}>Final Score (out of 10)</span>
+            <span className={`font-medium ${classes.mutedText}`}>Điểm cuối (trên 10)</span>
             <span className={`text-2xl font-bold ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>{score}</span>
           </div>
         </div>
@@ -119,68 +119,68 @@ const ResultPage = ({
             variant="blue"
             onClick={onReviewAnswers}
             className="w-full flex items-center justify-center"
-            title="Review answers"
+            title="Xem lại đáp án"
           >
             <IconEye className="w-5 h-5 mr-2" />
-            Review Answers
+            Xem lại đáp án
           </Button>
           <Button
             onClick={handleRetry}
             className="w-full flex items-center justify-center"
-            title="Retry Quiz"
+            title="Làm lại"
           >
             <IconRetry className="w-5 h-5 mr-2" />
-            Retry Quiz
+            Làm lại
           </Button>
           {isHistoryView ? (
             <Button
               variant="neutral"
               onClick={onReturnBack}
               className="w-full flex items-center justify-center"
-              title="Return back"
+              title="Quay lại"
             >
               <IconChevronLeft className="w-5 h-5 mr-2" />
-              Return Back
+              Quay lại
             </Button>
           ) : (
             <Button
               variant="neutral"
               onClick={handleFinish}
               className="w-full flex items-center justify-center"
-              title="Return to Upload"
+              title="Về trang tải lên"
             >
               <IconClose className="w-5 h-5 mr-2" />
-              Finish
+              Kết thúc
             </Button>
           )}
         </div>
       </div>
 
       {showRetryModal && (
-        <Modal title="Retry Quiz" description="Choose how you want to retry the quiz:">
+        <Modal title="Làm lại" description="Chọn cách làm lại bài quiz:">
           <Button
             onClick={() => { setShowRetryModal(false); onRetrySameLayout(); }}
             className="w-full"
-            title="Retry previous Quiz"
+            title="Làm lại bài trước"
           >
-            Same Layout
+            Giữ nguyên thứ tự
             <span className="block text-sm text-indigo-200 mt-1">
-              Keep the same question and option order
+              Giữ nguyên thứ tự câu hỏi và đáp án
             </span>
           </Button>
           <Button
             variant="purple"
             onClick={() => { setShowRetryModal(false); onRetryNewShuffle(); }}
             className="w-full"
-            title="Do a new Quiz"
+            title="Làm bài mới"
           >
-            New Shuffle
+            Xáo trộn lại
             <span className="block text-sm text-purple-200 mt-1">
-              Randomize questions and options again
+              Xáo trộn lại câu hỏi và đáp án
             </span>
           </Button>
-          <Button variant="secondary" onClick={() => setShowRetryModal(false)} className="w-full" title="Return">
-            Cancel
+          <Button variant="secondary" onClick={() => setShowRetryModal(false)} className="w-full" title="Đóng">
+            Huỷ
           </Button>
         </Modal>
       )}

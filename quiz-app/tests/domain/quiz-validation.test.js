@@ -24,8 +24,8 @@ test('accepts a valid quiz containing single-choice and multiple-choice question
 });
 
 test('requires a top-level questions array', () => {
-  assert.equal(validateQuizData({}), 'Invalid format: missing "questions" array');
-  assert.equal(validateQuizData({ questions: 'not-an-array' }), 'Invalid format: missing "questions" array');
+  assert.equal(validateQuizData({}), 'Định dạng không hợp lệ: thiếu mảng "questions"');
+  assert.equal(validateQuizData({ questions: 'not-an-array' }), 'Định dạng không hợp lệ: thiếu mảng "questions"');
 });
 
 test('requires each question to include non-empty text, options, and correctAnswer', () => {
@@ -40,7 +40,7 @@ test('requires each question to include non-empty text, options, and correctAnsw
   for (const question of cases) {
     assert.equal(
       validateQuizData({ questions: [question] }),
-      'Invalid question format at index 0',
+      'Định dạng câu hỏi không hợp lệ ở vị trí 0',
     );
   }
 });
@@ -48,13 +48,13 @@ test('requires each question to include non-empty text, options, and correctAnsw
 test('requires at least two non-empty string options per question', () => {
   assert.equal(
     validateQuizData({ questions: [{ question: 'Only one?', options: ['A'], correctAnswer: 0 }] }),
-    'Question 0 must have at least 2 options',
+    'Câu 0 phải có ít nhất 2 đáp án',
   );
 
   for (const options of [['A', ''], ['A', '   '], ['A', 2]]) {
     assert.equal(
       validateQuizData({ questions: [{ question: 'Bad option?', options, correctAnswer: 0 }] }),
-      'Question 0 has an invalid option',
+      'Câu 0 có đáp án không hợp lệ',
     );
   }
 });
@@ -65,7 +65,7 @@ test('requires single-choice correctAnswer to be an integer option index', () =>
   for (const correctAnswer of invalidAnswers) {
     assert.equal(
       validateQuizData({ questions: [{ question: 'Pick one', options: ['A', 'B'], correctAnswer }] }),
-      'Invalid correctAnswer index for question 0',
+      'Chỉ số correctAnswer của câu 0 không hợp lệ',
     );
   }
 });
@@ -73,22 +73,22 @@ test('requires single-choice correctAnswer to be an integer option index', () =>
 test('requires multiple-choice correctAnswer to contain unique integer option indices', () => {
   assert.equal(
     validateQuizData({ questions: [{ question: 'Pick many', options: ['A', 'B'], correctAnswer: [] }] }),
-    'Question 0 must have at least one correct answer',
+    'Câu 0 phải có ít nhất một đáp án đúng',
   );
 
   assert.equal(
     validateQuizData({ questions: [{ question: 'Pick many', options: ['A', 'B'], correctAnswer: [0, 2] }] }),
-    'Invalid index 2 in correctAnswer for question 0',
+    'Chỉ số 2 trong correctAnswer của câu 0 không hợp lệ',
   );
 
   assert.equal(
     validateQuizData({ questions: [{ question: 'Pick many', options: ['A', 'B'], correctAnswer: [0, '1'] }] }),
-    'Invalid index 1 in correctAnswer for question 0',
+    'Chỉ số 1 trong correctAnswer của câu 0 không hợp lệ',
   );
 
   assert.equal(
     validateQuizData({ questions: [{ question: 'Pick many', options: ['A', 'B'], correctAnswer: [0, 0] }] }),
-    'Duplicate index 0 in correctAnswer for question 0',
+    'Chỉ số 0 bị lặp trong correctAnswer của câu 0',
   );
 });
 

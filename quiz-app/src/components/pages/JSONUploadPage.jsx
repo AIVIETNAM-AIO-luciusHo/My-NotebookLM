@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { BACKEND } from '../../lib/api';
+import { api } from '../../lib/api';
 import { processQuizData, readQuizFile, stripQuizExtension } from '../../utils/utils.js';
 import { sortLibrary, hashQuiz } from '../../utils/storage.js';
 import { loadHistory } from '../../utils/history.js';
@@ -109,7 +109,7 @@ const JSONUploadPage = ({
       return;
     }
     if (data.questions.length < 2) {
-      setError('Quiz must contain at least 2 questions');
+      setError('Bài quiz phải có ít nhất 2 câu hỏi');
       setUploadedFileInfo(null);
       return;
     }
@@ -186,35 +186,19 @@ const JSONUploadPage = ({
   };
 
   const handleAIGenerate = async () => {
-    if (!aiPdf) { setAiError('Please select a PDF file.'); return; }
-    if (!aiTopic.trim()) { setAiError('Please enter a topic.'); return; }
+    if (!aiPdf) { setAiError('Hãy chọn một tệp PDF.'); return; }
+    if (!aiTopic.trim()) { setAiError('Hãy nhập chủ đề.'); return; }
 
     setAiStage('uploading');
     setAiError('');
     try {
       // Step 1: Upload and index the PDF into ChromaDB
-      const formData = new FormData();
-      formData.append('file', aiPdf);
-      const uploadRes = await fetch(`${BACKEND}/upload`, { method: 'POST', body: formData });
-      if (!uploadRes.ok) {
-        const err = await uploadRes.json();
-        throw new Error(err.detail ?? 'PDF upload failed.');
-      }
+      await api.upload(aiPdf);
 
       // Step 2: Ask the LLM to generate quiz JSON from indexed content
       setAiStage('generating');
-      const quizRes = await fetch(`${BACKEND}/generate-quiz`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: aiTopic.trim(), num_questions: parseInt(aiNumQ) || 5 }),
-      });
-      if (!quizRes.ok) {
-        const err = await quizRes.json();
-        throw new Error(err.detail ?? 'Quiz generation failed.');
-      }
-
-      const quizData = await quizRes.json();
-      if (!quizData.questions?.length) throw new Error('No questions generated. Try a different topic.');
+      const quizData = await api.generateQuiz({ topic: aiTopic.trim(), num_questions: parseInt(aiNumQ) || 5 });
+      if (!quizData.questions?.length) throw new Error('Không tạo được câu hỏi nào. Hãy thử chủ đề khác.');
 
       // Save to the library so the quiz appears in the user's history
       const name = quizData.title ?? aiTopic.trim();
@@ -250,28 +234,28 @@ const JSONUploadPage = ({
     const sizeValue = quizSize.trim();
 
     if (sizeValue === '') {
-      setError('Please enter a quiz size value');
+      setError('Hãy nhập số lượng câu hỏi');
       return;
     }
 
     const parsedSize = parseInt(sizeValue);
     if (isNaN(parsedSize)) {
-      setError('Quiz size must be a valid number');
+      setError('Số lượng câu hỏi phải là một số hợp lệ');
       return;
     }
 
     if (quizSizeMode === 'percentage') {
       if (parsedSize < 10 || parsedSize > 100) {
-        setError('Quiz Size must be between 10% and 100%');
+        setError('Tỉ lệ phải nằm trong khoảng 10% đến 100%');
         return;
       }
     } else {
       if (parsedSize < 2) {
-        setError('Quiz must have at least 2 questions');
+        setError('Bài quiz phải có ít nhất 2 câu hỏi');
         return;
       }
       if (parsedSize > uploadedFileInfo.questionCount) {
-        setError(`Question count cannot exceed ${uploadedFileInfo.questionCount}`);
+        setError(`Số câu không được vượt quá ${uploadedFileInfo.questionCount}`);
         return;
       }
     }
@@ -295,8 +279,8 @@ const JSONUploadPage = ({
           <div className={`${isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'} w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4`}>
             <IconUpload className={`w-10 h-10 ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
           </div>
-          <h1 className={`text-3xl font-bold ${classes.textColor} mb-2`}>Quiz Application</h1>
-          <p className={classes.mutedText}>Upload a JSON or TXT file to start your quiz</p>
+          <h1 className={`text-3xl font-bold ${classes.textColor} mb-2`}>Ứng dụng Quiz</h1>
+          <p className={classes.mutedText}>Tải lên tệp JSON hoặc TXT để bắt đầu làm quiz</p>
         </div>
 
         <div className="space-y-4">
@@ -305,9 +289,9 @@ const JSONUploadPage = ({
               <div className={`border-2 border-dashed ${isDarkMode ? 'border-indigo-500' : 'border-indigo-300'} rounded-lg p-6 min-h-[192px] flex flex-col items-center justify-center text-center hover:border-indigo-500 transition-colors cursor-pointer`}>
                 <input type="file" accept=".json,.txt" onChange={handleFileUpload} className="hidden" />
                 <IconUpload className={`w-12 h-12 ${isDarkMode ? 'text-indigo-400' : 'text-indigo-400'} mx-auto mb-2`} />
-                <p className={`${classes.textColor} font-medium`}>Click to upload JSON or TXT file</p>
-                <p className={`${classes.mutedText} text-sm mt-1`}>or drag and drop</p>
-                <p className={`${classes.mutedText} text-xs mt-2`}>Supported formats: .json, .txt</p>
+                <p className={`${classes.textColor} font-medium`}>Bấm để tải lên tệp JSON hoặc TXT</p>
+                <p className={`${classes.mutedText} text-sm mt-1`}>hoặc kéo thả tệp vào đây</p>
+                <p className={`${classes.mutedText} text-xs mt-2`}>Định dạng hỗ trợ: .json, .txt</p>
               </div>
             </label>
           ) : (
@@ -316,15 +300,15 @@ const JSONUploadPage = ({
                 <IconButton
                   tone="emerald"
                   onClick={() => setShareTarget({ rawData: uploadedFileInfo.rawData, name: uploadedFileInfo.name })}
-                  aria-label="Share quiz"
-                  title="Share via link"
+                  aria-label="Chia sẻ quiz"
+                  title="Chia sẻ bằng liên kết"
                 >
                   <IconShare className="w-5 h-5" />
                 </IconButton>
-                <IconButton tone="indigo" onClick={editCurrentQuiz} aria-label="Edit quiz" title="Edit questions">
+                <IconButton tone="indigo" onClick={editCurrentQuiz} aria-label="Sửa quiz" title="Sửa câu hỏi">
                   <IconPencil className="w-5 h-5" />
                 </IconButton>
-                <IconButton tone="red" onClick={handleRemoveFile} aria-label="Remove file" title="Remove file">
+                <IconButton tone="red" onClick={handleRemoveFile} aria-label="Bỏ tệp" title="Bỏ tệp">
                   <IconClose className="w-5 h-5" />
                 </IconButton>
               </div>
@@ -335,7 +319,7 @@ const JSONUploadPage = ({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className={`font-semibold ${classes.textColor} mb-1 truncate`} title={uploadedFileInfo.name}>{uploadedFileInfo.name}</p>
-                  <p className={`${classes.mutedText} text-sm`}>{uploadedFileInfo.questionCount} questions loaded</p>
+                  <p className={`${classes.mutedText} text-sm`}>Đã nạp {uploadedFileInfo.questionCount} câu hỏi</p>
                   <ConfigChips
                     settings={{ shuffleQuestions, shuffleOptions, quizSize: parseInt(quizSize, 10), quizSizeMode }}
                     className="mt-2"
@@ -346,9 +330,9 @@ const JSONUploadPage = ({
               <Button
                 onClick={startQuiz}
                 className="w-full flex items-center justify-center gap-2"
-                title="Start Quiz"
+                title="Bắt đầu làm quiz"
               >
-                Start Quiz
+                Bắt đầu làm quiz
                 <IconArrowRight className="w-5 h-5" />
               </Button>
             </div>
@@ -361,10 +345,10 @@ const JSONUploadPage = ({
               type="button"
               onClick={() => setShowLibrary(true)}
               className={`w-full flex items-center justify-between px-4 py-3 ${classes.inputBgPlain} border-2 rounded-lg hover:border-indigo-500 transition-colors`}
-              title="Choose a previously uploaded quiz"
+              title="Chọn một bài quiz đã tải lên trước đó"
             >
               <span className={`font-medium ${classes.textColor}`}>
-                Choose a Saved Quiz
+                Chọn quiz đã lưu
                 <span className={`ml-2 text-sm ${classes.mutedText}`}>({library.length})</span>
               </span>
               <IconChevronRight className={`w-5 h-5 ${classes.mutedText}`} />
@@ -376,11 +360,11 @@ const JSONUploadPage = ({
               type="button"
               onClick={() => selectFromLibrary(sampleQuizEntry)}
               className={`w-full flex items-center justify-between px-4 py-3 ${classes.inputBgPlain} border-2 rounded-lg hover:border-indigo-500 transition-colors`}
-              title="Load the built-in sample quiz to try the app"
+              title="Nạp bài quiz mẫu (tiếng Anh) để dùng thử"
             >
               <span className={`font-medium ${classes.textColor}`}>
-                Load a sample quiz
-                <span className={`ml-2 text-sm ${classes.mutedText}`}>({sampleQuizEntry.questionCount} questions)</span>
+                Nạp quiz mẫu
+                <span className={`ml-2 text-sm ${classes.mutedText}`}>({sampleQuizEntry.questionCount} câu)</span>
               </span>
               <IconChevronRight className={`w-5 h-5 ${classes.mutedText}`} />
             </button>
@@ -389,9 +373,9 @@ const JSONUploadPage = ({
           <div className={`p-4 ${classes.inputBgPlain} rounded-lg space-y-3`}>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <label htmlFor="quizSize" className={`font-medium ${classes.textColor} block`}>Quiz Size</label>
+                <label htmlFor="quizSize" className={`font-medium ${classes.textColor} block`}>Số câu hỏi</label>
                 <p className={`text-sm ${classes.mutedText} break-words`}>
-                  {quizSizeMode === 'percentage' ? 'Take a percentage of questions' : 'Specify exact number of questions'}
+                  {quizSizeMode === 'percentage' ? 'Lấy theo phần trăm số câu' : 'Chỉ định số câu cụ thể'}
                 </p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
@@ -402,7 +386,7 @@ const JSONUploadPage = ({
                       ? 'bg-indigo-600 text-white'
                       : `${isDarkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-300 text-gray-700'}`
                   }`}
-                  title="Percentage (%)"
+                  title="Phần trăm (%)"
                 >
                   %
                 </button>
@@ -413,7 +397,7 @@ const JSONUploadPage = ({
                       ? 'bg-indigo-600 text-white'
                       : `${isDarkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-300 text-gray-700'}`
                   }`}
-                  title="Number (#)"
+                  title="Số lượng (#)"
                 >
                   #
                 </button>
@@ -433,21 +417,21 @@ const JSONUploadPage = ({
                 } rounded-lg font-semibold focus:outline-none focus:border-indigo-500`}
               />
               <span className={`${classes.mutedText} font-medium whitespace-nowrap flex-shrink-0`}>
-                {quizSizeMode === 'percentage' ? '%' : 'questions'}
+                {quizSizeMode === 'percentage' ? '%' : 'câu'}
               </span>
             </div>
           </div>
 
           <div className="space-y-3">
             <SettingToggle
-              label="Shuffle Questions"
-              description="Randomize question order"
+              label="Xáo trộn câu hỏi"
+              description="Đổi ngẫu nhiên thứ tự câu hỏi"
               checked={shuffleQuestions}
               onChange={() => setShuffleQuestions(!shuffleQuestions)}
             />
             <SettingToggle
-              label="Shuffle Options"
-              description="Randomize answer choices"
+              label="Xáo trộn đáp án"
+              description="Đổi ngẫu nhiên thứ tự đáp án"
               checked={shuffleOptions}
               onChange={() => setShuffleOptions(!shuffleOptions)}
             />
@@ -455,7 +439,7 @@ const JSONUploadPage = ({
         </div>
 
         <div className={`mt-6 p-4 ${classes.inputBgPlain} rounded-lg`}>
-          <p className={`text-sm ${classes.mutedText} font-medium mb-2`}>Expected JSON format:</p>
+          <p className={`text-sm ${classes.mutedText} font-medium mb-2`}>Định dạng JSON mong đợi:</p>
           <pre className={`text-xs ${isDarkMode ? 'bg-gray-900 text-gray-300' : 'bg-white text-gray-800'} p-2 rounded border overflow-x-auto`}>
 {`{
   "questions": [
@@ -471,16 +455,16 @@ const JSONUploadPage = ({
 `}
           </pre>
           <div className={`text-sm ${classes.mutedText} font-medium mt-2 space-y-1`}>
-            <p>Note:</p>
-            <p>Both .json and .txt are accepted; the file must contain valid quiz JSON.</p>
-            <p>"explanation" and "shuffle" are optional.</p>
-            <p>"shuffle": 0 prevents option shuffling for that specific question.</p>
-            <p>"correctAnswer" can be a number (single choice) or an array of indices (multiple choice).</p>
+            <p>Lưu ý:</p>
+            <p>Nhận cả .json và .txt; nội dung phải là JSON quiz hợp lệ.</p>
+            <p>"explanation" và "shuffle" là tuỳ chọn.</p>
+            <p>"shuffle": 0 giữ nguyên thứ tự đáp án của câu đó.</p>
+            <p>"correctAnswer" là một số (một đáp án) hoặc mảng chỉ số (nhiều đáp án).</p>
           </div>
         </div>
 
         <div className={`mt-6 p-4 ${classes.inputBgPlain} rounded-lg`}>
-          <p className={`text-sm ${classes.mutedText} mb-3 text-center`}>Don't have a quiz file yet?</p>
+          <p className={`text-sm ${classes.mutedText} mb-3 text-center`}>Chưa có tệp quiz?</p>
           <Button
             variant="purple"
             onClick={() => {
@@ -488,9 +472,9 @@ const JSONUploadPage = ({
               setView('create');
             }}
             className="w-full"
-            title="Create your own quiz"
+            title="Tự tạo bài quiz"
           >
-            Create Your Own Quiz
+            Tự tạo quiz
           </Button>
         </div>
 
@@ -503,18 +487,18 @@ const JSONUploadPage = ({
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
             <p className={`text-sm font-semibold ${isDarkMode ? 'text-violet-300' : 'text-violet-700'}`}>
-              NotebookLM Auto-Quiz
+              Quiz tự động từ NotebookLM
             </p>
           </div>
           <p className={`text-xs ${classes.mutedText}`}>
-            Upload a PDF, type a topic, and jump straight into the quiz — no file editing needed.
+            Tải lên PDF, nhập chủ đề và làm quiz ngay, không cần soạn tệp.
           </p>
 
           <label className={`flex items-center gap-2 px-3 py-2 border-2 border-dashed ${
             isDarkMode ? 'border-violet-500 text-violet-300' : 'border-violet-300 text-violet-700'
           } rounded-lg cursor-pointer hover:border-violet-500 transition-colors`}>
             <span className="text-sm font-medium truncate">
-              {aiPdf ? aiPdf.name : 'Click to select PDF'}
+              {aiPdf ? aiPdf.name : 'Bấm để chọn PDF'}
             </span>
             <input
               ref={aiFileRef}
@@ -529,14 +513,14 @@ const JSONUploadPage = ({
             type="text"
             value={aiTopic}
             onChange={(e) => setAiTopic(e.target.value)}
-            placeholder="Topic (e.g. Photosynthesis)"
+            placeholder="Chủ đề (vd: Quang hợp)"
             className={`w-full px-3 py-2 border-2 rounded-lg text-sm focus:outline-none focus:border-violet-500 ${
               isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300 text-gray-800'
             }`}
           />
 
           <div className="flex items-center gap-2">
-            <label className={`text-sm ${classes.mutedText} whitespace-nowrap`}>Questions:</label>
+            <label className={`text-sm ${classes.mutedText} whitespace-nowrap`}>Số câu:</label>
             <input
               type="number"
               min="1"
@@ -555,7 +539,7 @@ const JSONUploadPage = ({
                 isDarkMode ? 'border-violet-400' : 'border-violet-600'
               }`} />
               <p className={`text-sm font-medium ${isDarkMode ? 'text-violet-300' : 'text-violet-600'}`}>
-                {aiStage === 'uploading' ? 'Reading Document…' : 'AI is generating questions…'}
+                {aiStage === 'uploading' ? 'Đang đọc tài liệu…' : 'AI đang tạo câu hỏi…'}
               </p>
             </div>
           )}
@@ -567,13 +551,13 @@ const JSONUploadPage = ({
             onClick={handleAIGenerate}
             disabled={!!aiStage}
             className="w-full"
-            title="Generate quiz from PDF and start playing immediately"
+            title="Tạo quiz từ PDF rồi làm ngay"
           >
             {aiStage === 'uploading'
-              ? 'Reading Document…'
+              ? 'Đang đọc tài liệu…'
               : aiStage === 'generating'
-                ? 'Generating Questions…'
-                : 'Generate & Play Quiz'}
+                ? 'Đang tạo câu hỏi…'
+                : 'Tạo quiz và làm ngay'}
           </Button>
         </div>
 
@@ -584,7 +568,7 @@ const JSONUploadPage = ({
             rel="noopener noreferrer"
             className="text-sm text-indigo-600 hover:text-indigo-800 underline"
           >
-            View on GitHub
+            Xem trên GitHub
           </a>
         </div>
       </div>

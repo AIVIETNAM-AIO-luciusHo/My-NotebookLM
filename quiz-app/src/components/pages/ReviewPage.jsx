@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BACKEND } from '../../lib/api';
+import { api } from '../../lib/api';
 import {
   calculateQuestionScore,
   isCorrectOption,
@@ -23,20 +23,8 @@ const ReviewPage = ({ quizData, answers, setView, onOpenHistory }) => {
   const askTutor = async (idx, questionText) => {
     setTutor(idx, { loading: true, answer: '', sources: [], error: '' });
     try {
-      const res = await fetch(`${BACKEND}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: questionText }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail ?? 'AI Tutor request failed.');
-      }
-      const data = await res.json();
-      setTutor(idx, { loading: false, answer: data.answer, sources: data.sources ?? [], error: '' });
-      if (data.audio_base64) {
-        new Audio(data.audio_base64).play().catch(() => {});
-      }
+      const data = await api.chat(questionText);
+      setTutor(idx, { loading: false, answer: data.answer, audio: data.audio_base64 || '', sources: data.sources ?? [], error: '' });
     } catch (e) {
       setTutor(idx, { loading: false, answer: '', sources: [], error: e.message });
     }
@@ -63,15 +51,15 @@ const ReviewPage = ({ quizData, answers, setView, onOpenHistory }) => {
             onClick={() => setView('results')}
             className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all shadow-lg"
           >
-            ← Back to Results
+            ← Về kết quả
           </button>
         </div>
 
         <div className={`${classes.cardBg} rounded-xl shadow-lg p-6 mb-6`}>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className={`text-2xl font-bold ${classes.textColor} mb-2`}>Review All Answers</h2>
-              <p className={classes.mutedText}>See all questions, correct answers, and explanations</p>
+              <h2 className={`text-2xl font-bold ${classes.textColor} mb-2`}>Xem lại tất cả đáp án</h2>
+              <p className={classes.mutedText}>Xem toàn bộ câu hỏi, đáp án đúng và giải thích</p>
             </div>
             {onOpenHistory && (
               <button
@@ -80,10 +68,10 @@ const ReviewPage = ({ quizData, answers, setView, onOpenHistory }) => {
                 className={`flex-shrink-0 inline-flex items-center gap-1.5 text-sm font-medium ${
                   isDarkMode ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-600 hover:text-indigo-800'
                 } hover:underline`}
-                title="See past attempts of this quiz"
+                title="Xem các lần làm trước của bài quiz này"
               >
                 <IconHistory className="w-4 h-4" />
-                Results history
+                Lịch sử kết quả
               </button>
             )}
           </div>
@@ -112,9 +100,9 @@ const ReviewPage = ({ quizData, answers, setView, onOpenHistory }) => {
                           ? 'bg-purple-900 text-purple-300 hover:bg-purple-800 disabled:opacity-50'
                           : 'bg-purple-100 text-purple-700 hover:bg-purple-200 disabled:opacity-50'
                       }`}
-                      title="Ask the AI Tutor about this question"
+                      title="Hỏi trợ giảng AI về câu này"
                     >
-                      {tutorState[idx]?.loading ? '⏳ Asking…' : '🎓 Ask AI Tutor'}
+                      {tutorState[idx]?.loading ? '⏳ Đang hỏi…' : '🎓 Hỏi trợ giảng AI'}
                     </button>
                   </div>
                 </div>
@@ -125,7 +113,7 @@ const ReviewPage = ({ quizData, answers, setView, onOpenHistory }) => {
                     const selectedByUser = isOptionChosen(userAnswer, optIdx);
                     // A correct option the user missed is shown like the quiz
                     // runner: a green dashed box (still the right answer) with a
-                    // red "Unchosen" X. The green "✓ Correct" tick only appears
+                    // red "Unchosen" X. The green "✓ Đúng" tick only appears
                     // when the user actually picked the correct option.
                     const missedCorrect = correct && !selectedByUser;
 
@@ -153,21 +141,21 @@ const ReviewPage = ({ quizData, answers, setView, onOpenHistory }) => {
                             <span className={`ml-2 font-medium text-sm flex items-center ${
                               isDarkMode ? 'text-red-400' : 'text-red-700'
                             }`}>
-                              ✗ Unchosen
+                              ✗ Chưa chọn
                             </span>
                           )}
                           {correct && !missedCorrect && (
                             <span className={`ml-2 font-medium text-sm flex items-center ${
                               isDarkMode ? 'text-green-400' : 'text-green-700'
                             }`}>
-                              ✓ Correct
+                              ✓ Đúng
                             </span>
                           )}
                           {selectedByUser && !correct && (
                             <span className={`ml-2 font-medium text-sm flex items-center ${
                               isDarkMode ? 'text-red-400' : 'text-red-700'
                             }`}>
-                              ✗ Your answer
+                              ✗ Bạn chọn
                             </span>
                           )}
                         </div>
@@ -184,7 +172,7 @@ const ReviewPage = ({ quizData, answers, setView, onOpenHistory }) => {
                     isDarkMode ? 'bg-purple-900/30 border-purple-700' : 'bg-purple-50 border-purple-200'
                   }`}>
                     <p className={`text-sm font-semibold ${isDarkMode ? 'text-purple-300' : 'text-purple-800'}`}>
-                      🎓 AI Tutor
+                      🎓 Trợ giảng AI
                     </p>
 
                     {tutorState[idx].error && (
@@ -199,10 +187,14 @@ const ReviewPage = ({ quizData, answers, setView, onOpenHistory }) => {
                       </p>
                     )}
 
+                    {tutorState[idx].audio && (
+                      <audio controls preload="none" src={tutorState[idx].audio} className="w-full h-8" aria-label="Nghe câu trả lời" />
+                    )}
+
                     {tutorState[idx].sources?.length > 0 && (
                       <div className="space-y-2">
                         <p className={`text-xs font-semibold uppercase tracking-wide ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`}>
-                          Sources
+                          Nguồn
                         </p>
                         {tutorState[idx].sources.map((src, sIdx) => (
                           <div key={sIdx} className={`rounded p-2 text-xs ${
@@ -211,7 +203,7 @@ const ReviewPage = ({ quizData, answers, setView, onOpenHistory }) => {
                             <span className={`inline-block mr-2 font-bold ${
                               isDarkMode ? 'text-purple-300' : 'text-purple-700'
                             }`}>
-                              [{src.cosine_score.toFixed(3)}]
+                              [{src.cosine_score == null ? '—' : src.cosine_score.toFixed(3)}]
                             </span>
                             {src.text}
                           </div>

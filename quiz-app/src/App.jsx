@@ -31,21 +31,6 @@ const App = () => {
   // home, workspace, upload, quiz, results, review, create
   const [view, setView] = useState('home');
 
-  // Global document state — lifted here so WorkspaceDashboard + all three
-  // workspace modules share the same indexed PDF without each uploading separately.
-  const [isDocumentLoaded, setIsDocumentLoaded] = useState(false);
-  const [currentDocumentName, setCurrentDocumentName] = useState('');
-
-  const handleUploadSuccess = (name) => {
-    setIsDocumentLoaded(true);
-    setCurrentDocumentName(name);
-  };
-
-  const handleClearDocument = () => {
-    setIsDocumentLoaded(false);
-    setCurrentDocumentName('');
-  };
-
   // Quiz data and state
   const [originalQuizData, setOriginalQuizData] = useState(null);
   const [processedQuizData, setProcessedQuizData] = useState(null);
@@ -173,7 +158,7 @@ const App = () => {
     setHistoryPane({ quizId, name, origin, currentAttemptId: currentId, attempts: getAttempts(loadHistory(), quizId) });
   };
   const openHistoryFromReview = () =>
-    openHistoryPane(hashQuiz(originalQuizData), uploadedFileInfo?.name ?? 'This quiz', 'review', currentAttemptId);
+    openHistoryPane(hashQuiz(originalQuizData), uploadedFileInfo?.name ?? 'Bài quiz này', 'review', currentAttemptId);
   const openHistoryFromLibrary = (entry) => openHistoryPane(entry.id, entry.name, 'upload');
 
   // Open a past (reviewable) attempt: load its stored layout/answers/settings
@@ -257,10 +242,6 @@ const App = () => {
 
       {view === 'workspace' && (
         <WorkspaceDashboard
-          isDocumentLoaded={isDocumentLoaded}
-          currentDocumentName={currentDocumentName}
-          onUploadSuccess={handleUploadSuccess}
-          onClearDocument={handleClearDocument}
           setView={setView}
           setOriginalQuizData={setOriginalQuizData}
           setProcessedQuizData={setProcessedQuizData}
@@ -349,16 +330,16 @@ const App = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className={`${classes.cardBg} rounded-xl shadow-2xl p-8 max-w-sm w-full text-center animate-fadeInUp`}>
             <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className={`font-medium ${classes.textColor}`}>Loading shared quiz…</p>
-            <p className={`text-sm ${classes.mutedText} mt-1`}>Fetching from the link</p>
+            <p className={`font-medium ${classes.textColor}`}>Đang nạp quiz được chia sẻ…</p>
+            <p className={`text-sm ${classes.mutedText} mt-1`}>Đang tải từ liên kết</p>
           </div>
         </div>
       )}
 
       {shareStatus === 'error' && (
-        <Modal title="Couldn't open shared quiz" description={shareError}>
+        <Modal title="Không mở được quiz được chia sẻ" description={shareError}>
           <Button onClick={() => setShareStatus('idle')} className="w-full">
-            Go to upload
+            Về trang tải lên
           </Button>
         </Modal>
       )}

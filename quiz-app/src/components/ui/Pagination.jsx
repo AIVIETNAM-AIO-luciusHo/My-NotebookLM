@@ -11,10 +11,10 @@ const Pagination = ({ page, totalPages, onChange, className = '' }) => {
   return (
     <div className={`flex items-center justify-between ${className}`}>
       <button type="button" onClick={() => onChange(page - 1)} disabled={page === 0} className={btn}>
-        Previous
+        Trước
       </button>
       <span className={`text-sm font-medium ${classes.mutedText}`}>
-        Page {page + 1} of {totalPages}
+        Trang {page + 1}/{totalPages}
       </span>
       <button
         type="button"
@@ -22,7 +22,7 @@ const Pagination = ({ page, totalPages, onChange, className = '' }) => {
         disabled={page === totalPages - 1}
         className={btn}
       >
-        Next
+        Sau
       </button>
     </div>
   );

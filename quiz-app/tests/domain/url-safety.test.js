@@ -8,16 +8,16 @@ test('rejectUnsafeUrl accepts public http(s) URLs', () => {
 });
 
 test('rejectUnsafeUrl refuses missing or malformed input', () => {
-  assert.equal(rejectUnsafeUrl(''), 'Missing url');
-  assert.equal(rejectUnsafeUrl(null), 'Missing url');
-  assert.equal(rejectUnsafeUrl(42), 'Missing url');
-  assert.equal(rejectUnsafeUrl('not a url'), 'Invalid url');
+  assert.equal(rejectUnsafeUrl(''), 'Thiếu URL');
+  assert.equal(rejectUnsafeUrl(null), 'Thiếu URL');
+  assert.equal(rejectUnsafeUrl(42), 'Thiếu URL');
+  assert.equal(rejectUnsafeUrl('not a url'), 'URL không hợp lệ');
 });
 
 test('rejectUnsafeUrl refuses non-http(s) schemes', () => {
-  assert.equal(rejectUnsafeUrl('ftp://example.com/x'), 'Only http(s) URLs are allowed');
-  assert.equal(rejectUnsafeUrl('file:///etc/passwd'), 'Only http(s) URLs are allowed');
-  assert.equal(rejectUnsafeUrl('javascript:alert(1)'), 'Only http(s) URLs are allowed');
+  assert.equal(rejectUnsafeUrl('ftp://example.com/x'), 'Chỉ chấp nhận URL http(s)');
+  assert.equal(rejectUnsafeUrl('file:///etc/passwd'), 'Chỉ chấp nhận URL http(s)');
+  assert.equal(rejectUnsafeUrl('javascript:alert(1)'), 'Chỉ chấp nhận URL http(s)');
 });
 
 test('rejectUnsafeUrl blocks private, loopback, and metadata hosts (SSRF guard)', () => {
@@ -37,7 +37,7 @@ test('rejectUnsafeUrl blocks private, loopback, and metadata hosts (SSRF guard)'
     'http://[fe80::1]/x',
   ];
   for (const u of blocked) {
-    assert.equal(rejectUnsafeUrl(u), 'Refusing to fetch a private or local address', u);
+    assert.equal(rejectUnsafeUrl(u), 'Từ chối tải địa chỉ nội bộ hoặc cục bộ', u);
   }
 });
 

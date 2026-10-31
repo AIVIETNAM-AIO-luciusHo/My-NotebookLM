@@ -21,12 +21,12 @@ const ConfigChips = ({ settings, wrap = false, className = '' }) => {
       )}
       {shuffleQuestions && (
         <span className={chip}>
-          <IconShuffle className="w-3.5 h-3.5" /> Questions
+          <IconShuffle className="w-3.5 h-3.5" /> Câu hỏi
         </span>
       )}
       {shuffleOptions && (
         <span className={chip}>
-          <IconShuffle className="w-3.5 h-3.5" /> Options
+          <IconShuffle className="w-3.5 h-3.5" /> Đáp án
         </span>
       )}
     </div>

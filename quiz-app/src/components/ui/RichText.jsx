@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { parseRichText } from '../../utils/utils';
+import { parseRichText, parseRichBlocks } from '../../utils/utils';
 
 // Renders quiz text (question/option/explanation) with the app's lightweight
 // markup: a newline starts a new line, **text** is emphasized in purple, and
@@ -16,14 +16,49 @@ import { parseRichText } from '../../utils/utils';
 // stays inline (a Fragment, not a block) so any inline prefix before it — the
 // "A." option label, the "1." review number — keeps sitting on the same row;
 // only subsequent lines are block-level with the gap.
-const RichText = ({ children, className }) => {
-  const lines = parseRichText(children);
+const RichText = ({ children, className, underline = true }) => {
+  const opts = { underline };
+  const lines = parseRichText(children, opts);
   const renderSegments = (segments) =>
     segments.map((seg, j) => {
       if (seg.bold) return <strong key={j} className="text-purple-800 dark:text-purple-400">{seg.text}</strong>;
       if (seg.underline) return <u key={j}>{seg.text}</u>;
       return <Fragment key={j}>{seg.text}</Fragment>;
     });
+
+  const blocks = parseRichBlocks(children, opts);
+  if (blocks.some((b) => b.type === 'table')) {
+    return (
+      <span className={className}>
+        {blocks.map((b, bi) =>
+          b.type === 'table' ? (
+            <span key={bi} className="block overflow-x-auto my-2">
+              <table className="text-sm border-collapse">
+                <thead>
+                  <tr>{b.header.map((c, ci) => (
+                    <th key={ci} className="border border-gray-400/50 px-2 py-1 text-left font-semibold">{renderSegments(c)}</th>
+                  ))}</tr>
+                </thead>
+                <tbody>
+                  {b.rows.map((r, ri) => (
+                    <tr key={ri}>{r.map((c, ci) => (
+                      <td key={ci} className="border border-gray-400/50 px-2 py-1 align-top">{renderSegments(c)}</td>
+                    ))}</tr>
+                  ))}
+                </tbody>
+              </table>
+            </span>
+          ) : (
+            <span key={bi} className="block">
+              {b.lines.map((segments, i) => (
+                <span key={i} className="block">{renderSegments(segments)}</span>
+              ))}
+            </span>
+          ),
+        )}
+      </span>
+    );
+  }
 
   return (
     <span className={className}>

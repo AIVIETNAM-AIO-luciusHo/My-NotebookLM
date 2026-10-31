@@ -46,7 +46,7 @@ const QuizPage = ({
   }, [currentQuestion]);
 
   // Mobile/browser Back shows the exit confirmation instead of leaving the app
-  // (mirrors the on-screen "Return to Upload" button).
+  // (mirrors the on-screen "Về trang tải lên" button).
   useBackGuard(() => setShowExitModal(true));
 
   const handleAnswerSelect = (optionIndex) => {
@@ -110,10 +110,10 @@ const QuizPage = ({
             className={`flex items-center px-4 py-2 ${
               isDarkMode ? 'bg-gray-700' : 'bg-gray-600'
             } text-white rounded-lg font-medium hover:bg-gray-700 transition-all`}
-            title="Return to Upload"
+            title="Về trang tải lên"
           >
             <IconReturnUpload className="w-4 h-4 mr-2" />
-            Return to Upload
+            Về trang tải lên
           </button>
         </div>
 
@@ -128,7 +128,7 @@ const QuizPage = ({
             <p className={`text-sm font-bold uppercase tracking-wider mb-2 ${
               isDarkMode ? 'text-indigo-400' : 'text-indigo-600'
             }`}>
-              Multiple Choices
+              Nhiều đáp án
             </p>
           )}
           <h2 className={`text-2xl font-bold ${classes.textColor} mb-6`}><RichText>{question.question}</RichText></h2>
@@ -160,10 +160,10 @@ const QuizPage = ({
                   ? `${isDarkMode ? 'bg-gray-700 text-gray-500' : 'bg-gray-200 text-gray-400'} cursor-not-allowed`
                   : classes.secondaryBtn
               }`}
-              title="Previous question"
+              title="Câu trước"
             >
               <IconChevronLeft className="w-5 h-5 mr-2" />
-              Previous
+              Câu trước
             </button>
 
             {multiChoice && !isAnswered ? (
@@ -176,7 +176,7 @@ const QuizPage = ({
                     : 'bg-green-600 text-white hover:bg-green-700'
                 }`}
               >
-                Confirm
+                Xác nhận
               </button>
             ) : (
               <button
@@ -189,8 +189,8 @@ const QuizPage = ({
                 }`}
               >
                 {currentQuestion === totalQuestions - 1 && answeredCount === totalQuestions
-                  ? 'Finish'
-                  : 'Next'}
+                  ? 'Hoàn thành'
+                  : 'Câu sau'}
                 <IconArrowRight className="w-5 h-5 ml-2" />
               </button>
             )}
@@ -200,19 +200,19 @@ const QuizPage = ({
 
       {showExitModal && (
         <Modal
-          title="Exit Quiz?"
-          description="Are you sure you want to exit? Your progress will be lost."
+          title="Thoát bài quiz?"
+          description="Bạn có chắc muốn thoát? Tiến độ làm bài sẽ mất."
         >
-          <Button variant="danger" onClick={handleExit} className="w-full" title="Exit">
-            Yes, Exit Quiz
+          <Button variant="danger" onClick={handleExit} className="w-full" title="Thoát">
+            Có, thoát bài quiz
           </Button>
           <Button
             variant="secondary"
             onClick={() => setShowExitModal(false)}
             className="w-full"
-            title="Don't exit"
+            title="Không thoát"
           >
-            Cancel
+            Huỷ
           </Button>
         </Modal>
       )}

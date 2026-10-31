@@ -1,360 +1,227 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTheme } from '../../contexts/useTheme';
 import NotebookChat from './NotebookChat';
 import QuizStudio from './QuizStudio';
 import MindmapVisualizer from './MindmapVisualizer';
-import ErrorBanner from '../ui/ErrorBanner';
+import StatePanel from '../ui/StatePanel';
 import ThemeToggle from '../ui/ThemeToggle';
 import { IconDocument, IconUpload, IconChevronLeft } from '../ui/icons';
-import { BACKEND } from '../../lib/api';
+import { api } from '../../lib/api';
+import { useHealth } from '../../hooks/useHealth';
+import { useJobs } from '../../hooks/useJobs';
+import { errorView, emptyWorkspaceView, filesUnknownView } from '../../utils/errorView';
+import { canDelete, canResume, needsReupload, isWarmingUp, errorWarning, graphProgress, progressText, statusLabel, isUnfinished } from '../../utils/jobs';
 
-// ── Tab definitions ───────────────────────────────────────────────────────────
+// Màn hình notebook: Nguồn (tệp + upload + job) / Hội thoại / Studio (Quiz, Mindmap).
+// Đây là màn duy nhất cho workspace; NotebookStudio cũ (không được route tới) đã bị xoá.
 
-const TABS = [
-  {
-    id: 'chat',
-    label: 'Notebook Chat',
-    shortLabel: 'Chat',
-    color: 'indigo',
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-      </svg>
-    ),
-  },
-  {
-    id: 'quiz',
-    label: 'Quiz Studio',
-    shortLabel: 'Quiz',
-    color: 'violet',
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" />
-      </svg>
-    ),
-  },
-  {
-    id: 'mindmap',
-    label: 'Mindmap Visualizer',
-    shortLabel: 'Mindmap',
-    color: 'emerald',
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-      </svg>
-    ),
-  },
-];
+const Dot = ({ color }) => <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${color}`} />;
 
-const TAB_ACTIVE = {
-  indigo: 'text-indigo-600 border-indigo-600',
-  violet: 'text-violet-600 border-violet-600',
-  emerald: 'text-emerald-600 border-emerald-600',
-};
-const TAB_ACTIVE_DARK = {
-  indigo: 'text-indigo-400 border-indigo-400',
-  violet: 'text-violet-400 border-violet-400',
-  emerald: 'text-emerald-400 border-emerald-400',
-};
-
-// ── Upload zone (shown when no document is active) ────────────────────────────
-
-const UploadZone = ({ onUploadSuccess, setView }) => {
+const TopBar = ({ setView, health, healthError, jobs }) => {
   const { isDarkMode, classes } = useTheme();
-  const [pdfFile, setPdfFile] = useState(null);
+  const down = !!healthError || !health;
+  const progress = graphProgress(jobs);
+  let graph;
+  if (down) graph = { dot: 'bg-gray-400', text: 'Đồ thị: không rõ' };
+  else if (health.graph_ready === false) {
+    graph = progress
+      ? { dot: 'bg-yellow-500', text: `Đồ thị: đang dựng${progress.total ? ` ${progress.text}` : ''}` }
+      : { dot: 'bg-yellow-500', text: 'Đồ thị: chưa đầy đủ (có tác vụ lỗi hoặc bị gián đoạn)' };
+  } else graph = { dot: 'bg-green-500', text: 'Đồ thị: sẵn sàng' };
+
+  return (
+    <header className={`flex-shrink-0 flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2.5 border-b shadow-sm ${
+      isDarkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'
+    }`}>
+      <button onClick={() => setView('home')} title="Về trang chủ" aria-label="Về trang chủ"
+        className={`p-1.5 rounded-lg ${isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'}`}>
+        <IconChevronLeft className="w-4 h-4" />
+      </button>
+      <h1 className={`text-sm font-semibold ${classes.textColor} flex-1 min-w-[6rem]`}>Notebook</h1>
+      <span data-testid="backend-status" className={`inline-flex items-center gap-1.5 text-xs ${classes.mutedText}`}>
+        <Dot color={down ? 'bg-red-500' : 'bg-green-500'} />
+        {down ? 'Backend: tắt' : 'Backend: hoạt động'}
+      </span>
+      <span data-testid="graph-status" className={`inline-flex items-center gap-1.5 text-xs ${classes.mutedText}`}>
+        <Dot color={graph.dot} />
+        {graph.text}
+      </span>
+      <ThemeToggle compact />
+    </header>
+  );
+};
+
+// ── Cột Nguồn ────────────────────────────────────────────────────────────────
+
+const JobRow = ({ job, onResume, onDelete }) => {
+  const { isDarkMode, classes } = useTheme();
+  const warn = errorWarning(job);
+  const total = job.chunks_total ?? 0;
+  const pct = job.status === 'done' ? 100 : total ? Math.round(((job.chunks_done ?? 0) / total) * 100) : 0;
+  return (
+    <li data-testid="job-row" data-status={job.status} className={`rounded-lg px-3 py-2 text-xs ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+      <p className={`font-medium ${classes.textColor} truncate`} title={job.source}>{job.source}</p>
+      <p className={classes.mutedText}>
+        {statusLabel(job.status)}{progressText(job) ? ` · ${progressText(job)}` : ''}
+      </p>
+      {isUnfinished(job) && (
+        <div className={`h-1 rounded mt-1.5 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+          <div className="h-1 rounded bg-indigo-500" style={{ width: `${pct}%` }} />
+        </div>
+      )}
+      {isWarmingUp(job) && <p className={`mt-1 ${classes.mutedText}`}>Đang khởi động mô hình, lượt đầu có thể mất vài phút</p>}
+      {warn && <p title={job.error} className={`mt-1 ${isDarkMode ? 'text-yellow-300' : 'text-yellow-700'}`}>{warn}</p>}
+      {needsReupload(job) && <p className={`mt-1 ${classes.mutedText}`}>Hãy tải lại tệp.</p>}
+      {canResume(job) && (
+        <button onClick={() => onResume(job.job_id)}
+          className="mt-1.5 font-medium px-2 py-1 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">
+          Tiếp tục
+        </button>
+      )}
+      {canDelete(job) && (
+        <button onClick={() => onDelete(job.job_id)} aria-label={`Xoá tác vụ ${job.source}`}
+          className={`mt-1.5 ml-2 font-medium px-2 py-1 rounded-md ${isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
+          Xoá
+        </button>
+      )}
+    </li>
+  );
+};
+
+const SourcesPane = ({ health, healthError, onRefreshHealth, jobsState }) => {
+  const { isDarkMode, classes } = useTheme();
+  const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState('');
-  const [isDragOver, setIsDragOver] = useState(false);
-  const fileRef = useRef(null);
+  const [uploadError, setUploadError] = useState(null);
+  const [drag, setDrag] = useState(false);
+  const inputRef = useRef(null);
+  const { jobs, notice, refresh, resume, remove } = jobsState;
 
-  const setFile = (file) => {
-    if (file && file.name.toLowerCase().endsWith('.pdf')) {
-      setPdfFile(file);
-      setUploadError('');
-    } else if (file) {
-      setUploadError('Only PDF files are accepted.');
+  const pick = (f) => {
+    if (!f) return;
+    if (!f.name.toLowerCase().endsWith('.pdf')) {
+      // Cùng khung với lỗi 400 của backend; bỏ tệp không hợp lệ khỏi lựa chọn.
+      setFile(null);
+      if (inputRef.current) inputRef.current.value = '';
+      setUploadError({ kind: 'client', uploadReason: 'notpdf', message: 'Chỉ nhận tệp PDF.' });
+      return;
     }
+    setFile(f);
+    setUploadError(null);
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    setFile(e.dataTransfer.files[0] ?? null);
-  };
-
-  const handleUpload = async () => {
-    if (!pdfFile) { setUploadError('Please select a PDF file.'); return; }
+  const upload = async () => {
+    if (!file) return;
     setUploading(true);
-    setUploadError('');
+    setUploadError(null);
     try {
-      const form = new FormData();
-      form.append('file', pdfFile);
-      const res = await fetch(`${BACKEND}/upload`, { method: 'POST', body: form });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail ?? 'Upload failed.');
-      }
-      onUploadSuccess(pdfFile.name);
+      await api.upload(file);
+      setFile(null);
+      if (inputRef.current) inputRef.current.value = '';
+      await Promise.all([refresh(), onRefreshHealth()]);
     } catch (e) {
-      setUploadError(e.message);
+      setUploadError(e);
     } finally {
       setUploading(false);
     }
   };
 
+  const files = health?.files ?? [];
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Slim top nav */}
-      <div className={`flex-shrink-0 flex items-center justify-between px-5 py-3 border-b ${
-        isDarkMode ? 'border-gray-800 bg-gray-900' : 'border-gray-200 bg-white'
-      }`}>
-        <button
-          onClick={() => setView('home')}
-          className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
-            isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-800'
-          }`}
-        >
-          <IconChevronLeft className="w-4 h-4" />
-          Home
-        </button>
-        <div className={`flex items-center gap-2 text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-          <svg className={`w-5 h-5 ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-          AI Study Studio
-        </div>
-        <div className="flex items-center justify-end w-20">
-          <ThemeToggle compact />
-        </div>
+    <aside aria-label="Nguồn" className={`min-w-0 p-4 space-y-4 md:overflow-y-auto border-b md:border-b-0 md:border-r ${
+      isDarkMode ? 'border-gray-700' : 'border-gray-200'
+    }`}>
+      <h2 className={`text-xs font-bold uppercase tracking-wide ${classes.mutedText}`}>Nguồn</h2>
+
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+        onDragLeave={() => setDrag(false)}
+        onDrop={(e) => { e.preventDefault(); setDrag(false); pick(e.dataTransfer.files[0]); }}
+        onClick={() => inputRef.current?.click()}
+        className={`cursor-pointer rounded-xl border-2 border-dashed p-4 text-center ${
+          drag ? 'border-indigo-400 bg-indigo-500/10' : isDarkMode ? 'border-gray-600' : 'border-gray-300'
+        }`}
+      >
+        <input ref={inputRef} type="file" accept=".pdf" className="hidden" data-testid="pdf-input"
+          onChange={(e) => pick(e.target.files[0] ?? null)} />
+        <IconUpload className={`w-6 h-6 mx-auto mb-1 ${classes.mutedText}`} />
+        <p className={`text-xs ${classes.textColor} ${file ? 'truncate' : ''}`} title={file ? file.name : undefined}>
+          {file ? file.name : 'Kéo thả hoặc bấm để chọn PDF'}
+        </p>
       </div>
+      <button onClick={upload} disabled={!file || uploading}
+        className="w-full text-sm font-semibold py-2 rounded-lg bg-indigo-600 text-white disabled:opacity-50">
+        {uploading ? 'Đang nạp…' : 'Nạp tài liệu'}
+      </button>
+      {uploadError && <StatePanel compact view={errorView(uploadError, 'upload')} onRetry={file ? upload : undefined} />}
 
-      {/* Upload hero */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6">
-        <div className="w-full max-w-xl animate-fadeInUp">
-          <div className="text-center mb-8">
-            <h1 className={`text-3xl font-bold ${classes.textColor} mb-2`}>Add a source document</h1>
-            <p className={`${classes.mutedText} text-sm`}>
-              Upload a PDF to unlock Notebook Chat, Quiz Studio, and Mindmap Visualizer
-            </p>
-          </div>
+      {healthError ? (
+        <StatePanel compact view={errorView(healthError)} onRetry={onRefreshHealth} />
+      ) : files.length === 0 ? (
+        <StatePanel compact view={emptyWorkspaceView()} />
+      ) : (
+        <ul data-testid="file-list" className="space-y-1">
+          {files.map((f) => (
+            <li key={f} className={`flex items-center gap-2 text-xs ${classes.textColor}`}>
+              <IconDocument className="w-4 h-4 flex-shrink-0" />
+              <span className="truncate" title={f}>{f}</span>
+            </li>
+          ))}
+        </ul>
+      )}
 
-          {/* Drag-and-drop zone */}
-          <div
-            onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
-            onDragLeave={() => setIsDragOver(false)}
-            onDrop={handleDrop}
-            onClick={() => fileRef.current?.click()}
-            className={`relative cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-all duration-200 ${
-              isDragOver
-                ? isDarkMode ? 'border-indigo-400 bg-indigo-900/20 scale-[1.01]' : 'border-indigo-400 bg-indigo-50 scale-[1.01]'
-                : pdfFile
-                  ? isDarkMode ? 'border-green-600 bg-green-900/20' : 'border-green-400 bg-green-50'
-                  : isDarkMode ? 'border-gray-700 hover:border-indigo-600 hover:bg-indigo-900/10' : 'border-gray-300 hover:border-indigo-400 hover:bg-indigo-50/50'
-            }`}
-          >
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".pdf"
-              className="hidden"
-              onChange={(e) => setFile(e.target.files[0] ?? null)}
-            />
-
-            {pdfFile ? (
-              <>
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 ${isDarkMode ? 'bg-green-900' : 'bg-green-100'}`}>
-                  <IconDocument className={`w-8 h-8 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`} />
-                </div>
-                <p className={`font-semibold ${classes.textColor} truncate max-w-xs mx-auto`}>{pdfFile.name}</p>
-                <p className={`text-xs ${classes.mutedText} mt-1`}>{(pdfFile.size / 1024).toFixed(0)} KB · click to change</p>
-              </>
-            ) : (
-              <>
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 ${
-                  isDragOver
-                    ? isDarkMode ? 'bg-indigo-800' : 'bg-indigo-100'
-                    : isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
-                }`}>
-                  <IconUpload className={`w-8 h-8 ${isDragOver ? isDarkMode ? 'text-indigo-400' : 'text-indigo-600' : classes.mutedText}`} />
-                </div>
-                <p className={`font-semibold ${classes.textColor} mb-1`}>
-                  {isDragOver ? 'Drop your PDF here' : 'Drag & drop a PDF, or click to browse'}
-                </p>
-                <p className={`text-xs ${classes.mutedText}`}>Supports text-based PDFs up to any size</p>
-              </>
-            )}
-          </div>
-
-          {/* Upload feedback */}
-          {uploading && (
-            <div className="flex items-center gap-2.5 mt-4 py-1">
-              <div className={`w-4 h-4 border-2 border-t-transparent rounded-full animate-spin flex-shrink-0 ${isDarkMode ? 'border-indigo-400' : 'border-indigo-600'}`} />
-              <p className={`text-sm font-medium ${isDarkMode ? 'text-indigo-300' : 'text-indigo-600'}`}>
-                Reading and indexing document chunks…
-              </p>
-            </div>
-          )}
-
-          <div className="mt-3">
-            <ErrorBanner>{uploadError}</ErrorBanner>
-          </div>
-
-          <button
-            onClick={handleUpload}
-            disabled={uploading || !pdfFile}
-            className={`mt-4 w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl text-sm font-bold transition-all duration-200 ${
-              uploading || !pdfFile
-                ? isDarkMode ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5'
-            }`}
-          >
-            {uploading ? (
-              <>
-                <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                Indexing document…
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Analyse Document & Unlock Workspace
-              </>
-            )}
-          </button>
-
-          {/* Feature preview chips */}
-          <div className="mt-8 flex flex-wrap justify-center gap-2">
-            {[
-              { color: 'indigo', label: 'Notebook Chat' },
-              { color: 'violet', label: 'Quiz Studio' },
-              { color: 'emerald', label: 'Mindmap Visualizer' },
-            ].map(({ color, label }) => (
-              <span key={label} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border ${
-                isDarkMode ? `border-gray-700 text-gray-500` : `border-gray-200 text-gray-400`
-              }`}>
-                <span className={`w-1.5 h-1.5 rounded-full bg-${color}-400 opacity-50`} />
-                {label}
-              </span>
-            ))}
-          </div>
+      {jobs.length > 0 && (
+        <div>
+          <h3 className={`text-xs font-bold uppercase tracking-wide mb-1.5 ${classes.mutedText}`}>Tác vụ nền</h3>
+          <ul className="space-y-1.5">
+            {jobs.slice(0, 5).map((j) => <JobRow key={j.job_id} job={j} onResume={resume} onDelete={remove} />)}
+          </ul>
+          {notice && <p role="alert" className={`mt-2 text-xs ${isDarkMode ? 'text-red-300' : 'text-red-600'}`}>{notice}</p>}
         </div>
-      </div>
-    </div>
+      )}
+    </aside>
   );
 };
 
-// ── Workspace (shown once a document is active) ───────────────────────────────
+// ── Cột Studio ───────────────────────────────────────────────────────────────
 
-const ActiveWorkspace = ({
-  documentName,
-  onClearDocument,
-  setView,
-  activeTab,
-  onTabChange,
-  mindmapMounted,
-  quizProps,
-}) => {
+const StudioPane = ({ quizProps, hasFiles, backendDown }) => {
   const { isDarkMode, classes } = useTheme();
+  const [tab, setTab] = useState('quiz');
+  const [mindmapMounted, setMindmapMounted] = useState(false);
+  const pickTab = (t) => { setTab(t); if (t === 'mindmap') setMindmapMounted(true); };
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Top document bar */}
-      <div className={`flex-shrink-0 flex items-center gap-3 px-4 py-2.5 border-b ${
-        isDarkMode ? 'border-gray-700/80 bg-gray-900' : 'border-gray-200 bg-white'
-      } shadow-sm`}>
-        <button
-          onClick={() => setView('home')}
-          className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${
-            isDarkMode ? 'text-gray-500 hover:text-gray-300 hover:bg-gray-800' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'
-          }`}
-          title="Back to Home"
-        >
-          <IconChevronLeft className="w-4 h-4" />
-        </button>
-
-        <div className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 ${isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'}`}>
-          <IconDocument className={`w-3.5 h-3.5 ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
-        </div>
-
-        <div className="flex items-center gap-1.5 min-w-0 flex-1">
-          <p className={`text-sm font-semibold ${classes.textColor} truncate`}>{documentName}</p>
-          <span className={`flex-shrink-0 inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full font-medium ${
-            isDarkMode ? 'bg-green-900/60 text-green-400' : 'bg-green-100 text-green-700'
-          }`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            Indexed
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <button
-            onClick={onClearDocument}
-            className={`text-xs font-medium px-2.5 py-1.5 rounded-lg border transition-colors ${
-              isDarkMode
-                ? 'border-gray-700 text-gray-500 hover:text-gray-300 hover:border-gray-600'
-                : 'border-gray-300 text-gray-400 hover:text-gray-600 hover:border-gray-400'
-            }`}
-          >
-            Change document
+    <section aria-label="Studio" className={`min-w-0 flex flex-col md:col-span-2 lg:col-span-1 border-t lg:border-t-0 lg:border-l ${
+      isDarkMode ? 'border-gray-700' : 'border-gray-200'
+    }`}>
+      <div className={`flex-shrink-0 flex border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        {[['quiz', 'Quiz'], ['mindmap', 'Mindmap']].map(([id, label]) => (
+          <button key={id} onClick={() => pickTab(id)}
+            className={`flex-1 py-2.5 text-sm font-semibold border-b-2 -mb-px ${
+              tab === id ? 'text-indigo-500 border-indigo-500' : `border-transparent ${classes.mutedText}`
+            }`}>
+            {label}
           </button>
-          <ThemeToggle compact />
-        </div>
+        ))}
       </div>
-
-      {/* Tab bar */}
-      <div className={`flex-shrink-0 flex border-b ${isDarkMode ? 'border-gray-700/80 bg-gray-900' : 'border-gray-200 bg-white'}`}>
-        {TABS.map((tab) => {
-          const isActive = activeTab === tab.id;
-          const activeClass = isDarkMode ? TAB_ACTIVE_DARK[tab.color] : TAB_ACTIVE[tab.color];
-          return (
-            <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className={`flex items-center gap-2 px-4 sm:px-6 py-3 text-sm font-semibold border-b-2 transition-all duration-150 -mb-px ${
-                isActive
-                  ? `${activeClass} bg-transparent`
-                  : `border-transparent ${isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
-              }`}
-            >
-              <span className={isActive ? '' : 'opacity-60'}>{tab.icon}</span>
-              <span className="hidden sm:inline">{tab.label}</span>
-              <span className="sm:hidden">{tab.shortLabel}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Tab panels — all kept mounted (CSS hidden) to preserve state */}
-      <div className="flex-1 overflow-hidden">
-        {/* Panel: Notebook Chat */}
-        <div className={activeTab === 'chat' ? 'flex flex-col h-full' : 'hidden'}>
-          <NotebookChat key={documentName} documentName={documentName} />
+      {!hasFiles ? (
+        <div className="p-4"><StatePanel compact view={backendDown ? filesUnknownView() : emptyWorkspaceView()} /></div>
+      ) : (
+        <div className="relative h-[34rem] lg:h-auto lg:flex-1 lg:min-h-0 overflow-hidden">
+          <div className={tab === 'quiz' ? 'h-full overflow-y-auto' : 'hidden'}><QuizStudio {...quizProps} /></div>
+          {mindmapMounted && (
+            <div className={tab === 'mindmap' ? 'h-full flex flex-col overflow-auto' : 'hidden'}><MindmapVisualizer /></div>
+          )}
         </div>
-
-        {/* Panel: Quiz Studio */}
-        <div className={activeTab === 'quiz' ? 'h-full' : 'hidden'}>
-          <QuizStudio {...quizProps} />
-        </div>
-
-        {/* Panel: Mindmap Visualizer — lazily mounted on first activation */}
-        {mindmapMounted && (
-          <div className={activeTab === 'mindmap' ? 'flex flex-col h-full' : 'hidden'}>
-            <MindmapVisualizer key={documentName} />
-          </div>
-        )}
-      </div>
-    </div>
+      )}
+    </section>
   );
 };
 
-// ── WorkspaceDashboard (root) ─────────────────────────────────────────────────
+// ── Root ─────────────────────────────────────────────────────────────────────
 
 const WorkspaceDashboard = ({
-  isDocumentLoaded,
-  currentDocumentName,
-  onUploadSuccess,
-  onClearDocument,
   setView,
   setOriginalQuizData,
   setProcessedQuizData,
@@ -362,37 +229,28 @@ const WorkspaceDashboard = ({
   setAnswers,
   setCurrentQuestion,
 }) => {
-  const [activeTab, setActiveTab] = useState('chat');
-  const [mindmapMounted, setMindmapMounted] = useState(false);
+  const { classes } = useTheme();
+  const { health, error: healthError, refresh: refreshHealth } = useHealth();
+  const jobsState = useJobs();
+  // Khi một job vừa xong, /health (graph_ready, files) cần cập nhật ngay.
+  const finishedKey = jobsState.jobs.map((j) => `${j.job_id}:${j.status}`).join(',');
+  useEffect(() => { refreshHealth(); }, [finishedKey, refreshHealth]);
 
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    if (tab === 'mindmap') setMindmapMounted(true);
-  };
-
-  const quizProps = {
-    setView,
-    setOriginalQuizData,
-    setProcessedQuizData,
-    setActiveSettings,
-    setAnswers,
-    setCurrentQuestion,
-  };
-
-  if (!isDocumentLoaded) {
-    return <UploadZone onUploadSuccess={onUploadSuccess} setView={setView} />;
-  }
+  const quizProps = { setView, setOriginalQuizData, setProcessedQuizData, setActiveSettings, setAnswers, setCurrentQuestion };
+  const hasFiles = (health?.files?.length ?? 0) > 0;
+  const backendDown = !!healthError;
 
   return (
-    <ActiveWorkspace
-      documentName={currentDocumentName}
-      onClearDocument={onClearDocument}
-      setView={setView}
-      activeTab={activeTab}
-      onTabChange={handleTabChange}
-      mindmapMounted={mindmapMounted}
-      quizProps={quizProps}
-    />
+    <div className={`flex flex-col min-h-screen lg:h-screen overflow-x-hidden ${classes.textColor}`}>
+      <TopBar setView={setView} health={health} healthError={healthError} jobs={jobsState.jobs} />
+      <main className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[13rem_minmax(25rem,1fr)] lg:grid-cols-[15rem_minmax(0,1fr)_minmax(0,20rem)] xl:grid-cols-[18rem_minmax(0,1fr)_minmax(0,26rem)]">
+        <SourcesPane health={health} healthError={healthError} onRefreshHealth={refreshHealth} jobsState={jobsState} />
+        <section aria-label="Hội thoại" className="min-w-0 h-[32rem] lg:h-auto lg:min-h-0 flex flex-col">
+          <NotebookChat hasFiles={hasFiles} backendDown={backendDown} onRetryBackend={refreshHealth} />
+        </section>
+        <StudioPane quizProps={quizProps} hasFiles={hasFiles} backendDown={backendDown} />
+      </main>
+    </div>
   );
 };
 

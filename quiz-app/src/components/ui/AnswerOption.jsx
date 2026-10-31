@@ -54,19 +54,19 @@ const AnswerOption = ({ option, index, isSelected, isCorrectOption, isAnswered, 
           <div className="flex items-center text-sm font-bold ml-4 shrink-0">
             {isSelected && isCorrectOption && (
               <div className="flex items-center text-green-600 dark:text-green-400">
-                <span className="mr-1">Correct</span>
+                <span className="mr-1">Đúng</span>
                 <IconCheck className="w-6 h-6" />
               </div>
             )}
             {isSelected && !isCorrectOption && (
               <div className="flex items-center text-red-600 dark:text-red-400">
-                <span className="mr-1">Your answer</span>
+                <span className="mr-1">Bạn chọn</span>
                 <IconClose className="w-6 h-6" strokeWidth={3} />
               </div>
             )}
             {!isSelected && isCorrectOption && (
               <div className="flex items-center text-red-500 dark:text-red-400">
-                <span className="mr-1">Unchosen</span>
+                <span className="mr-1">Chưa chọn</span>
                 <IconClose className="w-6 h-6" strokeWidth={3} />
               </div>
             )}

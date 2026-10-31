@@ -8,10 +8,10 @@ const QuizProgressBar = ({ answered, total, currentQuestion }) => {
     <div className={`${classes.cardBg} rounded-xl shadow-lg p-6 mb-6`}>
       <div className="flex justify-between items-center mb-2">
         <span className={`text-sm font-medium ${classes.mutedText}`}>
-          Progress: {answered} / {total}
+          Tiến độ: {answered} / {total}
         </span>
         <span className={`text-sm font-medium ${classes.mutedText}`}>
-          Question {currentQuestion + 1}
+          Câu {currentQuestion + 1}
         </span>
       </div>
       <div className={`w-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded-full h-3`}>

@@ -37,14 +37,14 @@ const HistoryPane = ({ quizName, attempts, currentAttemptId, onSelect, onClose }
         <div className="flex items-center justify-between mb-2">
           <h2 className={`text-2xl font-bold ${classes.textColor} flex items-center gap-2`}>
             <IconHistory className="w-6 h-6" />
-            Results History
+            Lịch sử kết quả
           </h2>
           <button
             type="button"
             onClick={() => close(onClose)}
             className={`p-1.5 rounded-full transition-all ${classes.secondaryBtn}`}
-            aria-label="Close"
-            title="Close"
+            aria-label="Đóng"
+            title="Đóng"
           >
             <IconClose className="w-5 h-5" />
           </button>
@@ -52,12 +52,12 @@ const HistoryPane = ({ quizName, attempts, currentAttemptId, onSelect, onClose }
         <p className={`text-sm ${classes.mutedText} mb-5 break-words`}>{quizName}</p>
 
         {attempts.length === 0 ? (
-          <p className={classes.mutedText}>No attempts yet.</p>
+          <p className={classes.mutedText}>Chưa có lần làm nào.</p>
         ) : (
           <ul className="space-y-3">
             {ordered.map(({ attempt: a, index }) => {
               const score = a.score.toFixed(2);
-              const label = `Attempt ${index + 1}`;
+              const label = `Lần ${index + 1}`;
               // The attempt the user is currently viewing the results of (opened
               // the history from its review). Opening it again would just show
               // the same results, so it's badged and not selectable.
@@ -72,7 +72,7 @@ const HistoryPane = ({ quizName, attempts, currentAttemptId, onSelect, onClose }
                         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                           isDarkMode ? 'bg-indigo-900 text-indigo-300' : 'bg-indigo-100 text-indigo-700'
                         }`}>
-                          This attempt
+                          Lần này
                         </span>
                       )}
                     </p>
@@ -86,12 +86,12 @@ const HistoryPane = ({ quizName, attempts, currentAttemptId, onSelect, onClose }
                     <ConfigChips settings={a.settings} wrap className="mt-2" />
                   ) : (
                     <p className={`text-xs italic ${classes.mutedText} mt-2`}>
-                      Score only — saved before this quiz was edited.
+                      Chỉ còn điểm: đã lưu trước khi bài quiz bị sửa.
                     </p>
                   )}
                   {isCurrent && (
                     <p className={`text-xs italic ${classes.mutedText} mt-2`}>
-                      You're viewing this attempt now.
+                      Bạn đang xem lần làm này.
                     </p>
                   )}
                 </>
@@ -104,7 +104,7 @@ const HistoryPane = ({ quizName, attempts, currentAttemptId, onSelect, onClose }
                       type="button"
                       onClick={() => close(() => onSelect(a, index))}
                       className="w-full text-left p-4 rounded-xl hover:ring-2 hover:ring-indigo-500/40 transition-all"
-                      title="Open this attempt"
+                      title="Mở lần làm này"
                     >
                       {body}
                     </button>

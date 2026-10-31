@@ -159,9 +159,9 @@ const QuizCreatorPage = ({ setView, editingQuiz = null, setEditingQuiz, onSaveEd
             className={`px-4 py-2 shadow-lg ${
               isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-600 hover:bg-gray-700'
             } text-white rounded-lg font-medium transition-all`}
-            title="Back to Upload"
+            title="Về trang tải lên"
           >
-            Back to Upload
+            Về trang tải lên
           </button>
           {isEditing && isDirty && (
             // Reuses the (edit-mode-empty) import slot so changes can be saved
@@ -170,9 +170,9 @@ const QuizCreatorPage = ({ setView, editingQuiz = null, setEditingQuiz, onSaveEd
               type="button"
               onClick={handleSaveEdit}
               className="px-4 py-2 shadow-lg bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all"
-              title="Save changes and return to upload"
+              title="Lưu thay đổi và về trang tải lên"
             >
-              Save Changes
+              Lưu thay đổi
             </button>
           )}
           {!isEditing && (
@@ -181,9 +181,9 @@ const QuizCreatorPage = ({ setView, editingQuiz = null, setEditingQuiz, onSaveEd
                 type="button"
                 onClick={() => importInputRef.current?.click()}
                 className="px-4 py-2 shadow-lg bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-all"
-                title="Upload an existing quiz to edit"
+                title="Tải lên một bài quiz có sẵn để sửa"
               >
-                Upload Your Quiz
+                Tải lên quiz của bạn
               </button>
               <input
                 ref={importInputRef}
@@ -199,12 +199,12 @@ const QuizCreatorPage = ({ setView, editingQuiz = null, setEditingQuiz, onSaveEd
         <div className={`${classes.cardBg} rounded-2xl shadow-2xl p-6 sm:p-8`}>
           <div className="mb-6">
             <h1 className={`text-3xl font-bold ${classes.textColor} mb-2`}>
-              {isEditing ? 'Edit Quiz' : 'Quiz Creator'}
+              {isEditing ? 'Sửa quiz' : 'Tạo quiz'}
             </h1>
             <p className={classes.mutedText}>
               {isEditing
-                ? 'Add, edit, or remove questions, then save your changes back to the saved quiz.'
-                : 'Build a quiz from scratch, or upload an existing JSON or TXT quiz to add, edit, and remove questions. Download the result and upload it back from the home page to take the quiz.'}
+                ? 'Thêm, sửa hoặc xoá câu hỏi, rồi lưu thay đổi vào bài quiz đã lưu.'
+                : 'Tự soạn quiz từ đầu, hoặc tải lên quiz JSON/TXT có sẵn để thêm, sửa, xoá câu hỏi. Tải kết quả về rồi tải lại ở trang chủ để làm quiz.'}
             </p>
           </div>
 
@@ -235,7 +235,7 @@ const QuizCreatorPage = ({ setView, editingQuiz = null, setEditingQuiz, onSaveEd
           </div>
 
           <Button type="button" onClick={addQuestion} className="w-full mt-6">
-            Add Question
+            Thêm câu hỏi
           </Button>
 
           <Pagination
@@ -252,9 +252,9 @@ const QuizCreatorPage = ({ setView, editingQuiz = null, setEditingQuiz, onSaveEd
                 variant="success"
                 onClick={handleSaveEdit}
                 className="w-full font-semibold"
-                title="Save changes and return to upload"
+                title="Lưu thay đổi và về trang tải lên"
               >
-                Save Changes
+                Lưu thay đổi
               </Button>
             )}
 
@@ -263,7 +263,7 @@ const QuizCreatorPage = ({ setView, editingQuiz = null, setEditingQuiz, onSaveEd
                 htmlFor="quizFilename"
                 className={`block text-sm font-medium ${classes.mutedText} mb-1`}
               >
-                File name
+                Tên tệp
               </label>
               <input
                 id="quizFilename"
@@ -282,23 +282,23 @@ const QuizCreatorPage = ({ setView, editingQuiz = null, setEditingQuiz, onSaveEd
                     type="button"
                     onClick={() => handleDownload('json')}
                     className="flex-1"
-                    title="Download as .json"
+                    title="Tải về dạng .json"
                   >
-                    Download as .json
+                    Tải về dạng .json
                   </Button>
                   <Button
                     type="button"
                     variant="purple"
                     onClick={() => handleDownload('txt')}
                     className="flex-1"
-                    title="Download as .txt"
+                    title="Tải về dạng .txt"
                   >
-                    Download as .txt
+                    Tải về dạng .txt
                   </Button>
                 </div>
 
                 <p className={`text-xs ${classes.mutedText}`}>
-                  Both formats contain the same JSON content. Pick whichever extension you prefer.
+                  Hai định dạng có cùng nội dung JSON. Chọn đuôi tệp bạn muốn.
                 </p>
               </>
             )}
@@ -310,11 +310,11 @@ const QuizCreatorPage = ({ setView, editingQuiz = null, setEditingQuiz, onSaveEd
 
       {showExitModal && (
         <Modal
-          title="Discard quiz?"
-          description="Your unsaved quiz will be lost. Download it first if you want to keep it."
+          title="Bỏ bài quiz này?"
+          description="Bài quiz chưa lưu sẽ mất. Hãy tải về trước nếu muốn giữ."
         >
           <Button type="button" variant="danger" onClick={confirmExit} className="w-full">
-            Yes, Discard
+            Có, bỏ đi
           </Button>
           <Button
             type="button"
@@ -322,18 +322,18 @@ const QuizCreatorPage = ({ setView, editingQuiz = null, setEditingQuiz, onSaveEd
             onClick={() => setShowExitModal(false)}
             className="w-full"
           >
-            Cancel
+            Huỷ
           </Button>
         </Modal>
       )}
 
       {showHistoryWarn && (
         <Modal
-          title="Save changes?"
-          description="Editing changes this quiz, so its saved attempts can no longer be opened for review — only their final scores will be kept in Results history."
+          title="Lưu thay đổi?"
+          description="Sửa sẽ làm đổi bài quiz này nên các lần làm đã lưu không còn xem lại được, chỉ giữ điểm cuối trong lịch sử kết quả."
         >
           <Button type="button" variant="success" onClick={performSaveEdit} className="w-full">
-            Save Changes
+            Lưu thay đổi
           </Button>
           <Button
             type="button"
@@ -341,18 +341,18 @@ const QuizCreatorPage = ({ setView, editingQuiz = null, setEditingQuiz, onSaveEd
             onClick={() => setShowHistoryWarn(false)}
             className="w-full"
           >
-            Cancel
+            Huỷ
           </Button>
         </Modal>
       )}
 
       {pendingImport && (
         <Modal
-          title="Replace current quiz?"
-          description="Uploading will replace the questions you have now. This cannot be undone."
+          title="Thay bài quiz hiện tại?"
+          description="Tải lên sẽ thay các câu hỏi hiện có. Không hoàn tác được."
         >
           <Button type="button" variant="emerald" onClick={confirmImport} className="w-full">
-            Replace
+            Thay thế
           </Button>
           <Button
             type="button"
@@ -360,7 +360,7 @@ const QuizCreatorPage = ({ setView, editingQuiz = null, setEditingQuiz, onSaveEd
             onClick={() => setPendingImport(null)}
             className="w-full"
           >
-            Cancel
+            Huỷ
           </Button>
         </Modal>
       )}

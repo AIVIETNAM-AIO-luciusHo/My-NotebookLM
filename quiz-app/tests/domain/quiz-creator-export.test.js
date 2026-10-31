@@ -68,17 +68,17 @@ test('exports creator questions to the same JSON contract accepted by uploads', 
 test('requires at least two questions before exporting a quiz', () => {
   assert.equal(
     buildQuizPayload([singleQuestion()]).error,
-    'A quiz must contain at least 2 questions',
+    'Bài quiz phải có ít nhất 2 câu hỏi',
   );
 });
 
 test('rejects incomplete creator questions before download', () => {
   const cases = [
-    [singleQuestion({ question: '   ' }), 'Question 1 is missing its text'],
-    [singleQuestion({ options: [{ text: 'A', isCorrect: true }, { text: ' ', isCorrect: false }] }), 'Question 1 has an empty option'],
-    [singleQuestion({ options: [{ text: 'A', isCorrect: false }] }), 'Question 1 needs at least 2 options'],
-    [singleQuestion({ options: [{ text: 'A', isCorrect: false }, { text: 'B', isCorrect: false }] }), 'Question 1 needs at least one correct answer'],
-    [multiQuestion({ options: [{ text: 'A', isCorrect: true }, { text: 'B', isCorrect: false }] }), 'Question 1 is set to Multiple Choice but only has 1 correct answer'],
+    [singleQuestion({ question: '   ' }), 'Câu 1 chưa có nội dung'],
+    [singleQuestion({ options: [{ text: 'A', isCorrect: true }, { text: ' ', isCorrect: false }] }), 'Câu 1 có đáp án trống'],
+    [singleQuestion({ options: [{ text: 'A', isCorrect: false }] }), 'Câu 1 cần ít nhất 2 đáp án'],
+    [singleQuestion({ options: [{ text: 'A', isCorrect: false }, { text: 'B', isCorrect: false }] }), 'Câu 1 cần ít nhất một đáp án đúng'],
+    [multiQuestion({ options: [{ text: 'A', isCorrect: true }, { text: 'B', isCorrect: false }] }), 'Câu 1 đặt là nhiều đáp án nhưng chỉ có 1 đáp án đúng'],
   ];
 
   for (const [question, error] of cases) {

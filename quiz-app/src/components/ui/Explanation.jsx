@@ -8,7 +8,7 @@ const Explanation = ({ children }) => {
 
   return (
     <div className={`${isDarkMode ? 'bg-blue-900 border-blue-700' : 'bg-blue-50 border-blue-200'} border rounded-lg p-4`}>
-      <p className={`font-semibold ${isDarkMode ? 'text-blue-300' : 'text-blue-900'} mb-1`}>Explanation:</p>
+      <p className={`font-semibold ${isDarkMode ? 'text-blue-300' : 'text-blue-900'} mb-1`}>Giải thích:</p>
       <p className={isDarkMode ? 'text-blue-200' : 'text-blue-800'}><RichText>{children}</RichText></p>
     </div>
   );
