@@ -1,153 +1,85 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Hướng dẫn cho Claude Code khi làm việc trong repo này. Nhật ký Obsidian: `CLAUDE.local.md` (không track). Kế hoạch: `PLAN.md`. Kiến trúc đích: `docs/ARCHITECTURE.md`.
 
-> Hợp đồng nhật ký Obsidian (Daily Note, MOC) nằm ở `CLAUDE.local.md` (không track). Kế hoạch và kiến trúc đích: `PLAN.md`, `docs/ARCHITECTURE.md`.
-
-## Prerequisites
+## Lệnh
 
 ```bash
-# Python / AI stack
-ollama serve
-ollama pull llama3.2          # LLM used by both Python apps
-pip install -r requirements.txt
+ollama serve && ollama pull llama3.2        # LLM cục bộ (cần chạy trước)
+pip install -r requirements.txt             # đầy đủ; CI dùng requirements-ci.txt
 
-# React quiz app
+cd src && uvicorn backend:app --reload --port 8000   # backend FastAPI
+pytest tests                                          # backend, offline, mock Ollama/embeddings/gTTS
+python -m eval.compare A.json B.json --metric hit@4   # so sánh hai report eval
+EVAL_PDF_DIR=<thư mục PDF> python src/evaluate_rag.py --live   # eval thật, cần Ollama
+
 cd quiz-app && npm install
+npm run dev                                  # http://localhost:5173
+npm run lint && npm test && npm run build    # 3 lệnh CI chạy
+node --test tests/domain/<file>.test.js      # một file test
+npm run e2e                                  # Playwright smoke, backend giả (chưa vào CI)
 ```
 
-## Commands
+## Kiến trúc
 
-```bash
-# FastAPI backend (pairs with the React frontend)
-cd src && uvicorn backend:app --reload --port 8000
+Hai ứng dụng dùng chung chồng AI tiếng Việt: embedding `keepitreal/vietnamese-sbert` (hoặc `bge-m3`), LLM `llama3.2` qua Ollama.
 
-# Standalone Streamlit app
-streamlit run src/apply-knowledge.py
+### Backend (`src/`)
 
-# React quiz app — dev server at http://localhost:5173
-cd quiz-app && npm run dev
+| File | Vai trò |
+|---|---|
+| `backend.py` | FastAPI: upload, chat, sinh quiz/mindmap, job |
+| `retrieval.py` | Hàm thuần: BM25, RRF, rerank, cờ truy hồi |
+| `jobs.py` | Hàng đợi job nạp tài liệu (SQLite, `jobs.sqlite`) |
+| `evaluate_rag.py` | Đánh giá RAG (RAGAS) |
+| `daily_note.py` | Tạo nhật ký ngày cho Obsidian |
 
-# Quiz app — production build
-cd quiz-app && npm run build
+Endpoint: `/health`, `/files`, `/upload`, `/jobs`, `/jobs/{id}` (GET, DELETE), `/jobs/{id}/resume`, `/chat`, `/generate-quiz`, `/generate-mindmap`. Bảng đầy đủ ở `README.md`.
 
-# Quiz app — run domain tests (uses Node's built-in test runner, no extra deps)
-cd quiz-app && npm test
+**Luồng nạp hai pha:** pha nhanh (PDF → chunk → embed → ChromaDB) đồng bộ, trả `job_id` và `graph_status: "pending"`; pha đồ thị (llama3.2 trích bộ ba → `nx.DiGraph` → `knowledge_graph.graphml`) chạy nền qua `jobs.py`. Trong lúc đó `/health` và `/chat` trả `graph_ready: false`; `/chat` luôn có kết quả vector. Khi khởi động, job đang chạy được đánh dấu `interrupted` và có thể `resume`.
 
-# Quiz app — run a single test file
-cd quiz-app && node --test tests/domain/<file>.test.js
+**Luồng `/chat`:** vector (ChromaDB, cosine) cộng sự kiện đồ thị 1–2 bước, gộp bằng `_build_hybrid_context()`, prompt CoT (`<thinking>`/`<answer>`), TTS gTTS (`""` nếu lỗi). Điểm cosine = `round(1 - distance, 4)`; vì thế collection phải tạo với `hnsw:space=cosine`.
 
-# Quiz app — lint
-cd quiz-app && npm run lint
-```
+**Cờ môi trường:** `RETRIEVAL` (`vector`|`hybrid`|`hybrid_rerank`), `EMBEDDING` (`sbert`|`bge-m3`), `BM25_TOKENS` (`uni`|`uni_bi`), `CHUNKING` (`char`|`token`), `CHROMA_PATH`, `GRAPH_PATH`, `JOBS_DB_PATH`, `GRAPH_MAX_CHUNKS`, `GRAPH_YIELD_COOLDOWN_SECONDS`. Mỗi mô hình embedding dùng collection riêng (768 và 1024 chiều không được trộn). Giá trị lạ → `ValueError` rõ ràng.
 
-## Architecture
+**Singleton:** `_embeddings` khởi tạo lúc import; collection `second_brain` mở lười qua `_get_collection()`; `_knowledge_graph` nạp từ graphml lúc import. Mọi chunk/nút/cạnh mang `source` (tên tệp). Nút = chuỗi thường hoá, nhãn gốc ở `label`. Một chunk lỗi trích xuất thì bỏ qua, không huỷ upload.
 
-This repo contains three separate apps that share the same Vietnamese-language AI stack (embedding model `keepitreal/vietnamese-sbert`, LLM `Ollama/llama3.2`):
+**Giữ nguyên điểm patch của test:** `from langchain_ollama import OllamaLLM as Ollama` (alias để `backend.Ollama` patch được), và `langchain_huggingface` bị mock trước `import backend`. Không "dọn" các chỗ này.
 
-### FastAPI Backend (`src/backend.py`)
+Dữ liệu runtime (`chroma_db/`, `knowledge_graph.graphml`, `uploads/`, `jobs.sqlite*`) đã gitignore; từng mất hai lần khi đổi nhánh, sao lưu trước khi động vào.
 
-Vietnamese-language **Hybrid GraphRAG** API:
+### Frontend (`quiz-app/`)
 
-| Endpoint | Method | What it does |
-|---|---|---|
-| `/health` | GET | Returns `{status, document_loaded, files, chunk_count, graph_nodes, graph_edges}` |
-| `/files` | GET | Returns the sorted list of unique `source` filenames in the persistent workspace |
-| `/upload` | POST | Accepts a PDF; chunks, embeds, and **appends** it to the persistent ChromaDB workspace **and** extracts `(Subject, Relation, Object)` triplets into a NetworkX knowledge graph |
-| `/chat` | POST `{query}` | Hybrid retrieval (vector + graph, global across all files) → CoT answer + TTS audio + scored sources + graph facts |
+React 19 + Vite + Tailwind. Không dùng React Router: `App.jsx` giữ một chuỗi `view` và state phẳng `useState`.
+- **Lượt chạy hiện tại:** `processedQuizData`, `answers`, `activeSettings`. **Xem lịch sử:** `viewingAttempt` (khi khác null, trang kết quả/xem lại hiển thị lần làm cũ; lượt chạy hiện tại không bị đụng).
+- **Gọi backend:** chỉ qua `src/lib/api.js` (không `fetch(` rải rác trong component). Lỗi backend ánh xạ sang thông báo tiếng Việt ở `utils/errorView.js`; job nạp theo dõi bằng `hooks/useJobs.js` + `utils/jobs.js`.
+- **Lưu trữ** (`utils/persistence.js`): đọc đồng bộ từ cache trong bộ nhớ, nạp từ IndexedDB lúc khởi động (`hydrate()` trong `main.jsx`), ghi xuyên xuống nền; không có IndexedDB thì dùng `localStorage`. Khoá: `quiz-library`, `quiz-history` (chỉ mục theo `hashQuiz`, hash nội dung).
+- **Chấm điểm** (`utils/utils.js`): một đáp án = khớp tuyệt đối; nhiều đáp án = F1; điểm cuối chuẩn hoá trên 10.
+- **Chia sẻ:** `api/proxy.js` là Vercel Edge Function không trạng thái (kiểm tra origin, giới hạn 1 MB, 5 s); `urlSafety.js` chặn SSRF phía client.
+- **Test:** `tests/domain/` là logic thuần bằng `node:test`, không DOM. Persistence test dùng `_setBackend()`/`_reset()` để giả IndexedDB.
 
-**Module-level singletons**: `_embeddings` is initialized once at import time. The vector store is a **persistent** ChromaDB collection (`chromadb.PersistentClient` at `Day3/chroma_db`, collection `second_brain`), opened lazily by `_get_collection()` on first use — uploads **append** to it cumulatively; it is never cleared or replaced, and it survives restarts. `_knowledge_graph` is a global `networkx.DiGraph` loaded from `knowledge_graph.graphml` at import time and likewise **accumulated** across uploads. Every chunk, node, and edge carries `{"source": <filename>}` metadata.
+## Bất biến (xem PLAN.md, docs/ARCHITECTURE.md)
 
-**LLM import**: `from langchain_ollama import OllamaLLM as Ollama` — the alias preserves the `backend.Ollama` patch seam used by both test suites; do not "clean it up" to a direct name.
-
-**`_get_collection()`** creates the collection with `metadata={"hnsw:space": "cosine"}`. This is required — without it, `/chat` cannot compute a valid cosine similarity score. During `/upload`, each chunk is passed to `Ollama(model="llama3.2", temperature=0.0)` with a strict information-extraction prompt that emits `(Subject, Relationship, Object)` lines, parsed by `_parse_triplets()` and merged into the graph.
-
-#### Hybrid GraphRAG flow (`networkx` dependency)
-
-The knowledge graph runs **side-by-side** with ChromaDB — two retrieval indexes over the same document:
-
-```
-/upload: PDF → chunks ─┬→ embed → ChromaDB (dense vectors)
-                       └→ llama3.2 IE (temp 0.0) → (S, R, O) triplets → nx.DiGraph → knowledge_graph.graphml
-
-/chat:   query ─┬→ ChromaDB similarity_search_with_score(k=4)      → top-4 chunks
-                ├→ entity extraction → node match → 1–2 hop expansion → graph triplet facts
-                └→ _build_hybrid_context(chunks, facts) → CoT prompt → llama3.2
-```
-
-Key implementation details:
-
-- **Node identity**: node id = lowercased entity string (so `"Marie Curie"` ≡ `"marie curie"`); original casing kept in the node's `label` attribute. Edges carry `relation`, `source` (filename), `chunk_index` attributes; duplicate edges with new relations are merged into a `"; "`-joined `relation` string.
-- **Persistence**: `knowledge_graph.graphml` in the Day3 root (`GRAPH_PATH`), written after every `/upload` and reloaded at server startup — both the graph and the ChromaDB workspace (`Day3/chroma_db`) survive restarts.
-- **Error handling**: a failed extraction on one chunk logs and skips (never aborts the upload); graph retrieval failures in `/chat` fall back to vector-only context; a missing/corrupt `.graphml` yields an empty graph.
-- **`GRAPH_MAX_CHUNKS` env var**: caps per-upload extraction LLM calls for large PDFs (default `0` = all chunks).
-- **Query entity extraction** (`_extract_query_entities`) uses llama3.2 at temp 0.0 with a deterministic keyword-token fallback if Ollama is unreachable.
-
-**`/chat`** implements four features:
-
-1. **Hybrid Retrieval + Context Fusion** — top-4 ChromaDB chunks (dense/implicit meaning) fused with 1–2 hop knowledge-graph triplets (explicit relations) by `_build_hybrid_context()` into a single sectioned context string fed to the CoT (`<thinking>`/`<answer>`) prompt.
-
-2. **Cosine Similarity Visualization** — calls `_query_workspace(collection, query, k=4)` (direct `collection.query` with `n_results=min(k, count)`). With `hnsw:space=cosine`, `distance = 1 − cosine_similarity`, so each source's score is `round(1.0 − distance, 4)` (range 0–1, 1 = identical). Each retrieved source also reports which file it came from (`source`).
-
-3. **Text-to-Speech** — `gTTS(text=answer, lang="vi")` encodes MP3 as `"data:audio/mp3;base64,..."`. Requires internet; falls back to `""` on failure.
-
-4. **Markdown Export-Ready JSON** — response schema maps 1-to-1 onto a `.md` file.
-
-**`/chat` response shape:**
-```json
-{
-  "answer": "...",
-  "audio_base64": "data:audio/mp3;base64,...",
-  "sources": [{ "text": "...", "cosine_score": 0.895, "source": "doc.pdf" }],
-  "graph_facts": ["(Marie Curie, discovered, polonium)"]
-}
-```
-
-**GraphRAG tests**: `tests/test_graph_rag.py` — 23 pytest tests covering triplet parsing, mocked-Ollama extraction, graph ingestion, GraphML round-trip persistence, 1–2 hop retrieval, and context fusion. Fully offline, no model weights (`langchain_huggingface` is force-mocked before `import backend`).
-
-**Multi-file workspace tests**: `tests/test_multi_file.py` — 10 pytest tests covering cumulative two-file ingestion, per-chunk `source` metadata, `GET /files`, persistence across a simulated restart (real `PersistentClient` in tmp_path), global `/chat` retrieval across files, and source-tagged graph accumulation. Embeddings/Ollama/PdfReader/gTTS are mocked; ChromaDB is real.
-
-### Streamlit App (`src/apply-knowledge.py`)
-
-Single-file standalone with the same embedding/LLM stack but no API layer. State lives in `st.session_state.vector_db`; uploading a new PDF replaces it entirely (no multi-document support).
-
-**Key differences from the backend**: Does NOT set `hnsw:space=cosine`, so similarity scores are not exposed. Re-instantiates `HuggingFaceEmbeddings` and `Ollama` on each PDF upload and each chat turn (no singletons).
-
-**RAG Chat** (main area): PDF → `RecursiveCharacterTextSplitter` (600 chars / 75 overlap) → embeddings → ChromaDB → top-4 chunks → strict Vietnamese prompt → `RetrievalQA`.
-
-**Quiz Generator** (sidebar): Retrieves 8 chunks, calls Ollama with `format="json"` to produce multiple-choice questions, validates with `json.loads`. LLM calls are at lines 79 (quiz) and 165 (chat) — update both to change the model.
-
-### React Quiz App (`quiz-app/`)
-
-A standalone browser-only quiz application (React 19 + Vite + Tailwind CSS). All state is client-side; no backend required for normal use.
-
-**Routing**: `App.jsx` manages a `view` string (`upload | quiz | results | review | create`) — there is no React Router. All page transitions go through `App.jsx` props.
-
-**State management**: Flat `useState` in `App.jsx`. The key state split:
-- **Live run**: `processedQuizData`, `answers`, `activeSettings` — the current in-progress quiz.
-- **History view**: `viewingAttempt` — when non-null, results/review pages render from a stored past attempt rather than the live run slots. Both can coexist; live slots are untouched while viewing history.
-- **Share import**: `shareStatus`, `pendingShareSettings` — resolved once on first load from `?quiz=` URL params, then stripped from the URL.
-
-**Persistence** (`src/utils/persistence.js`): synchronous reads backed by an in-memory cache that hydrates once from IndexedDB at startup (`hydrate()` in `main.jsx`). Writes update the cache synchronously and write through to IndexedDB in the background. Falls back to `localStorage` if IndexedDB is unavailable.
-
-**Storage keys**:
-- Saved quiz library: `storage.js` / key `quiz-library`
-- Results history per quiz: `history.js` / key `quiz-history`, indexed by `hashQuiz(rawData)` (content hash, not file name).
-
-**Scoring** (`src/utils/utils.js`): single-choice = exact match. Multi-choice = F1 score (precision/recall). Final score is normalized out of 10.
-
-**Share feature** (`api/proxy.js`): a stateless Vercel Edge Function that proxies external URLs to work around browser CORS. It validates origin and enforces a 1 MB size cap and 5 s timeout. Client-side `urlSafety.js` runs SSRF guards before calling it.
-
-**Domain tests** (`tests/domain/`): pure logic tests using Node's built-in `node:test` runner — no browser, no DOM, no test framework. They exercise `utils.js`, `history.js`, `storage.js`, `persistence.js`, `share.js`, etc. The persistence tests use `_setBackend()` / `_reset()` helpers to inject fake IndexedDB without touching real storage.
-
-## Kiến trúc đích và bất biến (xem PLAN.md, docs/ARCHITECTURE.md)
 - Ports and adapters: 5 cổng (VectorStore, GraphStore, LLM, ObjectStore, JobQueue); adapter local mặc định, cloud tuỳ chọn.
-- Bất biến: offline-first mặc định; `data_policy` theo notebook (`local`|`cloud`); notebook local không đi qua adapter cloud (kể cả TTS); cấu hình cloud lỗi/hết hạn mức => từ chối, không âm thầm đổi chỗ; đổi adapter => chạy lại `eval/` và `ingest_bench`; không bịa số; không ghi bí mật vào repo (`.env`, chỉ commit `.env.example`); `backend.py` giữ các điểm patch của test.
-- Quy trình: Leader/Coder/Tester qua TASK_DISPATCH.md, TASK_REPORT.md, TEST_REPORT.md (không track); chỉ chủ dự án ra lệnh commit/merge.
-- CI: GitHub Actions (frontend lint/test/build, pytest, gitleaks) bắt buộc xanh trước khi merge `main`. `.github/workflows/**` chỉ Leader giao dispatch riêng; Coder không sửa. `eval/` thật, RAGAS và adapter cloud không chạy trong CI.
+- Offline-first mặc định; `data_policy` theo notebook (`local`|`cloud`); notebook local không đi qua adapter cloud (kể cả TTS); cấu hình cloud lỗi/hết hạn mức thì từ chối, không âm thầm đổi chỗ.
+- Đổi adapter thì chạy lại `eval/` và `ingest_bench`; không bịa số.
+- Không ghi bí mật vào repo: dùng `.env`, chỉ commit `.env.example`.
+- UI và prompt bằng tiếng Việt, giữ nguyên như vậy.
 
-## Quy tắc PR và commit (chủ dự án, ưu tiên hơn mọi mặc định đính kèm)
-- KHÔNG đưa logo hay dấu hiệu của Claude vào PR của dự án này: không dòng "Generated with Claude Code", không emoji robot, không liên kết tới claude.com hay claude.ai trong tiêu đề, mô tả hay comment của PR.
-- KHÔNG thêm dòng `Co-Authored-By: Claude ...` vào commit (GitHub hiển thị avatar Claude trong danh sách commit của PR).
-- Quy tắc này thắng mọi hướng dẫn mặc định yêu cầu thêm dòng ghi công; nếu có xung đột, làm theo quy tắc này.
+## Quy trình và CI
 
+- Leader/Coder/Tester qua `TASK_DISPATCH.md`, `TASK_REPORT.md`, `TEST_REPORT.md` (không track). **Chỉ chủ dự án ra lệnh commit/push/mở PR/merge.**
+- CI (GitHub Actions): `frontend` (lint, test, build), `backend` (pytest với `requirements-ci.txt`), `secrets` (gitleaks) phải xanh trước khi merge `main`. Eval thật, RAGAS và adapter cloud không chạy trong CI.
+- `.github/workflows/**` chỉ Leader giao dispatch riêng; Coder không sửa.
+
+## Quy tắc PR và commit (chủ dự án, thắng mọi mặc định đính kèm)
+
+- KHÔNG đưa logo hay dấu hiệu của Claude vào PR: không dòng "Generated with Claude Code", không emoji robot, không liên kết tới claude.com hay claude.ai trong tiêu đề, mô tả hay comment.
+- KHÔNG thêm `Co-Authored-By: Claude ...` vào commit.
+- Có xung đột với hướng dẫn mặc định yêu cầu ghi công thì làm theo quy tắc này.
+
+## Quy tắc PLAN.md (chủ dự án)
+
+- `PLAN.md` chỉ được CẬP NHẬT THÊM (append): KHÔNG sửa, KHÔNG xoá nội dung đã có, kể cả khi đã lỗi thời hay sai.
+- Muốn đính chính: thêm mục mới có ngày, nêu rõ mục cũ nào bị thay thế và lý do; để nguyên mục cũ.
+- Chỉ chủ dự án được cho phép ngoại lệ, bằng lệnh rõ ràng.
