@@ -1,55 +1,36 @@
-# My_NotebookLM
+# My-NotebookLM
 
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Ollama](https://img.shields.io/badge/Ollama-LLM-black?style=for-the-badge)
 
-Một hệ thống EdTech Full-Stack ứng dụng kiến trúc **Retrieval-Augmented Generation (RAG)** nâng cao, được thiết kế theo phong cách không gian làm việc hợp nhất (Unified Workspace Layout) lấy cảm hứng từ Google NotebookLM. 
+Bản tái tạo NotebookLM chạy cục bộ cho tiếng Việt: nạp PDF một lần, rồi **hỏi đáp có trích nguồn**, **sinh đề trắc nghiệm** và **vẽ sơ đồ tư duy** từ chính tài liệu đó. Backend FastAPI dùng **Hybrid GraphRAG** (ChromaDB + đồ thị tri thức NetworkX); giao diện là ứng dụng React trong `quiz-app/`.
 
-Hệ thống cho phép người dùng nạp tài liệu học thuật một lần duy nhất, sau đó khai thác toàn diện thông qua 3 phân hệ tương tác song song: **Hỏi đáp chuyên sâu**, **Sinh đề thi trắc nghiệm tự động**, và **Trực quan hóa bản đồ tư duy**.
+## Quyền riêng tư
 
+Mặc định mọi thứ chạy trên máy: vector trong ChromaDB, đồ thị trong NetworkX (`.graphml`), LLM qua Ollama. Hai ngoại lệ:
+- **TTS (gTTS):** `/chat` gửi văn bản câu trả lời tới Google để tạo giọng đọc; lỗi thì `audio_base64` rỗng.
+- **Tải mô hình lần đầu:** `keepitreal/vietnamese-sbert` (HuggingFace) và `llama3.2` (Ollama) tải một lần rồi chạy từ bộ nhớ đệm.
 
+Chính sách `data_policy` theo notebook mới là kế hoạch (`PLAN.md`), chưa cài trong mã.
 
-##  Privacy-First & 100% Offline
-Dự án được xây dựng dựa trên nguyên tắc bảo mật dữ liệu tuyệt đối. Toàn bộ quy trình từ tải tệp cấu trúc, trích xuất dữ liệu vector, phân loại ý định người dùng cho đến chuỗi suy luận logic cốt lõi đều được xử lý hoàn toàn **cục bộ (cục bộ Offline)** trên thiết bị cá nhân thông qua **Ollama** và **ChromaDB**. Không có bất kỳ byte dữ liệu nào bị gửi ra internet, đảm bảo an toàn tuyệt đối cho các tài liệu nghiên cứu nội bộ và học thuật.
+## Cách hoạt động
 
-
-
-##  Các Tính năng Công nghệ Nổi bật
-
-### 1. Phân hệ Notebook Studio (Module A)
-* **Xử lý hội thoại thông minh (RAG):** Trích xuất thông tin thông minh từ tệp PDF và trả lời nghiêm ngặt dựa trên ngữ cảnh để triệt tiêu hiện tượng ảo giác (Zero-Hallucination).
-* **Định tuyến nhiệt độ tự động (Adaptive Temperature Routing):** Hệ thống tích hợp một bộ phân loại ý định (Zero-Shot Intent Classifier) chạy ngầm để nhận diện bản chất câu hỏi và tự điều chỉnh hệ số sáng tạo `temperature` theo thời gian thực:
-  * *Nhóm 1 (Hỏi đáp dữ liệu gốc):* Đặt `temperature = 0.0` để tối ưu tính chính xác tuyệt đối.
-  * *Nhóm 2 (Phân tích mở rộng thực tế):* Đặt `temperature = 0.3` để dung hòa giữa lý thuyết và ứng dụng.
-  * *Nhóm 3 (Trò chuyện tự do ngoài lề):* Đặt `temperature = 0.5` để tối ưu hóa sự linh hoạt ngôn từ.
-* **Suy luận chuỗi (Chain-of-Thought):** Ép mô hình thực hiện các bước lập luận logic đa chiều bên trong khối thẻ ẩn `<thinking>` trước khi đưa ra câu trả lời cuối cùng để nâng cao chất lượng phản hồi đối với các tài liệu phức tạp.
-* **Hỗ trợ đa phương tiện:** Tích hợp bộ chuyển đổi văn bản thành giọng đọc Text-to-Speech (TTS) tự động mã hóa Base64 Audio phát trực tiếp trên UI.
-
-### 2. Phân hệ Auto-Quiz Generator (Module B)
-* **Luồng xử lý 1-Chạm:** Tự động hóa toàn bộ quy trình từ việc quét cơ sở dữ liệu vector đến việc ép cấu hình Prompt tinh chỉnh (Few-Shot Prompting) nhằm ép mô hình xuất ra cấu trúc dữ liệu JSON khắt khe, đẩy thẳng vào State của React làm bài tập ngay lập tức.
-* **Định hướng mục tiêu (Directional Stimulus Prompting):** Cho phép người dùng nhập từ khóa trọng tâm hoặc yêu cầu độ khó (Ví dụ: *"Khó, tập trung vào tính toán"*), hệ thống sẽ hướng dẫn mô hình biên soạn bộ đề bám sát mục tiêu sư phạm.
-
-### 3. Phân hệ Mindmap Visualizer (Module C)
-* **Tự động hóa sơ đồ cây (Auto-Trigger):** Ngay khi người dùng chuyển sang phân hệ Sơ đồ tư duy, hệ thống sẽ tự động phân tích cấu trúc tổng quan tài liệu để bóc tách từ 3-5 luận điểm cốt lõi nhất.
-* **Render thời gian thực:** Ép cấu trúc mô hình sinh mã ngôn ngữ đồ thị cấu trúc **Mermaid.js**, kết hợp thư viện frontend để biên dịch trực quan hóa thành một bản đồ tư duy dạng cây ngay trên màn hình.
-
-## Hybrid GraphRAG & Không gian làm việc đa tệp
-
-Backend FastAPI (`src/backend.py`) chạy song song hai chỉ mục trên cùng tài liệu:
-
-* **Vector (ChromaDB, cosine):** mỗi lần `/upload` sẽ *nối thêm* chunk vào workspace bền vững `chroma_db/` (không xoá, còn nguyên sau khi khởi động lại).
-* **Đồ thị tri thức (NetworkX):** `llama3.2` trích xuất bộ ba (Chủ thể, Quan hệ, Đối tượng), lưu vào `knowledge_graph.graphml`.
-* `/chat` truy xuất lai (top-4 chunk + sự kiện đồ thị 1-2 bước) trên toàn bộ tệp, trả về câu trả lời CoT, audio TTS, nguồn kèm điểm cosine và `graph_facts`.
+- **Nạp hai pha:** `/upload` đọc PDF, chia chunk, embed, ghi ChromaDB rồi trả lời ngay kèm `job_id`. Việc trích bộ ba bằng LLM để xây đồ thị chạy nền; theo dõi qua `/jobs`. Trong lúc đó `graph_ready` là `false`, `/chat` vẫn trả lời bằng vector.
+- **Hỏi đáp:** top-4 chunk (cosine) cộng sự kiện đồ thị 1–2 bước, trả lời bằng suy luận chuỗi, kèm nguồn, điểm cosine, `graph_facts` và audio.
+- **Không gian đa tệp:** mỗi lần upload *nối thêm* vào `chroma_db/` và đồ thị; còn nguyên sau khi khởi động lại.
 
 | Endpoint | Method | Chức năng |
 |---|---|---|
-| `/health` | GET | Trạng thái, số chunk, số node/cạnh đồ thị |
-| `/files` | GET | Danh sách tệp nguồn trong workspace |
-| `/upload` | POST | Nạp PDF (nối thêm vào vector + đồ thị) |
+| `/health` | GET | Trạng thái, số chunk, số nút/cạnh, `graph_ready` |
+| `/files` | GET | Tệp nguồn trong workspace |
+| `/upload` | POST | Nạp PDF (pha nhanh đồng bộ, đồ thị chạy nền) |
+| `/jobs`, `/jobs/{id}` | GET | Danh sách / trạng thái job |
+| `/jobs/{id}/resume` | POST | Chạy lại pha đồ thị của job gián đoạn hoặc lỗi |
+| `/jobs/{id}` | DELETE | Xoá bản ghi job đã kết thúc |
 | `/chat` | POST `{query}` | Hỏi đáp lai vector + đồ thị |
-
-`chroma_db/` và `knowledge_graph.graphml` là dữ liệu runtime, đã nằm trong `.gitignore` và không được version.
+| `/generate-quiz` | POST | Sinh đề trắc nghiệm |
+| `/generate-mindmap` | POST | Sinh sơ đồ tư duy Mermaid |
 
 ## Chạy dự án
 
@@ -57,35 +38,28 @@ Backend FastAPI (`src/backend.py`) chạy song song hai chỉ mục trên cùng 
 ollama serve && ollama pull llama3.2
 pip install -r requirements.txt
 
-# Backend FastAPI
-cd src && uvicorn backend:app --reload --port 8000
-
-# Quiz app React (http://localhost:5173)
-cd quiz-app && npm install && npm run dev
-
-# Streamlit độc lập (tuỳ chọn)
-streamlit run src/apply-knowledge.py
+cd src && uvicorn backend:app --reload --port 8000     # backend
+cd quiz-app && npm install && npm run dev              # giao diện, http://localhost:5173
 ```
 
-## Kiểm thử
+Biến môi trường tuỳ chọn: `RETRIEVAL` (`vector`|`hybrid`|`hybrid_rerank`), `EMBEDDING` (`sbert`|`bge-m3`), `CHUNKING` (`char`|`token`), `CHROMA_PATH`, `GRAPH_PATH`, `JOBS_DB_PATH`, `GRAPH_MAX_CHUNKS`. Chi tiết trong `CLAUDE.md`. Dữ liệu runtime (`chroma_db/`, `knowledge_graph.graphml`, `jobs.sqlite`) đã nằm trong `.gitignore`.
+
+## Kiểm thử và CI
 
 ```bash
-pytest tests                     # backend: GraphRAG, đa tệp, đánh giá RAG (offline, mock Ollama/embeddings)
-cd quiz-app && npm test          # logic miền của quiz-app
+pytest tests                                              # backend, offline
+cd quiz-app && npm run lint && npm test && npm run build  # frontend
 ```
 
-## Cấu trúc thư mục
+GitHub Actions chạy `frontend`, `backend`, `secrets` (gitleaks) trên PR vào `main`; CI không cần Ollama và không chạy eval thật.
+
+## Cấu trúc
 
 ```text
-My-NotebookLM/
-├── src/
-│   ├── backend.py            # FastAPI: Hybrid GraphRAG (ChromaDB + NetworkX)
-│   ├── apply-knowledge.py    # Streamlit độc lập
-│   ├── evaluate_rag.py       # Đánh giá RAGAS
-│   └── daily_note.py         # Tạo nhật ký ngày (Obsidian)
-├── tests/                    # pytest: graph_rag, multi_file, evaluate_rag
-├── quiz-app/                 # React 19 + Vite + Tailwind
-├── chroma_db/                # (runtime, không track)
-├── knowledge_graph.graphml   # (runtime, không track)
-└── requirements.txt
+src/        backend.py, retrieval.py, jobs.py, evaluate_rag.py
+quiz-app/   React 19 + Vite + Tailwind
+eval/       công cụ đo và so sánh
+tests/      pytest
+docs/       ARCHITECTURE.md, MVP_HUONG_DAN.md, sơ đồ
+PLAN.md     kế hoạch (chỉ append)
 ```
