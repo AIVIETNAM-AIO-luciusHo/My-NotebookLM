@@ -53,7 +53,7 @@ const ShareQuizDialog = ({ rawData, name, settings, onClose }) => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      setError('Could not copy automatically — select the link and copy it manually.');
+      setError('Không tự sao chép được. Hãy chọn liên kết và sao chép thủ công.');
     }
   };
 
@@ -70,33 +70,32 @@ const ShareQuizDialog = ({ rawData, name, settings, onClose }) => {
     }
     setTestResult(
       hashQuiz(data) === qid
-        ? { ok: true, message: 'Link works and matches this quiz.' }
-        : { ok: false, message: "Link loads, but its content doesn't match this quiz." },
+        ? { ok: true, message: 'Liên kết hoạt động và khớp với bài quiz này.' }
+        : { ok: false, message: "Liên kết mở được nhưng nội dung không khớp với bài quiz này." },
     );
   };
 
   return (
     <Modal
-      title="Share this quiz"
-      description="Send a friend a link that loads this quiz with your current settings. Three quick steps:"
+      title="Chia sẻ bài quiz này"
+      description="Gửi bạn bè một liên kết nạp bài quiz này với cấu hình hiện tại. Ba bước nhanh:"
     >
       <div>
-        <p className={`text-sm font-medium ${classes.textColor} mb-1`}>1. Download your quiz file</p>
+        <p className={`text-sm font-medium ${classes.textColor} mb-1`}>1. Tải tệp quiz của bạn</p>
         <Button
           variant="secondary"
           onClick={handleDownload}
           className="w-full flex items-center justify-center gap-2 !py-2"
         >
-          <IconDownload className="w-4 h-4" /> Download .json
+          <IconDownload className="w-4 h-4" /> Tải .json
         </Button>
         <p className={`text-xs ${classes.mutedText} mt-2`}>
-          You can send this file straight to a friend to upload themselves — hosting it (steps 2–3) is only
-          needed if you want a one-click share link.
+          Bạn có thể gửi thẳng tệp này cho bạn bè tự tải lên. Đặt tệp lên mạng (bước 2–3) chỉ cần nếu muốn có liên kết chia sẻ một chạm.
         </p>
       </div>
 
       <p className={`text-sm ${classes.mutedText}`}>
-        2. Upload it somewhere public — for example a{' '}
+        2. Đưa tệp lên một nơi công khai, ví dụ{' '}
         <a
           href="https://gist.github.com/"
           target="_blank"
@@ -105,12 +104,12 @@ const ShareQuizDialog = ({ rawData, name, settings, onClose }) => {
         >
           GitHub gist
         </a>{' '}
-        — and copy its <strong>Raw</strong> file link.
+        rồi sao chép liên kết tệp <strong>Raw</strong>.
       </p>
 
       <div>
         <label htmlFor="shareUrl" className={`block text-sm font-medium ${classes.textColor} mb-1`}>
-          3. Paste the public file URL
+          3. Dán URL công khai của tệp
         </label>
         <input
           id="shareUrl"
@@ -136,10 +135,10 @@ const ShareQuizDialog = ({ rawData, name, settings, onClose }) => {
               className="flex-1 flex items-center justify-center gap-2 !py-2"
             >
               {copied ? <IconCheck className="w-4 h-4" /> : <IconCopy className="w-4 h-4" />}
-              {copied ? 'Copied' : 'Copy link'}
+              {copied ? 'Đã sao chép' : 'Sao chép liên kết'}
             </Button>
             <Button variant="secondary" onClick={handleTest} disabled={testing} className="flex-1 !py-2">
-              {testing ? 'Testing…' : 'Test link'}
+              {testing ? 'Đang thử…' : 'Thử liên kết'}
             </Button>
           </div>
           {testResult && (
@@ -152,12 +151,12 @@ const ShareQuizDialog = ({ rawData, name, settings, onClose }) => {
 
       {!link && (
         <Button onClick={handleGenerate} className="w-full !py-2">
-          Generate link
+          Tạo liên kết
         </Button>
       )}
 
       <Button variant="neutral" onClick={onClose} className="w-full !py-2">
-        Close
+        Đóng
       </Button>
     </Modal>
   );

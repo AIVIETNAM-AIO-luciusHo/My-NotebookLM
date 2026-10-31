@@ -35,18 +35,18 @@ export function isPrivateHost(host) {
 
 // Returns an error string if `raw` is not a safe URL to fetch, else null.
 export function rejectUnsafeUrl(raw) {
-    if (!raw || typeof raw !== 'string') return 'Missing url';
+    if (!raw || typeof raw !== 'string') return 'Thiếu URL';
     let u;
     try {
         u = new URL(raw);
     } catch {
-        return 'Invalid url';
+        return 'URL không hợp lệ';
     }
     if (u.protocol !== 'http:' && u.protocol !== 'https:') {
-        return 'Only http(s) URLs are allowed';
+        return 'Chỉ chấp nhận URL http(s)';
     }
     if (isPrivateHost(u.hostname)) {
-        return 'Refusing to fetch a private or local address';
+        return 'Từ chối tải địa chỉ nội bộ hoặc cục bộ';
     }
     return null;
 }

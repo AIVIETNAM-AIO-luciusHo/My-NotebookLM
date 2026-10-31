@@ -34,7 +34,7 @@ export function optionLabel(index) {
 // --- validate JSON structure ---
 export function validateQuizData(data) {
     if (!data.questions || !Array.isArray(data.questions)) {
-        return 'Invalid format: missing "questions" array';
+        return 'Định dạng không hợp lệ: thiếu mảng "questions"';
     }
 
     for (let i = 0; i < data.questions.length; i++) {
@@ -47,13 +47,13 @@ export function validateQuizData(data) {
             !Array.isArray(q.options) ||
             q.correctAnswer === undefined
         ) {
-            return `Invalid question format at index ${i}`;
+            return `Định dạng câu hỏi không hợp lệ ở vị trí ${i}`;
         }
         if (q.options.length < 2) {
-            return `Question ${i} must have at least 2 options`;
+            return `Câu ${i} phải có ít nhất 2 đáp án`;
         }
         if (q.options.some(option => typeof option !== 'string' || !option.trim())) {
-            return `Question ${i} has an invalid option`;
+            return `Câu ${i} có đáp án không hợp lệ`;
         }
 
         const isMulti = Array.isArray(q.correctAnswer);
@@ -61,21 +61,21 @@ export function validateQuizData(data) {
             Number.isInteger(idx) && idx >= 0 && idx < q.options.length;
 
         if (isMulti) {
-            if (q.correctAnswer.length === 0) return `Question ${i} must have at least one correct answer`;
+            if (q.correctAnswer.length === 0) return `Câu ${i} phải có ít nhất một đáp án đúng`;
             const seen = new Set();
             for (let idx of q.correctAnswer) {
                 if (!isValidAnswerIndex(idx)) {
-                    return `Invalid index ${idx} in correctAnswer for question ${i}`;
+                    return `Chỉ số ${idx} trong correctAnswer của câu ${i} không hợp lệ`;
                 }
                 if (seen.has(idx)) {
-                    return `Duplicate index ${idx} in correctAnswer for question ${i}`;
+                    return `Chỉ số ${idx} bị lặp trong correctAnswer của câu ${i}`;
                 }
                 seen.add(idx);
             }
         } else {
             // Single choice validation
             if (!isValidAnswerIndex(q.correctAnswer)) {
-                return `Invalid correctAnswer index for question ${i}`;
+                return `Chỉ số correctAnswer của câu ${i} không hợp lệ`;
             }
         }
     }
@@ -153,7 +153,7 @@ export function parseQuizText(text) {
     try {
         data = JSON.parse(text);
     } catch {
-        return { error: 'Invalid JSON file format' };
+        return { error: 'Tệp JSON không đúng định dạng' };
     }
     const validationError = validateQuizData(data);
     return validationError ? { error: validationError } : { data };
@@ -163,7 +163,7 @@ export function readQuizFile(file) {
     return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = (event) => resolve(parseQuizText(event.target.result));
-        reader.onerror = () => resolve({ error: 'Could not read the file' });
+        reader.onerror = () => resolve({ error: 'Không đọc được tệp' });
         reader.readAsText(file);
     });
 }
@@ -187,14 +187,23 @@ export function stripQuizExtension(name) {
 // empty line. We parse to plain data (not HTML) so quiz content can never
 // inject markup — the component only ever renders text, <strong>, and <u>.
 // Bold and underline don't nest: whichever marker opens first wins for that run.
-export function parseRichText(raw) {
+//
+// "__text__" only counts at a word boundary (not inside a word: a__b__c, snake__case__x),
+// never inside `inline code` or a ``` fenced block. { underline: false } turns __ off
+// entirely (the chat renders model text, where a bare __init__ is an identifier).
+export function parseRichText(raw, { underline = true } = {}) {
     const text = typeof raw === 'string' ? raw : raw == null ? '' : String(raw);
+    let fenced = false;
     return text.split('\n').map((line) => {
+        if (/^\s*```/.test(line)) { fenced = !fenced; return [{ text: line, bold: false, underline: false }]; }
+        if (fenced) return [{ text: line, bold: false, underline: false }];
         const segments = [];
-        const re = /\*\*(.+?)\*\*|__(.+?)__/g;
+        // Code spans match first (and are skipped below), so ** / __ inside them stay literal.
+        const re = /`[^`\n]*`|\*\*(.+?)\*\*|(?<![\p{L}\p{N}_])__(.+?)__(?![\p{L}\p{N}_])/gu;
         let lastIndex = 0;
         let match;
         while ((match = re.exec(line)) !== null) {
+            if (match[1] === undefined && (match[2] === undefined || !underline)) continue;
             if (match.index > lastIndex) {
                 segments.push({ text: line.slice(lastIndex, match.index), bold: false, underline: false });
             }
@@ -212,10 +221,50 @@ export function parseRichText(raw) {
     });
 }
 
+// Gom các dòng thành khối: bảng markdown (`| a | b |` + dòng `---`) hoặc đoạn dòng thường.
+// Trả dữ liệu thuần (không HTML) nên không thể chèn mã; RichText chỉ map sang <table>/<td>.
+const splitRow = (line) => {
+    const cells = line.trim().split('|').map((c) => c.trim());
+    if (cells[0] === '') cells.shift();
+    if (cells.length && cells[cells.length - 1] === '') cells.pop();
+    return cells;
+};
+const isSeparator = (line) => /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$/.test(line) && line.includes('-');
+const parseCell = (c, o) => parseRichText(c, o)[0];
+
+export function parseRichBlocks(raw, opts) {
+    const text = typeof raw === 'string' ? raw : raw == null ? '' : String(raw);
+    const lines = text.split('\n');
+    const blocks = [];
+    let plain = [];
+    const flush = () => {
+        if (plain.length) blocks.push({ type: 'lines', lines: parseRichText(plain.join('\n'), opts) });
+        plain = [];
+    };
+    for (let i = 0; i < lines.length; i++) {
+        if (lines[i].includes('|') && i + 1 < lines.length && lines[i + 1].includes('|') && isSeparator(lines[i + 1])) {
+            flush();
+            const header = splitRow(lines[i]).map((c) => parseCell(c, opts));
+            const rows = [];
+            i += 2;
+            while (i < lines.length && lines[i].includes('|') && lines[i].trim() !== '') {
+                rows.push(splitRow(lines[i]).map((c) => parseCell(c, opts)));
+                i++;
+            }
+            i--;
+            blocks.push({ type: 'table', header, rows });
+        } else {
+            plain.push(lines[i]);
+        }
+    }
+    flush();
+    return blocks;
+}
+
 // Locale date+time for saved-quiz / attempt timestamps. Shared by the library
 // and history panes so they format identically.
 export function formatTimestamp(ts) {
-    return new Date(ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    return new Date(ts).toLocaleString('vi-VN', { dateStyle: 'medium', timeStyle: 'short' });
 }
 
 // Triggers a browser download of the quiz JSON. Content is identical for

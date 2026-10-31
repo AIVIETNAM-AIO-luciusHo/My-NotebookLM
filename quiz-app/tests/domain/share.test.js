@@ -108,6 +108,6 @@ test('quizNameFromUrl derives a name from the last path segment, without extensi
   assert.equal(quizNameFromUrl('https://x.com/path/to/history-quiz.json'), 'history-quiz');
   assert.equal(quizNameFromUrl('https://x.com/my%20quiz.txt'), 'my quiz');
   assert.equal(quizNameFromUrl('https://x.com/no-extension'), 'no-extension');
-  assert.equal(quizNameFromUrl('https://x.com/'), 'Shared quiz');
-  assert.equal(quizNameFromUrl('not a url'), 'Shared quiz');
+  assert.equal(quizNameFromUrl('https://x.com/'), 'Quiz được chia sẻ');
+  assert.equal(quizNameFromUrl('not a url'), 'Quiz được chia sẻ');
 });

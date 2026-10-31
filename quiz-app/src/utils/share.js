@@ -65,9 +65,9 @@ export function buildShareUrl(origin, { url, qid, settings }) {
 export function quizNameFromUrl(url) {
     try {
         const last = decodeURIComponent(new URL(url).pathname.split('/').filter(Boolean).pop() || '');
-        return stripQuizExtension(last) || 'Shared quiz';
+        return stripQuizExtension(last) || 'Quiz được chia sẻ';
     } catch {
-        return 'Shared quiz';
+        return 'Quiz được chia sẻ';
     }
 }
 
@@ -79,11 +79,11 @@ export async function fetchSharedQuiz(url) {
     try {
         res = await fetch(`${PROXY_ENDPOINT}?url=${encodeURIComponent(url)}`);
     } catch {
-        return { error: 'Could not reach the quiz source. Check the link and your connection.' };
+        return { error: 'Không kết nối được nguồn quiz. Hãy kiểm tra liên kết và kết nối mạng.' };
     }
     const text = await res.text();
     if (!res.ok) {
-        let message = 'Could not load the shared quiz.';
+        let message = 'Không nạp được quiz được chia sẻ.';
         try {
             message = JSON.parse(text).error || message;
         } catch {

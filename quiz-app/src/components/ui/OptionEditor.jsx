@@ -43,7 +43,7 @@ const OptionEditor = ({
         checked={option.isCorrect}
         onChange={handleCorrectToggle}
         className="w-5 h-5 accent-indigo-600 cursor-pointer flex-shrink-0"
-        aria-label={option.isCorrect ? 'Marked as correct' : 'Mark as correct'}
+        aria-label={option.isCorrect ? 'Đã đánh dấu là đúng' : 'Đánh dấu là đúng'}
       />
 
       <span className={`font-bold ${classes.mutedText} flex-shrink-0 w-6`}>
@@ -54,7 +54,7 @@ const OptionEditor = ({
         type="text"
         value={option.text}
         onChange={(e) => onChange({ ...option, text: e.target.value })}
-        placeholder={`Option ${optionLabel(index)}`}
+        placeholder={`Đáp án ${optionLabel(index)}`}
         className={`flex-1 min-w-0 px-3 py-2 border ${inputBg} rounded-md focus:outline-none focus:border-indigo-500`}
       />
 
@@ -62,7 +62,7 @@ const OptionEditor = ({
         type="button"
         onClick={onRemove}
         disabled={!canRemove}
-        title={canRemove ? 'Remove option' : 'At least 2 options are required'}
+        title={canRemove ? 'Xoá đáp án' : 'Cần ít nhất 2 đáp án'}
         className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-shrink-0 ${
           canRemove
             ? isDarkMode
@@ -73,7 +73,7 @@ const OptionEditor = ({
               : 'text-gray-400 cursor-not-allowed'
         }`}
       >
-        Remove
+        Xoá
       </button>
     </div>
   );

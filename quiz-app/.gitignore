@@ -31,3 +31,7 @@ temp/
 .agents/
 .codex/
 CLAUDE.md
+
+# Playwright
+test-results/
+playwright-report/

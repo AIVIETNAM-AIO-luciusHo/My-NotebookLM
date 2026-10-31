@@ -3,9 +3,11 @@ import { useTheme } from '../../contexts/useTheme';
 import { processQuizData } from '../../utils/utils.js';
 import { useQuizLibrary } from '../../hooks/useQuizLibrary.js';
 import ErrorBanner from '../ui/ErrorBanner';
-import { BACKEND } from '../../lib/api';
+import StatePanel from '../ui/StatePanel';
+import { infraErrorView } from '../../utils/errorView';
+import { api } from '../../lib/api';
 
-const DIFFICULTY_PRESETS = ['Easy', 'Normal', 'Hard'];
+const DIFFICULTY_PRESETS = ['Dễ', 'Vừa', 'Khó'];
 const COUNT_PRESETS = ['3', '5', '7', '10'];
 
 // ── Section label ─────────────────────────────────────────────────────────────
@@ -53,34 +55,27 @@ const QuizStudio = ({
   const { saveQuiz } = useQuizLibrary();
 
   const [topic, setTopic] = useState('');
-  const [difficulty, setDifficulty] = useState('Normal');
+  const [difficulty, setDifficulty] = useState('Vừa');
   const [numQ, setNumQ] = useState('5');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [errView, setErrView] = useState(null);
 
   const handleGenerate = async () => {
     const topicTrimmed = topic.trim();
-    if (!topicTrimmed) { setError('Please enter a topic to focus on.'); return; }
+    if (!topicTrimmed) { setError('Hãy nhập chủ đề cần tập trung.'); return; }
 
     setLoading(true);
     setError('');
+    setErrView(null);
 
     try {
-      const res = await fetch(`${BACKEND}/generate-quiz`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          topic: topicTrimmed,
-          num_questions: parseInt(numQ) || 5,
-          difficulty: difficulty.trim() || 'Normal',
-        }),
+      const quizData = await api.generateQuiz({
+        topic: topicTrimmed,
+        num_questions: parseInt(numQ) || 5,
+        difficulty: difficulty.trim() || 'Vừa',
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail ?? 'Quiz generation failed.');
-      }
-      const quizData = await res.json();
-      if (!quizData.questions?.length) throw new Error('No questions returned. Try a different topic.');
+      if (!quizData.questions?.length) throw new Error('Không có câu hỏi nào. Hãy thử chủ đề khác.');
 
       const name = quizData.title ?? topicTrimmed;
       saveQuiz(quizData, name);
@@ -98,7 +93,9 @@ const QuizStudio = ({
       setProcessedQuizData(processQuizData(quizData, launchSettings));
       setView('quiz');
     } catch (e) {
-      setError(e.message);
+      const v = infraErrorView(e);
+      setErrView(v);
+      setError(v ? '' : e.message);
     } finally {
       setLoading(false);
     }
@@ -117,21 +114,21 @@ const QuizStudio = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h2 className={`text-xl font-bold ${classes.textColor}`}>Quiz Studio</h2>
+          <h2 className={`text-xl font-bold ${classes.textColor}`}>Tạo Quiz</h2>
           <p className={`text-sm ${classes.mutedText} mt-1`}>
-            Generate a quiz directly from the active document
+            Tạo quiz trực tiếp từ tài liệu đang mở
           </p>
         </div>
 
         {/* Topic */}
         <div>
-          <Label>Topic / Focus Area</Label>
+          <Label>Chủ đề / trọng tâm</Label>
           <input
             type="text"
             value={topic}
             onChange={(e) => { setTopic(e.target.value); setError(''); }}
             onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-            placeholder="e.g. Photosynthesis, Newton's Laws, World War II…"
+            placeholder="vd: Quang hợp, Định luật Newton, Chiến tranh thế giới II…"
             className={`w-full px-4 py-3 border-2 rounded-xl text-sm focus:outline-none transition-colors ${
               isDarkMode
                 ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-500 focus:border-violet-500'
@@ -142,7 +139,7 @@ const QuizStudio = ({
 
         {/* Difficulty */}
         <div>
-          <Label>Difficulty / Focus Directive</Label>
+          <Label>Độ khó / chỉ dẫn trọng tâm</Label>
           <div className="flex gap-2 mb-2 flex-wrap">
             {DIFFICULTY_PRESETS.map((d) => (
               <Chip key={d} label={d} active={difficulty === d} onClick={() => setDifficulty(d)} />
@@ -152,7 +149,7 @@ const QuizStudio = ({
             type="text"
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
-            placeholder="Custom: e.g. Focus on formulas, Application questions…"
+            placeholder="Tuỳ chọn: vd tập trung công thức, câu hỏi ứng dụng…"
             className={`w-full px-4 py-2.5 border-2 rounded-xl text-sm focus:outline-none transition-colors ${
               isDarkMode
                 ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-500 focus:border-violet-500'
@@ -160,13 +157,13 @@ const QuizStudio = ({
             }`}
           />
           <p className={`text-xs ${classes.mutedText} mt-1.5`}>
-            Pick a preset or type a custom focus directive
+            Chọn mức có sẵn hoặc tự nhập chỉ dẫn
           </p>
         </div>
 
         {/* Question count */}
         <div>
-          <Label>Number of Questions</Label>
+          <Label>Số câu hỏi</Label>
           <div className="flex gap-2">
             {COUNT_PRESETS.map((n) => (
               <Chip key={n} label={n} active={numQ === n} onClick={() => setNumQ(n)} />
@@ -184,13 +181,14 @@ const QuizStudio = ({
                     ? 'bg-gray-700 border-gray-600 text-gray-300 focus:border-violet-500'
                     : 'bg-gray-50 border-gray-300 text-gray-600 focus:border-violet-400'
               }`}
-              title="Custom number"
+              title="Số tuỳ chọn"
             />
           </div>
-          <p className={`text-xs ${classes.mutedText} mt-1.5`}>Maximum 15 questions per generation</p>
+          <p className={`text-xs ${classes.mutedText} mt-1.5`}>Tối đa 15 câu mỗi lần tạo</p>
         </div>
 
         {/* Error */}
+        {errView && <StatePanel compact view={errView} onRetry={handleGenerate} />}
         <ErrorBanner>{error}</ErrorBanner>
 
         {/* Generate button */}
@@ -206,14 +204,14 @@ const QuizStudio = ({
           {loading ? (
             <>
               <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-              Generating questions…
+              Đang tạo câu hỏi…
             </>
           ) : (
             <>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              Generate & Play Quiz
+              Tạo và làm quiz
             </>
           )}
         </button>
@@ -221,7 +219,7 @@ const QuizStudio = ({
         {/* Hint */}
         {!loading && (
           <p className={`text-xs ${classes.mutedText} text-center`}>
-            Quiz is saved to your library for later replay
+            Quiz được lưu vào thư viện để làm lại sau
           </p>
         )}
       </div>

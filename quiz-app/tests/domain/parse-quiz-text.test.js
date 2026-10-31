@@ -18,12 +18,12 @@ test('parseQuizText returns parsed data for valid quiz JSON', () => {
 test('parseQuizText reports a JSON syntax error', () => {
   const { data, error } = parseQuizText('{ not json');
   assert.equal(data, undefined);
-  assert.equal(error, 'Invalid JSON file format');
+  assert.equal(error, 'Tệp JSON không đúng định dạng');
 });
 
 test('parseQuizText surfaces validation errors from validateQuizData', () => {
   const { error } = parseQuizText(JSON.stringify({ questions: 'nope' }));
-  assert.equal(error, 'Invalid format: missing "questions" array');
+  assert.equal(error, 'Định dạng không hợp lệ: thiếu mảng "questions"');
 });
 
 test('parseQuizText does not enforce the 2-question minimum (callers add that)', () => {

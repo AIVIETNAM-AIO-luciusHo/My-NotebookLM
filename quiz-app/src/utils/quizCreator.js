@@ -35,14 +35,14 @@ export function buildQuizPayload(questions) {
   for (let i = 0; i < questions.length; i++) {
     const q = questions[i];
     const text = q.question.trim();
-    if (!text) return { error: `Question ${i + 1} is missing its text` };
+    if (!text) return { error: `Câu ${i + 1} chưa có nội dung` };
 
     const trimmedOptions = q.options.map((o) => o.text.trim());
     if (trimmedOptions.some((t) => !t)) {
-      return { error: `Question ${i + 1} has an empty option` };
+      return { error: `Câu ${i + 1} có đáp án trống` };
     }
     if (trimmedOptions.length < 2) {
-      return { error: `Question ${i + 1} needs at least 2 options` };
+      return { error: `Câu ${i + 1} cần ít nhất 2 đáp án` };
     }
 
     const correctIndices = q.options
@@ -50,11 +50,11 @@ export function buildQuizPayload(questions) {
       .filter((idx) => idx !== -1);
 
     if (correctIndices.length === 0) {
-      return { error: `Question ${i + 1} needs at least one correct answer` };
+      return { error: `Câu ${i + 1} cần ít nhất một đáp án đúng` };
     }
     if (q.type === 'multi' && correctIndices.length < 2) {
       return {
-        error: `Question ${i + 1} is set to Multiple Choice but only has 1 correct answer`,
+        error: `Câu ${i + 1} đặt là nhiều đáp án nhưng chỉ có 1 đáp án đúng`,
       };
     }
 
@@ -70,7 +70,7 @@ export function buildQuizPayload(questions) {
   }
 
   if (built.length < 2) {
-    return { error: 'A quiz must contain at least 2 questions' };
+    return { error: 'Bài quiz phải có ít nhất 2 câu hỏi' };
   }
 
   return { data: { questions: built } };
