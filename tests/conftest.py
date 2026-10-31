@@ -9,7 +9,9 @@ installed, this file is effectively a no-op.
 
 from __future__ import annotations
 
+import os
 import sys
+import tempfile
 from unittest.mock import MagicMock
 
 
@@ -24,10 +26,16 @@ def pytest_configure(config: object) -> None:  # noqa: ARG001
     """
     Called once before test collection begins.
 
+    Cô lập môi trường test TRƯỚC khi bất kỳ test nào import `backend`: kho job tạm cho mỗi
+    phiên (không ghi vào jobs.sqlite thật) và thời gian nguội của worker = 0 (backend đọc env lúc import).
+
     For each heavy dependency that is absent, install a mock so that
     `import ragas` (and friends) inside evaluate_rag.py will not raise
     ModuleNotFoundError during import.
     """
+    os.environ["JOBS_DB_PATH"] = os.path.join(tempfile.mkdtemp(prefix="pytest-jobs-"), "jobs.sqlite")
+    os.environ.setdefault("GRAPH_YIELD_COOLDOWN_SECONDS", "0")
+
     _HEAVY_PACKAGES = [
         "ragas",
         "ragas.metrics",

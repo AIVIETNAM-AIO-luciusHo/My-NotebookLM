@@ -1,40 +1,31 @@
-# Web framework
+# Full runtime. Core block = requirements-ci.txt (same pins; keep in sync), then heavy extras.
+
+# --- Core (verified on CI) ---
 fastapi==0.110.0
-uvicorn[standard]==0.29.0
+httpx<0.28
 python-multipart==0.0.9
-
-# PDF parsing
 pypdf==4.1.0
-
-# LangChain core + community
 langchain==0.3.7
-langchain-community==0.3.7
-langchain-huggingface==0.1.2
-
-# Ollama LLM integration (replaces deprecated langchain_community.llms.Ollama)
 langchain-ollama>=0.2
-
-# Vector store
 chromadb==0.4.24
-
-# Knowledge graph — Hybrid GraphRAG (side-by-side with ChromaDB)
 networkx>=3.0
+gtts==2.5.1
+pandas
+pytest>=8.0.0
 
-# Embeddings model runtime
+# --- Heavy runtime (embeddings, server, Ollama client) ---
 sentence-transformers==2.6.1
-
-# Ollama Python client
+langchain-huggingface==0.1.2
+uvicorn[standard]==0.29.0
 ollama
 
-# Text-to-speech
-gtts==2.5.1
-
-# Optional: standalone Streamlit prototype
+# --- Streamlit prototype (src/apply-knowledge.py imports langchain_community) ---
+langchain-community==0.3.7
 # streamlit==1.32.0
 
-# Phase 4 — RAGAS Evaluation Benchmark
+# --- RAG evaluation ---
 ragas>=0.2.0
 datasets>=2.19.0
-
-# Testing
-pytest>=8.0.0
+# pyarrow>=25 needs NumPy 2 at import, but chromadb 0.4.24 keeps NumPy 1.x -> datasets fails to import.
+# 24.0.0 is the version verified working with numpy 1.26.4.
+pyarrow==24.0.0

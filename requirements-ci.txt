@@ -1,13 +1,13 @@
 # Dependencies for the GitHub Actions `backend` job only.
 # Differs from requirements.txt on purpose: tests mock embeddings/Ollama/gTTS and never load
 # model weights, so the heavy runtime packages are left out (sentence-transformers,
-# langchain-huggingface, ragas, datasets, uvicorn, ollama). requirements.txt is unchanged.
+# langchain-huggingface, ragas, datasets, uvicorn, ollama, langchain-community).
+# requirements.txt = this core (same pins) + the heavy runtime packages; keep the core pins in sync.
 fastapi==0.110.0
 httpx<0.28
 python-multipart==0.0.9
 pypdf==4.1.0
 langchain==0.3.7
-langchain-community==0.3.7
 langchain-ollama>=0.2
 chromadb==0.4.24
 networkx>=3.0
