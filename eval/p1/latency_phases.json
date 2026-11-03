@@ -1,0 +1,655 @@
+{
+  "label": "mẫu nhỏ, một máy; gTTS giả",
+  "pdf": "bao-cao-bien-doi-gradient.pdf",
+  "seed": 1,
+  "rounds": 3,
+  "valid_background_calls": 30,
+  "total_background_calls": 30,
+  "valid_idle_calls": 30,
+  "ratio_per_question": {
+    "q01": 1.895,
+    "q02": 1.74,
+    "q03": 2.124,
+    "q04": 1.149,
+    "q05": 5.469,
+    "q06": 0.061,
+    "q07": 1.037,
+    "q08": 1.819,
+    "q09": 1.918,
+    "q10": 1.345
+  },
+  "median_ratio": 1.78,
+  "threshold": 1.5,
+  "yield_cooldown_s": 0.0,
+  "triplet_calls_during_background": 30,
+  "job_state_after_background_phase": {
+    "job_id": "268f641d5667427c92967ab33562fb73",
+    "source": "bao-cao-bien-doi-gradient.pdf",
+    "status": "graph_running",
+    "progress": 0.1681,
+    "chunks_total": 119,
+    "chunks_done": 20,
+    "triplets_added": 108,
+    "error": null,
+    "created_at": "2026-10-27T15:21:25.573+00:00",
+    "updated_at": "2026-10-27T15:23:48.150+00:00"
+  },
+  "nvidia_smi_before": "Tue Oct 27 22:21:25 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.110                Driver Version: 581.86         CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 3050 ...    On  |   00000000:01:00.0  On |                  N/A |\n| N/A   48C    P0             11W /   95W |    3537MiB /   6144MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A          233320      C   /llama-server                         N/A      |\n|    0   N/A  N/A          238635      C   /python3.12                           N/A      |\n+-----------------------------------------------------------------------------------------+\n",
+  "calls": [
+    {
+      "cond": "background",
+      "id": "q07",
+      "round": 0,
+      "s": 3.989,
+      "valid": true,
+      "ent_s": 0.0,
+      "cls_s": 0.853,
+      "gen_rest_s": 3.136
+    },
+    {
+      "cond": "background",
+      "id": "q09",
+      "round": 0,
+      "s": 3.42,
+      "valid": true,
+      "ent_s": 0.0,
+      "cls_s": 2.531,
+      "gen_rest_s": 0.89
+    },
+    {
+      "cond": "background",
+      "id": "q10",
+      "round": 0,
+      "s": 10.801,
+      "valid": true,
+      "ent_s": 3.542,
+      "cls_s": 0.483,
+      "gen_rest_s": 6.776
+    },
+    {
+      "cond": "background",
+      "id": "q08",
+      "round": 0,
+      "s": 8.401,
+      "valid": true,
+      "ent_s": 2.524,
+      "cls_s": 0.451,
+      "gen_rest_s": 5.425
+    },
+    {
+      "cond": "background",
+      "id": "q06",
+      "round": 0,
+      "s": 4.85,
+      "valid": true,
+      "ent_s": 2.869,
+      "cls_s": 0.46,
+      "gen_rest_s": 1.52
+    },
+    {
+      "cond": "background",
+      "id": "q04",
+      "round": 0,
+      "s": 3.117,
+      "valid": true,
+      "ent_s": 1.754,
+      "cls_s": 0.477,
+      "gen_rest_s": 0.886
+    },
+    {
+      "cond": "background",
+      "id": "q01",
+      "round": 0,
+      "s": 3.76,
+      "valid": true,
+      "ent_s": 2.253,
+      "cls_s": 0.557,
+      "gen_rest_s": 0.95
+    },
+    {
+      "cond": "background",
+      "id": "q05",
+      "round": 0,
+      "s": 19.865,
+      "valid": true,
+      "ent_s": 2.921,
+      "cls_s": 0.616,
+      "gen_rest_s": 16.327
+    },
+    {
+      "cond": "background",
+      "id": "q02",
+      "round": 0,
+      "s": 4.56,
+      "valid": true,
+      "ent_s": 2.837,
+      "cls_s": 0.533,
+      "gen_rest_s": 1.19
+    },
+    {
+      "cond": "background",
+      "id": "q03",
+      "round": 0,
+      "s": 4.607,
+      "valid": true,
+      "ent_s": 1.859,
+      "cls_s": 0.715,
+      "gen_rest_s": 2.034
+    },
+    {
+      "cond": "background",
+      "id": "q05",
+      "round": 1,
+      "s": 7.248,
+      "valid": true,
+      "ent_s": 2.507,
+      "cls_s": 0.441,
+      "gen_rest_s": 4.299
+    },
+    {
+      "cond": "background",
+      "id": "q09",
+      "round": 1,
+      "s": 3.702,
+      "valid": true,
+      "ent_s": 2.289,
+      "cls_s": 0.509,
+      "gen_rest_s": 0.904
+    },
+    {
+      "cond": "background",
+      "id": "q03",
+      "round": 1,
+      "s": 4.964,
+      "valid": true,
+      "ent_s": 1.201,
+      "cls_s": 0.515,
+      "gen_rest_s": 3.248
+    },
+    {
+      "cond": "background",
+      "id": "q07",
+      "round": 1,
+      "s": 11.108,
+      "valid": true,
+      "ent_s": 2.248,
+      "cls_s": 0.759,
+      "gen_rest_s": 8.101
+    },
+    {
+      "cond": "background",
+      "id": "q06",
+      "round": 1,
+      "s": 6.835,
+      "valid": true,
+      "ent_s": 2.399,
+      "cls_s": 0.455,
+      "gen_rest_s": 3.981
+    },
+    {
+      "cond": "background",
+      "id": "q10",
+      "round": 1,
+      "s": 4.558,
+      "valid": true,
+      "ent_s": 3.356,
+      "cls_s": 0.443,
+      "gen_rest_s": 0.758
+    },
+    {
+      "cond": "background",
+      "id": "q01",
+      "round": 1,
+      "s": 3.512,
+      "valid": true,
+      "ent_s": 1.943,
+      "cls_s": 0.553,
+      "gen_rest_s": 1.016
+    },
+    {
+      "cond": "background",
+      "id": "q08",
+      "round": 1,
+      "s": 14.691,
+      "valid": true,
+      "ent_s": 3.886,
+      "cls_s": 0.437,
+      "gen_rest_s": 10.368
+    },
+    {
+      "cond": "background",
+      "id": "q02",
+      "round": 1,
+      "s": 4.728,
+      "valid": true,
+      "ent_s": 2.804,
+      "cls_s": 0.713,
+      "gen_rest_s": 1.211
+    },
+    {
+      "cond": "background",
+      "id": "q04",
+      "round": 1,
+      "s": 6.574,
+      "valid": true,
+      "ent_s": 4.209,
+      "cls_s": 0.573,
+      "gen_rest_s": 1.792
+    },
+    {
+      "cond": "background",
+      "id": "q08",
+      "round": 2,
+      "s": 10.133,
+      "valid": true,
+      "ent_s": 4.163,
+      "cls_s": 0.475,
+      "gen_rest_s": 5.495
+    },
+    {
+      "cond": "background",
+      "id": "q09",
+      "round": 2,
+      "s": 4.606,
+      "valid": true,
+      "ent_s": 2.975,
+      "cls_s": 0.68,
+      "gen_rest_s": 0.95
+    },
+    {
+      "cond": "background",
+      "id": "q07",
+      "round": 2,
+      "s": 7.962,
+      "valid": true,
+      "ent_s": 3.098,
+      "cls_s": 0.672,
+      "gen_rest_s": 4.193
+    },
+    {
+      "cond": "background",
+      "id": "q10",
+      "round": 2,
+      "s": 12.215,
+      "valid": true,
+      "ent_s": 2.738,
+      "cls_s": 0.463,
+      "gen_rest_s": 9.014
+    },
+    {
+      "cond": "background",
+      "id": "q06",
+      "round": 2,
+      "s": 6.574,
+      "valid": true,
+      "ent_s": 1.572,
+      "cls_s": 0.459,
+      "gen_rest_s": 4.543
+    },
+    {
+      "cond": "background",
+      "id": "q01",
+      "round": 2,
+      "s": 3.339,
+      "valid": true,
+      "ent_s": 2.036,
+      "cls_s": 0.459,
+      "gen_rest_s": 0.844
+    },
+    {
+      "cond": "background",
+      "id": "q03",
+      "round": 2,
+      "s": 10.566,
+      "valid": true,
+      "ent_s": 2.883,
+      "cls_s": 0.784,
+      "gen_rest_s": 6.899
+    },
+    {
+      "cond": "background",
+      "id": "q02",
+      "round": 2,
+      "s": 4.914,
+      "valid": true,
+      "ent_s": 3.032,
+      "cls_s": 0.712,
+      "gen_rest_s": 1.17
+    },
+    {
+      "cond": "background",
+      "id": "q04",
+      "round": 2,
+      "s": 3.869,
+      "valid": true,
+      "ent_s": 0.852,
+      "cls_s": 0.524,
+      "gen_rest_s": 2.494
+    },
+    {
+      "cond": "background",
+      "id": "q05",
+      "round": 2,
+      "s": 10.839,
+      "valid": true,
+      "ent_s": 2.635,
+      "cls_s": 0.546,
+      "gen_rest_s": 7.658
+    },
+    {
+      "cond": "idle",
+      "id": "q07",
+      "round": 0,
+      "s": 6.335,
+      "valid": true,
+      "ent_s": 0.753,
+      "cls_s": 0.635,
+      "gen_rest_s": 4.947
+    },
+    {
+      "cond": "idle",
+      "id": "q09",
+      "round": 0,
+      "s": 2.407,
+      "valid": true,
+      "ent_s": 0.654,
+      "cls_s": 0.735,
+      "gen_rest_s": 1.018
+    },
+    {
+      "cond": "idle",
+      "id": "q10",
+      "round": 0,
+      "s": 9.454,
+      "valid": true,
+      "ent_s": 0.815,
+      "cls_s": 0.597,
+      "gen_rest_s": 8.042
+    },
+    {
+      "cond": "idle",
+      "id": "q08",
+      "round": 0,
+      "s": 8.356,
+      "valid": true,
+      "ent_s": 0.869,
+      "cls_s": 0.591,
+      "gen_rest_s": 6.896
+    },
+    {
+      "cond": "idle",
+      "id": "q06",
+      "round": 0,
+      "s": 107.584,
+      "valid": true,
+      "ent_s": 0.712,
+      "cls_s": 0.633,
+      "gen_rest_s": 106.239
+    },
+    {
+      "cond": "idle",
+      "id": "q04",
+      "round": 0,
+      "s": 5.567,
+      "valid": true,
+      "ent_s": 1.046,
+      "cls_s": 0.639,
+      "gen_rest_s": 3.882
+    },
+    {
+      "cond": "idle",
+      "id": "q01",
+      "round": 0,
+      "s": 1.8,
+      "valid": true,
+      "ent_s": 0.657,
+      "cls_s": 0.412,
+      "gen_rest_s": 0.731
+    },
+    {
+      "cond": "idle",
+      "id": "q05",
+      "round": 0,
+      "s": 1.982,
+      "valid": true,
+      "ent_s": 0.439,
+      "cls_s": 0.501,
+      "gen_rest_s": 1.041
+    },
+    {
+      "cond": "idle",
+      "id": "q02",
+      "round": 0,
+      "s": 2.972,
+      "valid": true,
+      "ent_s": 0.514,
+      "cls_s": 0.569,
+      "gen_rest_s": 1.889
+    },
+    {
+      "cond": "idle",
+      "id": "q03",
+      "round": 0,
+      "s": 2.337,
+      "valid": true,
+      "ent_s": 0.521,
+      "cls_s": 0.703,
+      "gen_rest_s": 1.113
+    },
+    {
+      "cond": "idle",
+      "id": "q05",
+      "round": 1,
+      "s": 1.781,
+      "valid": true,
+      "ent_s": 0.542,
+      "cls_s": 0.475,
+      "gen_rest_s": 0.764
+    },
+    {
+      "cond": "idle",
+      "id": "q09",
+      "round": 1,
+      "s": 1.66,
+      "valid": true,
+      "ent_s": 0.493,
+      "cls_s": 0.448,
+      "gen_rest_s": 0.718
+    },
+    {
+      "cond": "idle",
+      "id": "q03",
+      "round": 1,
+      "s": 3.746,
+      "valid": true,
+      "ent_s": 0.603,
+      "cls_s": 0.41,
+      "gen_rest_s": 2.733
+    },
+    {
+      "cond": "idle",
+      "id": "q07",
+      "round": 1,
+      "s": 8.599,
+      "valid": true,
+      "ent_s": 0.56,
+      "cls_s": 0.635,
+      "gen_rest_s": 7.404
+    },
+    {
+      "cond": "idle",
+      "id": "q06",
+      "round": 1,
+      "s": 3.836,
+      "valid": true,
+      "ent_s": 0.645,
+      "cls_s": 0.433,
+      "gen_rest_s": 2.758
+    },
+    {
+      "cond": "idle",
+      "id": "q10",
+      "round": 1,
+      "s": 8.028,
+      "valid": true,
+      "ent_s": 1.03,
+      "cls_s": 0.473,
+      "gen_rest_s": 6.525
+    },
+    {
+      "cond": "idle",
+      "id": "q01",
+      "round": 1,
+      "s": 1.853,
+      "valid": true,
+      "ent_s": 0.633,
+      "cls_s": 0.428,
+      "gen_rest_s": 0.793
+    },
+    {
+      "cond": "idle",
+      "id": "q08",
+      "round": 1,
+      "s": 5.571,
+      "valid": true,
+      "ent_s": 0.702,
+      "cls_s": 0.444,
+      "gen_rest_s": 4.425
+    },
+    {
+      "cond": "idle",
+      "id": "q02",
+      "round": 1,
+      "s": 2.718,
+      "valid": true,
+      "ent_s": 0.541,
+      "cls_s": 0.689,
+      "gen_rest_s": 1.488
+    },
+    {
+      "cond": "idle",
+      "id": "q04",
+      "round": 1,
+      "s": 3.368,
+      "valid": true,
+      "ent_s": 0.516,
+      "cls_s": 0.418,
+      "gen_rest_s": 2.434
+    },
+    {
+      "cond": "idle",
+      "id": "q08",
+      "round": 2,
+      "s": 5.466,
+      "valid": true,
+      "ent_s": 0.77,
+      "cls_s": 0.4,
+      "gen_rest_s": 4.296
+    },
+    {
+      "cond": "idle",
+      "id": "q09",
+      "round": 2,
+      "s": 1.93,
+      "valid": true,
+      "ent_s": 0.599,
+      "cls_s": 0.667,
+      "gen_rest_s": 0.664
+    },
+    {
+      "cond": "idle",
+      "id": "q07",
+      "round": 2,
+      "s": 7.676,
+      "valid": true,
+      "ent_s": 0.505,
+      "cls_s": 0.66,
+      "gen_rest_s": 6.51
+    },
+    {
+      "cond": "idle",
+      "id": "q10",
+      "round": 2,
+      "s": 7.495,
+      "valid": true,
+      "ent_s": 0.835,
+      "cls_s": 0.435,
+      "gen_rest_s": 6.225
+    },
+    {
+      "cond": "idle",
+      "id": "q06",
+      "round": 2,
+      "s": 125.353,
+      "valid": true,
+      "ent_s": 0.513,
+      "cls_s": 0.414,
+      "gen_rest_s": 124.425
+    },
+    {
+      "cond": "idle",
+      "id": "q01",
+      "round": 2,
+      "s": 1.886,
+      "valid": true,
+      "ent_s": 0.621,
+      "cls_s": 0.442,
+      "gen_rest_s": 0.823
+    },
+    {
+      "cond": "idle",
+      "id": "q03",
+      "round": 2,
+      "s": 2.186,
+      "valid": true,
+      "ent_s": 0.579,
+      "cls_s": 0.744,
+      "gen_rest_s": 0.863
+    },
+    {
+      "cond": "idle",
+      "id": "q02",
+      "round": 2,
+      "s": 2.288,
+      "valid": true,
+      "ent_s": 0.501,
+      "cls_s": 0.679,
+      "gen_rest_s": 1.108
+    },
+    {
+      "cond": "idle",
+      "id": "q04",
+      "round": 2,
+      "s": 1.844,
+      "valid": true,
+      "ent_s": 0.573,
+      "cls_s": 0.519,
+      "gen_rest_s": 0.752
+    },
+    {
+      "cond": "idle",
+      "id": "q05",
+      "round": 2,
+      "s": 2.915,
+      "valid": true,
+      "ent_s": 0.594,
+      "cls_s": 0.429,
+      "gen_rest_s": 1.892
+    }
+  ],
+  "phase_medians_s": {
+    "idle": {
+      "s": 3.17,
+      "ent_s": 0.601,
+      "cls_s": 0.51,
+      "gen_rest_s": 2.163
+    },
+    "background": {
+      "s": 4.939,
+      "ent_s": 2.579,
+      "cls_s": 0.528,
+      "gen_rest_s": 2.815
+    }
+  },
+  "pass": false
+}

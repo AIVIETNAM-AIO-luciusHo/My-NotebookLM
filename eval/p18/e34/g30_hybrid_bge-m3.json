@@ -1,0 +1,315 @@
+{
+  "meta": {
+    "git_rev": "0d64907",
+    "date": "2026-10-28",
+    "k": [
+      4,
+      6,
+      8
+    ],
+    "n": 30,
+    "mode": "vector-only",
+    "retrieval": "hybrid",
+    "embedding": "bge-m3",
+    "bm25_tokens": "uni_bi",
+    "golden": "golden.jsonl",
+    "reviewed": 0,
+    "mrr_cutoff": 8,
+    "status": "tạm thời (chưa AC-9)"
+  },
+  "perf": {
+    "bm25_build_s": 0.034,
+    "index_s": 16.9,
+    "chunks": 398,
+    "index_bytes": 7672548,
+    "cold_first_query_ms": 252.9,
+    "hot_p50_ms": 292.7,
+    "hot_p95_ms": 381.1,
+    "rss_peak_mb": 903,
+    "gpu_used_mib_at_end_all_processes": "2167"
+  },
+  "metrics": {
+    "all": {
+      "n": 30,
+      "hit@4": 1.0,
+      "hit@6": 1.0,
+      "hit@8": 1.0,
+      "cover@4": 0.9,
+      "cover@6": 0.9333,
+      "cover@8": 0.9667,
+      "mrr": 0.9333
+    },
+    "fact": {
+      "n": 10,
+      "hit@4": 1.0,
+      "hit@6": 1.0,
+      "hit@8": 1.0,
+      "cover@4": 1.0,
+      "cover@6": 1.0,
+      "cover@8": 1.0,
+      "mrr": 1.0
+    },
+    "number": {
+      "n": 10,
+      "hit@4": 1.0,
+      "hit@6": 1.0,
+      "hit@8": 1.0,
+      "cover@4": 1.0,
+      "cover@6": 1.0,
+      "cover@8": 1.0,
+      "mrr": 0.9
+    },
+    "multi-hop": {
+      "n": 10,
+      "hit@4": 1.0,
+      "hit@6": 1.0,
+      "hit@8": 1.0,
+      "cover@4": 0.7,
+      "cover@6": 0.8,
+      "cover@8": 0.9,
+      "mrr": 0.9
+    }
+  },
+  "per_question": [
+    {
+      "id": "q01",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q02",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q03",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q04",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q05",
+      "type": "number",
+      "rr": 0.5,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q06",
+      "type": "number",
+      "rr": 0.5,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q07",
+      "type": "multi-hop",
+      "rr": 0.5,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q08",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q09",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q10",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q11",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q12",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q13",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q14",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q15",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q16",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q17",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q18",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q19",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q20",
+      "type": "multi-hop",
+      "rr": 0.5,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q21",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q22",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q23",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q24",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q25",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q26",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q27",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q28",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q29",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "q30",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    }
+  ]
+}

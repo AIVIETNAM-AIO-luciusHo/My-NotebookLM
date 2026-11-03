@@ -1,0 +1,47 @@
+{
+  "limit": 256,
+  "stats": {
+    "char/bao-cao-bien-doi-gradient.pdf": {
+      "chunks": 119,
+      "over_256": 24,
+      "pct_over": 20.2,
+      "max": 373,
+      "mean": 210.8
+    },
+    "char/kmeans-vs-knn.pdf": {
+      "chunks": 142,
+      "over_256": 29,
+      "pct_over": 20.4,
+      "max": 332,
+      "mean": 135.6
+    },
+    "char/probability-vs-statistics.pdf": {
+      "chunks": 137,
+      "over_256": 20,
+      "pct_over": 14.6,
+      "max": 364,
+      "mean": 125.2
+    },
+    "token/bao-cao-bien-doi-gradient.pdf": {
+      "chunks": 125,
+      "over_256": 0,
+      "pct_over": 0.0,
+      "max": 243,
+      "mean": 198.1
+    },
+    "token/kmeans-vs-knn.pdf": {
+      "chunks": 109,
+      "over_256": 0,
+      "pct_over": 0.0,
+      "max": 238,
+      "mean": 170.8
+    },
+    "token/probability-vs-statistics.pdf": {
+      "chunks": 104,
+      "over_256": 0,
+      "pct_over": 0.0,
+      "max": 234,
+      "mean": 161.6
+    }
+  }
+}

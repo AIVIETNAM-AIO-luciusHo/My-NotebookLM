@@ -1,0 +1,127 @@
+{
+  "label": "mẫu nhỏ, một máy; gTTS giả; 1 lượt/câu",
+  "gap_s": 10.0,
+  "yield_cooldown_s": 3.0,
+  "chunks_processed_by_worker_during_background": 35,
+  "ratio_per_question": {
+    "q01": 3.754,
+    "q02": 2.17,
+    "q03": 0.734,
+    "q04": 0.677,
+    "q05": 1.001,
+    "q06": 1.251,
+    "q07": 0.875,
+    "q08": 2.213,
+    "q09": 1.45,
+    "q10": 2.11
+  },
+  "median_ratio": 1.35,
+  "background_calls": [
+    {
+      "id": "q01",
+      "s": 6.461,
+      "status_before": "graph_running"
+    },
+    {
+      "id": "q02",
+      "s": 5.408,
+      "status_before": "graph_running"
+    },
+    {
+      "id": "q03",
+      "s": 4.462,
+      "status_before": "graph_running"
+    },
+    {
+      "id": "q04",
+      "s": 1.946,
+      "status_before": "graph_running"
+    },
+    {
+      "id": "q05",
+      "s": 3.279,
+      "status_before": "graph_running"
+    },
+    {
+      "id": "q06",
+      "s": 6.919,
+      "status_before": "graph_running"
+    },
+    {
+      "id": "q07",
+      "s": 9.924,
+      "status_before": "graph_running"
+    },
+    {
+      "id": "q08",
+      "s": 14.516,
+      "status_before": "graph_running"
+    },
+    {
+      "id": "q09",
+      "s": 2.905,
+      "status_before": "graph_running"
+    },
+    {
+      "id": "q10",
+      "s": 9.341,
+      "status_before": "graph_running"
+    }
+  ],
+  "idle_calls": [
+    {
+      "id": "q01",
+      "s": 1.721
+    },
+    {
+      "id": "q02",
+      "s": 2.492
+    },
+    {
+      "id": "q03",
+      "s": 6.083
+    },
+    {
+      "id": "q04",
+      "s": 2.874
+    },
+    {
+      "id": "q05",
+      "s": 3.276
+    },
+    {
+      "id": "q06",
+      "s": 5.531
+    },
+    {
+      "id": "q07",
+      "s": 11.343
+    },
+    {
+      "id": "q08",
+      "s": 6.559
+    },
+    {
+      "id": "q09",
+      "s": 2.004
+    },
+    {
+      "id": "q10",
+      "s": 4.427
+    }
+  ],
+  "job_state_after_background_phase": {
+    "job_id": "36eaaa96ccf24e3cb4a66f14bfd3bb9c",
+    "source": "bao-cao-bien-doi-gradient.pdf",
+    "status": "graph_running",
+    "progress": 0.2521,
+    "chunks_total": 119,
+    "chunks_done": 30,
+    "triplets_added": 143,
+    "error": null,
+    "created_at": "2026-10-27T15:47:18.110+00:00",
+    "updated_at": "2026-10-27T15:49:48.575+00:00"
+  },
+  "nvidia_smi_before": "Tue Oct 27 22:47:15 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.110                Driver Version: 581.86         CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 3050 ...    On  |   00000000:01:00.0 Off |                  N/A |\n| N/A   46C    P8              3W /   95W |    3419MiB /   6144MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A          233320      C   /llama-server                         N/A      |\n|    0   N/A  N/A          245297      C   /python3.12                           N/A      |\n+-----------------------------------------------------------------------------------------+\n",
+  "pass": true
+}

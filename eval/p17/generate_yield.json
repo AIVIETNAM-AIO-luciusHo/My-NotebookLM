@@ -1,0 +1,228 @@
+{
+  "label": "mẫu nhỏ, một máy",
+  "pdf": "bao-cao-bien-doi-gradient.pdf",
+  "topic": "Gradient descent",
+  "chunks": 119,
+  "threshold": 1.5,
+  "A_graph_running": {
+    "n": 8,
+    "median": 4.092,
+    "p95": 5.32,
+    "min": 3.465,
+    "max": 5.32
+  },
+  "B_idle_pooled": {
+    "n": 12,
+    "median": 3.141,
+    "p95": 3.356,
+    "min": 3.074,
+    "max": 3.4
+  },
+  "B1_before": {
+    "n": 6,
+    "median": 3.119,
+    "p95": 3.151,
+    "min": 3.074,
+    "max": 3.151
+  },
+  "B2_after": {
+    "n": 6,
+    "median": 3.167,
+    "p95": 3.4,
+    "min": 3.091,
+    "max": 3.4
+  },
+  "ratio_median_A_over_B": 1.303,
+  "ratio_vs_B1": 1.312,
+  "ratio_vs_B2": 1.292,
+  "invalid_samples": 0,
+  "job_mid": {
+    "job_id": "1c9d9bc3851748b9a35264a7c9e0136f",
+    "source": "bao-cao-bien-doi-gradient.pdf",
+    "status": "graph_running",
+    "progress": 0.0,
+    "chunks_total": 119,
+    "chunks_done": 0,
+    "triplets_added": 0,
+    "graph_status": "pending",
+    "error": null,
+    "created_at": "2026-10-28T00:47:01.732+00:00",
+    "updated_at": "2026-10-28T00:47:34.589+00:00"
+  },
+  "job_end": {
+    "job_id": "1c9d9bc3851748b9a35264a7c9e0136f",
+    "source": "bao-cao-bien-doi-gradient.pdf",
+    "status": "done",
+    "progress": 1.0,
+    "chunks_total": 119,
+    "chunks_done": 119,
+    "triplets_added": 556,
+    "graph_status": "done",
+    "error": null,
+    "created_at": "2026-10-28T00:47:01.732+00:00",
+    "updated_at": "2026-10-28T00:52:16.795+00:00"
+  },
+  "decision": "KHÔNG cài nhường (ratio <= 1.5)",
+  "samples": [
+    {
+      "cond": "B1",
+      "s": 3.099,
+      "status": 200,
+      "job_before": "fast_done",
+      "job_after": "fast_done",
+      "valid": true
+    },
+    {
+      "cond": "B1",
+      "s": 3.151,
+      "status": 200,
+      "job_before": "fast_done",
+      "job_after": "fast_done",
+      "valid": true
+    },
+    {
+      "cond": "B1",
+      "s": 3.137,
+      "status": 200,
+      "job_before": "fast_done",
+      "job_after": "fast_done",
+      "valid": true
+    },
+    {
+      "cond": "B1",
+      "s": 3.074,
+      "status": 200,
+      "job_before": "fast_done",
+      "job_after": "fast_done",
+      "valid": true
+    },
+    {
+      "cond": "B1",
+      "s": 3.1,
+      "status": 200,
+      "job_before": "fast_done",
+      "job_after": "fast_done",
+      "valid": true
+    },
+    {
+      "cond": "B1",
+      "s": 3.144,
+      "status": 200,
+      "job_before": "fast_done",
+      "job_after": "fast_done",
+      "valid": true
+    },
+    {
+      "cond": "A",
+      "s": 5.134,
+      "status": 200,
+      "job_before": "graph_running",
+      "job_after": "graph_running",
+      "valid": true
+    },
+    {
+      "cond": "A",
+      "s": 5.32,
+      "status": 200,
+      "job_before": "graph_running",
+      "job_after": "graph_running",
+      "valid": true
+    },
+    {
+      "cond": "A",
+      "s": 4.079,
+      "status": 200,
+      "job_before": "graph_running",
+      "job_after": "graph_running",
+      "valid": true
+    },
+    {
+      "cond": "A",
+      "s": 4.558,
+      "status": 200,
+      "job_before": "graph_running",
+      "job_after": "graph_running",
+      "valid": true
+    },
+    {
+      "cond": "A",
+      "s": 3.465,
+      "status": 200,
+      "job_before": "graph_running",
+      "job_after": "graph_running",
+      "valid": true
+    },
+    {
+      "cond": "A",
+      "s": 4.105,
+      "status": 200,
+      "job_before": "graph_running",
+      "job_after": "graph_running",
+      "valid": true
+    },
+    {
+      "cond": "A",
+      "s": 3.994,
+      "status": 200,
+      "job_before": "graph_running",
+      "job_after": "graph_running",
+      "valid": true
+    },
+    {
+      "cond": "A",
+      "s": 4.049,
+      "status": 200,
+      "job_before": "graph_running",
+      "job_after": "graph_running",
+      "valid": true
+    },
+    {
+      "cond": "B2",
+      "s": 3.156,
+      "status": 200,
+      "job_before": "done",
+      "job_after": "done",
+      "valid": true
+    },
+    {
+      "cond": "B2",
+      "s": 3.091,
+      "status": 200,
+      "job_before": "done",
+      "job_after": "done",
+      "valid": true
+    },
+    {
+      "cond": "B2",
+      "s": 3.178,
+      "status": 200,
+      "job_before": "done",
+      "job_after": "done",
+      "valid": true
+    },
+    {
+      "cond": "B2",
+      "s": 3.356,
+      "status": 200,
+      "job_before": "done",
+      "job_after": "done",
+      "valid": true
+    },
+    {
+      "cond": "B2",
+      "s": 3.4,
+      "status": 200,
+      "job_before": "done",
+      "job_after": "done",
+      "valid": true
+    },
+    {
+      "cond": "B2",
+      "s": 3.128,
+      "status": 200,
+      "job_before": "done",
+      "job_after": "done",
+      "valid": true
+    }
+  ]
+}

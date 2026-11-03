@@ -1,0 +1,459 @@
+{
+  "label": "mẫu nhỏ, một máy; gTTS giả",
+  "pdf": "bao-cao-bien-doi-gradient.pdf",
+  "seed": 1,
+  "rounds": 3,
+  "valid_background_calls": 30,
+  "total_background_calls": 30,
+  "valid_idle_calls": 30,
+  "ratio_per_question": {
+    "q01": 2.657,
+    "q02": 2.463,
+    "q03": 1.838,
+    "q04": 1.632,
+    "q05": 1.565,
+    "q06": 1.634,
+    "q07": 1.835,
+    "q08": 1.243,
+    "q09": 2.143,
+    "q10": 1.719
+  },
+  "median_ratio": 1.777,
+  "threshold": 1.5,
+  "job_state_after_background_phase": {
+    "job_id": "4fef182885a74fdab9fa941f6caaa726",
+    "source": "bao-cao-bien-doi-gradient.pdf",
+    "status": "graph_running",
+    "progress": 0.1681,
+    "chunks_total": 119,
+    "chunks_done": 20,
+    "triplets_added": 103,
+    "error": null,
+    "created_at": "2026-10-27T15:04:14.699+00:00",
+    "updated_at": "2026-10-27T15:08:35.096+00:00"
+  },
+  "nvidia_smi_before": "Tue Oct 27 22:04:14 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.110                Driver Version: 581.86         CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 3050 ...    On  |   00000000:01:00.0  On |                  N/A |\n| N/A   56C    P0             12W /   95W |    3520MiB /   6144MiB |      5%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A          233320      C   /llama-server                         N/A      |\n|    0   N/A  N/A          234224      C   /python3.12                           N/A      |\n+-----------------------------------------------------------------------------------------+\n",
+  "calls": [
+    {
+      "cond": "background",
+      "id": "q07",
+      "round": 0,
+      "s": 4.138,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q09",
+      "round": 0,
+      "s": 4.654,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q10",
+      "round": 0,
+      "s": 13.369,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q08",
+      "round": 0,
+      "s": 9.368,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q06",
+      "round": 0,
+      "s": 5.816,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q04",
+      "round": 0,
+      "s": 10.541,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q01",
+      "round": 0,
+      "s": 6.97,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q05",
+      "round": 0,
+      "s": 60.175,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q02",
+      "round": 0,
+      "s": 8.14,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q03",
+      "round": 0,
+      "s": 8.288,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q05",
+      "round": 1,
+      "s": 14.518,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q09",
+      "round": 1,
+      "s": 9.522,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q03",
+      "round": 1,
+      "s": 3.07,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q07",
+      "round": 1,
+      "s": 10.118,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q06",
+      "round": 1,
+      "s": 33.277,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q10",
+      "round": 1,
+      "s": 25.001,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q01",
+      "round": 1,
+      "s": 4.612,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q08",
+      "round": 1,
+      "s": 8.941,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q02",
+      "round": 1,
+      "s": 6.208,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q04",
+      "round": 1,
+      "s": 3.383,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q08",
+      "round": 2,
+      "s": 7.648,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q09",
+      "round": 2,
+      "s": 4.015,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q07",
+      "round": 2,
+      "s": 13.41,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q10",
+      "round": 2,
+      "s": 12.7,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q06",
+      "round": 2,
+      "s": 5.07,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q01",
+      "round": 2,
+      "s": 3.427,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q03",
+      "round": 2,
+      "s": 5.606,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q02",
+      "round": 2,
+      "s": 5.745,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q04",
+      "round": 2,
+      "s": 5.278,
+      "valid": true
+    },
+    {
+      "cond": "background",
+      "id": "q05",
+      "round": 2,
+      "s": 3.813,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q07",
+      "round": 0,
+      "s": 9.41,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q09",
+      "round": 0,
+      "s": 2.462,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q10",
+      "round": 0,
+      "s": 7.778,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q08",
+      "round": 0,
+      "s": 5.289,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q06",
+      "round": 0,
+      "s": 3.56,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q04",
+      "round": 0,
+      "s": 2.191,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q01",
+      "round": 0,
+      "s": 1.812,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q05",
+      "round": 0,
+      "s": 4.406,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q02",
+      "round": 0,
+      "s": 2.307,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q03",
+      "round": 0,
+      "s": 3.177,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q05",
+      "round": 1,
+      "s": 18.621,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q09",
+      "round": 1,
+      "s": 2.109,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q03",
+      "round": 1,
+      "s": 3.05,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q07",
+      "round": 1,
+      "s": 5.515,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q06",
+      "round": 1,
+      "s": 8.436,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q10",
+      "round": 1,
+      "s": 1.999,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q01",
+      "round": 1,
+      "s": 1.661,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q08",
+      "round": 1,
+      "s": 9.948,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q02",
+      "round": 1,
+      "s": 3.102,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q04",
+      "round": 1,
+      "s": 3.356,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q08",
+      "round": 2,
+      "s": 7.195,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q09",
+      "round": 2,
+      "s": 2.172,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q07",
+      "round": 2,
+      "s": 3.863,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q10",
+      "round": 2,
+      "s": 15.194,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q06",
+      "round": 2,
+      "s": 3.364,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q01",
+      "round": 2,
+      "s": 1.736,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q03",
+      "round": 2,
+      "s": 2.974,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q02",
+      "round": 2,
+      "s": 2.52,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q04",
+      "round": 2,
+      "s": 3.234,
+      "valid": true
+    },
+    {
+      "cond": "idle",
+      "id": "q05",
+      "round": 2,
+      "s": 9.279,
+      "valid": true
+    }
+  ],
+  "pass": false
+}
