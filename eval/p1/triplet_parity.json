@@ -1,0 +1,23 @@
+{
+  "label": "mẫu nhỏ, một máy",
+  "chunks": 40,
+  "background_triplets": 184,
+  "background_edges": 184,
+  "sync_triplets": 182,
+  "sync_edges": 182,
+  "rel_diff": 0.011,
+  "threshold": 0.1,
+  "pass": true,
+  "job": {
+    "job_id": "daf89a88908b43619d68675bcc93aa03",
+    "source": "bao-cao-bien-doi-gradient.pdf",
+    "status": "done",
+    "progress": 1.0,
+    "chunks_total": 40,
+    "chunks_done": 40,
+    "triplets_added": 184,
+    "error": null,
+    "created_at": "2026-10-27T15:58:17.397+00:00",
+    "updated_at": "2026-10-27T16:00:02.685+00:00"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "label": "mẫu nhỏ, một máy",
+  "GRAPH_MAX_CHUNKS": 30,
+  "pdf": "bao-cao-bien-doi-gradient.pdf",
+  "runs": [
+    {
+      "run": 1,
+      "t_ready_s": 6.178,
+      "chunks": 119,
+      "chat_ok_with_sources": true,
+      "job": "done"
+    },
+    {
+      "run": 2,
+      "t_ready_s": 7.645,
+      "chunks": 119,
+      "chat_ok_with_sources": true,
+      "job": "done"
+    },
+    {
+      "run": 3,
+      "t_ready_s": 5.32,
+      "chunks": 119,
+      "chat_ok_with_sources": true,
+      "job": "done"
+    },
+    {
+      "run": 4,
+      "t_ready_s": 6.821,
+      "chunks": 119,
+      "chat_ok_with_sources": true,
+      "job": "done"
+    },
+    {
+      "run": 5,
+      "t_ready_s": 12.133,
+      "chunks": 119,
+      "chat_ok_with_sources": true,
+      "job": "done"
+    }
+  ],
+  "mean": 7.619,
+  "sd": 2.663,
+  "min": 5.32,
+  "max": 12.133,
+  "threshold_mean_le_s": 10,
+  "pass": true
+}

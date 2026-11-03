@@ -1,0 +1,410 @@
+{
+  "meta": {
+    "git_rev": "0d64907",
+    "date": "2026-10-28",
+    "k": [
+      4,
+      6,
+      8
+    ],
+    "n": 42,
+    "mode": "vector-only",
+    "retrieval": "vector",
+    "embedding": "bge-m3",
+    "bm25_tokens": "uni",
+    "golden": "golden_candidates.jsonl",
+    "reviewed": 0,
+    "mrr_cutoff": 8,
+    "status": "tạm thời (chưa AC-9)"
+  },
+  "perf": {
+    "index_s": 108.6,
+    "chunks": 662,
+    "index_bytes": 10838756,
+    "cold_first_query_ms": 249.4,
+    "hot_p50_ms": 251.0,
+    "hot_p95_ms": 310.7,
+    "rss_peak_mb": 916,
+    "gpu_used_mib_at_end_all_processes": "2167"
+  },
+  "metrics": {
+    "all": {
+      "n": 42,
+      "hit@4": 0.9286,
+      "hit@6": 0.9524,
+      "hit@8": 0.9524,
+      "cover@4": 0.9048,
+      "cover@6": 0.9286,
+      "cover@8": 0.9524,
+      "mrr": 0.8571
+    },
+    "fact": {
+      "n": 16,
+      "hit@4": 0.9375,
+      "hit@6": 0.9375,
+      "hit@8": 0.9375,
+      "cover@4": 0.9375,
+      "cover@6": 0.9375,
+      "cover@8": 0.9375,
+      "mrr": 0.9062
+    },
+    "number": {
+      "n": 17,
+      "hit@4": 0.9412,
+      "hit@6": 0.9412,
+      "hit@8": 0.9412,
+      "cover@4": 0.9412,
+      "cover@6": 0.9412,
+      "cover@8": 0.9412,
+      "mrr": 0.8137
+    },
+    "multi-hop": {
+      "n": 9,
+      "hit@4": 0.8889,
+      "hit@6": 1.0,
+      "hit@8": 1.0,
+      "cover@4": 0.7778,
+      "cover@6": 0.8889,
+      "cover@8": 1.0,
+      "mrr": 0.8519
+    }
+  },
+  "per_question": [
+    {
+      "id": "c01",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c02",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c03",
+      "type": "number",
+      "rr": 0.0,
+      "hit@4": false,
+      "hit@6": false,
+      "hit@8": false
+    },
+    {
+      "id": "c04",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c05",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c06",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c07",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c08",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c09",
+      "type": "fact",
+      "rr": 0.0,
+      "hit@4": false,
+      "hit@6": false,
+      "hit@8": false
+    },
+    {
+      "id": "c10",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c11",
+      "type": "multi-hop",
+      "rr": 0.5,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c12",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c13",
+      "type": "multi-hop",
+      "rr": 0.1667,
+      "hit@4": false,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c14",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c15",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c16",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c17",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c18",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c19",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c20",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c21",
+      "type": "number",
+      "rr": 0.25,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c22",
+      "type": "number",
+      "rr": 0.3333,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c23",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c24",
+      "type": "fact",
+      "rr": 0.5,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c25",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c26",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c27",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c28",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c29",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c30",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c31",
+      "type": "number",
+      "rr": 0.25,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c32",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c33",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c34",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c35",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c36",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c37",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c38",
+      "type": "fact",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c39",
+      "type": "number",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c40",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c41",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    },
+    {
+      "id": "c42",
+      "type": "multi-hop",
+      "rr": 1.0,
+      "hit@4": true,
+      "hit@6": true,
+      "hit@8": true
+    }
+  ]
+}

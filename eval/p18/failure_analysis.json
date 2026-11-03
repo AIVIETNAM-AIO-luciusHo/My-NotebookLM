@@ -1,0 +1,1698 @@
+{
+  "meta": {
+    "note": "mẫu nhỏ, một máy; cờ E là HEURISTIC",
+    "topn": 30,
+    "token_limit": 256,
+    "E_patterns": {
+      "lower_upper_glue": "[abcdefghijklmnopqrstuvwxyzªµºßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįıĳĵķĸĺļľŀłńņňŉŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷźżžſƀƃƅƈƌƍƒƕƙƚƛƞơƣƥƨƪƫƭưƴƶƹƺƽƾƿǆǉǌǎǐǒǔǖǘǚǜǝǟǡǣǥǧǩǫǭǯǰǳǵǹǻǽǿȁȃȅȇȉȋȍȏȑȓȕȗșțȝȟȡȣȥȧȩȫȭȯȱȳȴȵȶȷȸȹȼȿɀɂɇɉɋɍɏḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳḵḷḹḻḽḿṁṃṅṇṉṋṍṏṑṓṕṗṙṛṝṟṡṣṥṧṩṫṭṯṱṳṵṷṹṻṽṿẁẃẅẇẉẋẍẏẑẓẕẖẗẘẙẚẛẜẝẟạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹỻỽỿ][ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞĀĂĄĆĈĊČĎĐĒĔĖĘĚĜĞĠĢĤĦĨĪĬĮİĲĴĶĹĻĽĿŁŃŅŇŊŌŎŐŒŔŖŘŚŜŞŠŢŤŦŨŪŬŮŰŲŴŶŸŹŻŽƁƂƄƆƇƉƊƋƎƏƐƑƓƔƖƗƘƜƝƟƠƢƤƦƧƩƬƮƯƱƲƳƵƷƸƼǄǇǊǍǏǑǓǕǗǙǛǞǠǢǤǦǨǪǬǮǱǴǶǷǸǺǼǾȀȂȄȆȈȊȌȎȐȒȔȖȘȚȜȞȠȢȤȦȨȪȬȮȰȲȺȻȽȾɁɃɄɅɆɈɊɌɎḀḂḄḆḈḊḌḎḐḒḔḖḘḚḜḞḠḢḤḦḨḪḬḮḰḲḴḶḸḺḼḾṀṂṄṆṈṊṌṎṐṒṔṖṘṚṜṞṠṢṤṦṨṪṬṮṰṲṴṶṸṺṼṾẀẂẄẆẈẊẌẎẐẒẔẞẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴỶỸỺỼỾ]",
+      "paren_close_glue": "\\)[abcdefghijklmnopqrstuvwxyzªµºßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįıĳĵķĸĺļľŀłńņňŉŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷźżžſƀƃƅƈƌƍƒƕƙƚƛƞơƣƥƨƪƫƭưƴƶƹƺƽƾƿǆǉǌǎǐǒǔǖǘǚǜǝǟǡǣǥǧǩǫǭǯǰǳǵǹǻǽǿȁȃȅȇȉȋȍȏȑȓȕȗșțȝȟȡȣȥȧȩȫȭȯȱȳȴȵȶȷȸȹȼȿɀɂɇɉɋɍɏḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳḵḷḹḻḽḿṁṃṅṇṉṋṍṏṑṓṕṗṙṛṝṟṡṣṥṧṩṫṭṯṱṳṵṷṹṻṽṿẁẃẅẇẉẋẍẏẑẓẕẖẗẘẙẚẛẜẝẟạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹỻỽỿABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞĀĂĄĆĈĊČĎĐĒĔĖĘĚĜĞĠĢĤĦĨĪĬĮİĲĴĶĹĻĽĿŁŃŅŇŊŌŎŐŒŔŖŘŚŜŞŠŢŤŦŨŪŬŮŰŲŴŶŸŹŻŽƁƂƄƆƇƉƊƋƎƏƐƑƓƔƖƗƘƜƝƟƠƢƤƦƧƩƬƮƯƱƲƳƵƷƸƼǄǇǊǍǏǑǓǕǗǙǛǞǠǢǤǦǨǪǬǮǱǴǶǷǸǺǼǾȀȂȄȆȈȊȌȎȐȒȔȖȘȚȜȞȠȢȤȦȨȪȬȮȰȲȺȻȽȾɁɃɄɅɆɈɊɌɎḀḂḄḆḈḊḌḎḐḒḔḖḘḚḜḞḠḢḤḦḨḪḬḮḰḲḴḶḸḺḼḾṀṂṄṆṈṊṌṎṐṒṔṖṘṚṜṞṠṢṤṦṨṪṬṮṰṲṴṶṸṺṼṾẀẂẄẆẈẊẌẎẐẒẔẞẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴỶỸỺỼỾ]",
+      "diacritic_paren_open": "[ªµºßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįıĳĵķĸĺļľŀłńņňŉŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷźżžſƀƃƅƈƌƍƒƕƙƚƛƞơƣƥƨƪƫƭưƴƶƹƺƽƾƿǆǉǌǎǐǒǔǖǘǚǜǝǟǡǣǥǧǩǫǭǯǰǳǵǹǻǽǿȁȃȅȇȉȋȍȏȑȓȕȗșțȝȟȡȣȥȧȩȫȭȯȱȳȴȵȶȷȸȹȼȿɀɂɇɉɋɍɏḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳḵḷḹḻḽḿṁṃṅṇṉṋṍṏṑṓṕṗṙṛṝṟṡṣṥṧṩṫṭṯṱṳṵṷṹṻṽṿẁẃẅẇẉẋẍẏẑẓẕẖẗẘẙẚẛẜẝẟạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹỻỽỿ]\\(",
+      "digit_diacritic_glue": "\\d[ªµºßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįıĳĵķĸĺļľŀłńņňŉŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷźżžſƀƃƅƈƌƍƒƕƙƚƛƞơƣƥƨƪƫƭưƴƶƹƺƽƾƿǆǉǌǎǐǒǔǖǘǚǜǝǟǡǣǥǧǩǫǭǯǰǳǵǹǻǽǿȁȃȅȇȉȋȍȏȑȓȕȗșțȝȟȡȣȥȧȩȫȭȯȱȳȴȵȶȷȸȹȼȿɀɂɇɉɋɍɏḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳḵḷḹḻḽḿṁṃṅṇṉṋṍṏṑṓṕṗṙṛṝṟṡṣṥṧṩṫṭṯṱṳṵṷṹṻṽṿẁẃẅẇẉẋẍẏẑẓẕẖẗẘẙẚẛẜẝẟạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹỻỽỿ]",
+      "split_symbol_lines": "(?:^|\\n)[^\\s]{1,2}(?:\\n[^\\s]{1,2}){3,}"
+    },
+    "E_baseline_chunk_rate_all_chunks": 0.3794,
+    "n_chunks": 398,
+    "E_baseline_by_pattern": {
+      "lower_upper_glue": 0.3015,
+      "paren_close_glue": 0.191,
+      "diacritic_paren_open": 0.0126,
+      "digit_diacritic_glue": 0.0628,
+      "split_symbol_lines": 0.0025
+    },
+    "chunks_over_256_tokens": 73
+  },
+  "questions": [
+    {
+      "id": "q01",
+      "doc": "bao-cao-bien-doi-gradient.pdf",
+      "type": "fact",
+      "gold_pages": [
+        2
+      ],
+      "gold_rank": 9,
+      "cos_top1": 0.5655,
+      "cos_gold": 0.4904,
+      "top1_page": [
+        "probability-vs-statistics.pdf",
+        38
+      ],
+      "quote_chunk_rank_top30": null,
+      "hit@4": false,
+      "hit@8": false,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": true,
+        "C4": true,
+        "C8": true,
+        "D": false,
+        "E": false
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 0,
+        "chars": 87,
+        "char_ratio": 0.0,
+        "flag": false
+      },
+      "segments": [
+        {
+          "segment": "Hochreiter [1] trong luận văn thạc sĩ năm 1991 là người đầu tiên định lượng nguyên nhân",
+          "holders": [],
+          "status": "B_cut_across_boundary"
+        }
+      ]
+    },
+    {
+      "id": "q02",
+      "doc": "bao-cao-bien-doi-gradient.pdf",
+      "type": "fact",
+      "gold_pages": [
+        3
+      ],
+      "gold_rank": 1,
+      "cos_top1": 0.4869,
+      "cos_gold": 0.4869,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        3
+      ],
+      "quote_chunk_rank_top30": 1,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 2,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 4,
+        "chars": 567,
+        "char_ratio": 0.00705,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "có một biện pháp chữa cháy đơn giản, hiệu quả: cắt chuẩn gradient",
+          "holders": [
+            15
+          ],
+          "end_tokens": [
+            139
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q03",
+      "doc": "bao-cao-bien-doi-gradient.pdf",
+      "type": "fact",
+      "gold_pages": [
+        3
+      ],
+      "gold_rank": 1,
+      "cos_top1": 0.6449,
+      "cos_gold": 0.6449,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        3
+      ],
+      "quote_chunk_rank_top30": null,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": true,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": false
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 0,
+        "chars": 79,
+        "char_ratio": 0.0,
+        "flag": false
+      },
+      "segments": [
+        {
+          "segment": "không có lỗi số học, không có cảnh báo, chỉ có một đường cong mất mát nằm ngang",
+          "holders": [],
+          "status": "B_cut_across_boundary"
+        }
+      ]
+    },
+    {
+      "id": "q04",
+      "doc": "bao-cao-bien-doi-gradient.pdf",
+      "type": "number",
+      "gold_pages": [
+        8
+      ],
+      "gold_rank": 8,
+      "cos_top1": 0.6632,
+      "cos_gold": 0.6047,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        15
+      ],
+      "quote_chunk_rank_top30": 8,
+      "hit@4": false,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": false,
+        "D": false,
+        "E": false
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 0,
+        "chars": 596,
+        "char_ratio": 0.0,
+        "flag": false
+      },
+      "segments": [
+        {
+          "segment": "không bao giờ vượt quá 0,25khi dùng sigmoid",
+          "holders": [
+            32
+          ],
+          "end_tokens": [
+            37
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q05",
+      "doc": "bao-cao-bien-doi-gradient.pdf",
+      "type": "number",
+      "gold_pages": [
+        13
+      ],
+      "gold_rank": 3,
+      "cos_top1": 0.5524,
+      "cos_gold": 0.5429,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        12
+      ],
+      "quote_chunk_rank_top30": null,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": false
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 0,
+        "chars": 581,
+        "char_ratio": 0.0,
+        "flag": false
+      },
+      "segments": [
+        {
+          "segment": "BCE làm mọi gradient lớn hơn đúng 4,08387",
+          "holders": [
+            52
+          ],
+          "end_tokens": [
+            31
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q06",
+      "doc": "bao-cao-bien-doi-gradient.pdf",
+      "type": "number",
+      "gold_pages": [
+        14
+      ],
+      "gold_rank": 1,
+      "cos_top1": 0.6426,
+      "cos_gold": 0.6426,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        14
+      ],
+      "quote_chunk_rank_top30": 1,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": false
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 0,
+        "chars": 581,
+        "char_ratio": 0.0,
+        "flag": false
+      },
+      "segments": [
+        {
+          "segment": "nhưng ρ= 0,9cho0,999= 2,95127 ×10−5",
+          "holders": [
+            57
+          ],
+          "end_tokens": [
+            91
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q07",
+      "doc": "bao-cao-bien-doi-gradient.pdf",
+      "type": "multi-hop",
+      "gold_pages": [
+        7,
+        9
+      ],
+      "gold_rank": 7,
+      "cos_top1": 0.6619,
+      "cos_gold": 0.6275,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        2
+      ],
+      "quote_chunk_rank_top30": 7,
+      "hit@4": false,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 1,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 2,
+        "chars": 1674,
+        "char_ratio": 0.00119,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "đạt được duy nhất tại z= 0",
+          "holders": [
+            29,
+            30
+          ],
+          "end_tokens": [
+            239,
+            23
+          ],
+          "status": "ok"
+        },
+        {
+          "segment": "cho c≈0,25— suy biến gần như chắc chắn",
+          "holders": [
+            38
+          ],
+          "end_tokens": [
+            25
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q08",
+      "doc": "bao-cao-bien-doi-gradient.pdf",
+      "type": "multi-hop",
+      "gold_pages": [
+        12,
+        13
+      ],
+      "gold_rank": 4,
+      "cos_top1": 0.6471,
+      "cos_gold": 0.6126,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        1
+      ],
+      "quote_chunk_rank_top30": 4,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 3,
+          "paren_close_glue": 1,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 8,
+        "chars": 1138,
+        "char_ratio": 0.00703,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "Theo (10), BCE ghép với sigmoid cho δL=aL−y, triệt tiêu hoàn toàn",
+          "holders": [
+            50
+          ],
+          "end_tokens": [
+            194
+          ],
+          "status": "ok"
+        },
+        {
+          "segment": "Việc triệt tiêu chỉ xảy ra một lần, tại tầng L.",
+          "holders": [
+            53
+          ],
+          "end_tokens": [
+            46
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q09",
+      "doc": "bao-cao-bien-doi-gradient.pdf",
+      "type": "multi-hop",
+      "gold_pages": [
+        16,
+        17
+      ],
+      "gold_rank": 8,
+      "cos_top1": 0.6508,
+      "cos_gold": 0.6192,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        2
+      ],
+      "quote_chunk_rank_top30": 25,
+      "hit@4": false,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 2,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 3,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 10,
+        "chars": 1683,
+        "char_ratio": 0.00594,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "maxσ′≈1×0,25 = 0 ,25.",
+          "holders": [
+            66,
+            67
+          ],
+          "end_tokens": [
+            189,
+            15
+          ],
+          "status": "ok"
+        },
+        {
+          "segment": "3,76023= 2,65942 ×10−1,",
+          "holders": [
+            73
+          ],
+          "end_tokens": [
+            48
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q10",
+      "doc": "bao-cao-bien-doi-gradient.pdf",
+      "type": "multi-hop",
+      "gold_pages": [
+        19,
+        22
+      ],
+      "gold_rank": 9,
+      "cos_top1": 0.562,
+      "cos_gold": 0.4898,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        23
+      ],
+      "quote_chunk_rank_top30": 14,
+      "hit@4": false,
+      "hit@8": false,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": true,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 7,
+          "paren_close_glue": 3,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 2,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 24,
+        "chars": 1139,
+        "char_ratio": 0.02107,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "Chuyển sang Pre-LN [10]; khởi động",
+          "holders": [
+            81
+          ],
+          "end_tokens": [
+            186
+          ],
+          "status": "ok"
+        },
+        {
+          "segment": "nhỏ hơn ở đỉnh khoảng 107lầnngay tại bước khởi",
+          "holders": [
+            92
+          ],
+          "end_tokens": [
+            201
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q11",
+      "doc": "probability-vs-statistics.pdf",
+      "type": "fact",
+      "gold_pages": [
+        11
+      ],
+      "gold_rank": 23,
+      "cos_top1": 0.6195,
+      "cos_gold": 0.5228,
+      "top1_page": [
+        "probability-vs-statistics.pdf",
+        38
+      ],
+      "quote_chunk_rank_top30": 23,
+      "hit@4": false,
+      "hit@8": false,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": true,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 2,
+          "paren_close_glue": 2,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 8,
+        "chars": 1117,
+        "char_ratio": 0.00716,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "Sai lầm phổ biến nhất trong toàn bộ môn học: lẫn lộn P(A|B)vớiP(B|A)",
+          "holders": [
+            24,
+            25
+          ],
+          "end_tokens": [
+            206,
+            30
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q12",
+      "doc": "probability-vs-statistics.pdf",
+      "type": "fact",
+      "gold_pages": [
+        32
+      ],
+      "gold_rank": 1,
+      "cos_top1": 0.4989,
+      "cos_gold": 0.4989,
+      "top1_page": [
+        "probability-vs-statistics.pdf",
+        32
+      ],
+      "quote_chunk_rank_top30": 1,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": false
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 0,
+        "chars": 582,
+        "char_ratio": 0.0,
+        "flag": false
+      },
+      "segments": [
+        {
+          "segment": "nếu lặp lại thí nghiệm vô hạn lần, 95% các khoảng tạo ra sẽ chứa µ",
+          "holders": [
+            73
+          ],
+          "end_tokens": [
+            184
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q13",
+      "doc": "probability-vs-statistics.pdf",
+      "type": "fact",
+      "gold_pages": [
+        14
+      ],
+      "gold_rank": null,
+      "cos_top1": 0.4924,
+      "cos_gold": null,
+      "top1_page": [
+        "probability-vs-statistics.pdf",
+        38
+      ],
+      "quote_chunk_rank_top30": null,
+      "hit@4": false,
+      "hit@8": false,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": true,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 1,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 1,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 4,
+        "chars": 204,
+        "char_ratio": 0.01961,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "Chú ý Poisson có kỳ vọng bằng phương sai",
+          "holders": [
+            32
+          ],
+          "end_tokens": [
+            71
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q14",
+      "doc": "probability-vs-statistics.pdf",
+      "type": "number",
+      "gold_pages": [
+        5
+      ],
+      "gold_rank": 1,
+      "cos_top1": 0.6684,
+      "cos_gold": 0.6684,
+      "top1_page": [
+        "probability-vs-statistics.pdf",
+        5
+      ],
+      "quote_chunk_rank_top30": 1,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": false
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 0,
+        "chars": 575,
+        "char_ratio": 0.0,
+        "flag": false
+      },
+      "segments": [
+        {
+          "segment": "một đồng xu công bằng vẫn cho kết quả đó với xác suất khoảng 11.7%",
+          "holders": [
+            10
+          ],
+          "end_tokens": [
+            85
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q15",
+      "doc": "probability-vs-statistics.pdf",
+      "type": "number",
+      "gold_pages": [
+        11
+      ],
+      "gold_rank": 7,
+      "cos_top1": 0.5074,
+      "cos_gold": 0.47,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        2
+      ],
+      "quote_chunk_rank_top30": 7,
+      "hit@4": false,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 1,
+          "paren_close_glue": 1,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 4,
+        "chars": 537,
+        "char_ratio": 0.00745,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "Chỉ khoảng 9%— dù xét nghiệm",
+          "holders": [
+            24
+          ],
+          "end_tokens": [
+            168
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q16",
+      "doc": "probability-vs-statistics.pdf",
+      "type": "number",
+      "gold_pages": [
+        32
+      ],
+      "gold_rank": 4,
+      "cos_top1": 0.4494,
+      "cos_gold": 0.3952,
+      "top1_page": [
+        "probability-vs-statistics.pdf",
+        11
+      ],
+      "quote_chunk_rank_top30": 4,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": false
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 0,
+        "chars": 582,
+        "char_ratio": 0.0,
+        "flag": false
+      },
+      "segments": [
+        {
+          "segment": "z 0.025= 1.96cho95%",
+          "holders": [
+            73
+          ],
+          "end_tokens": [
+            108
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q17",
+      "doc": "probability-vs-statistics.pdf",
+      "type": "number",
+      "gold_pages": [
+        29
+      ],
+      "gold_rank": 1,
+      "cos_top1": 0.5873,
+      "cos_gold": 0.5873,
+      "top1_page": [
+        "probability-vs-statistics.pdf",
+        29
+      ],
+      "quote_chunk_rank_top30": 1,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 3,
+          "paren_close_glue": 1,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 1,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 10,
+        "chars": 579,
+        "char_ratio": 0.01727,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "vớiα=β= 2được ˆp= 4/5",
+          "holders": [
+            66
+          ],
+          "end_tokens": [
+            215
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q18",
+      "doc": "probability-vs-statistics.pdf",
+      "type": "multi-hop",
+      "gold_pages": [
+        29,
+        40
+      ],
+      "gold_rank": 7,
+      "cos_top1": 0.6637,
+      "cos_gold": 0.593,
+      "top1_page": [
+        "probability-vs-statistics.pdf",
+        1
+      ],
+      "quote_chunk_rank_top30": 28,
+      "hit@4": false,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 11,
+          "paren_close_glue": 2,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 1,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 28,
+        "chars": 1413,
+        "char_ratio": 0.01982,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "hạng hợp lý lấn át tiên nghiệm và MAP →MLE.",
+          "holders": [
+            66
+          ],
+          "end_tokens": [
+            132
+          ],
+          "status": "ok"
+        },
+        {
+          "segment": "Tiên nghiệm Gauss ⇒phạtL2(ridge)",
+          "holders": [
+            94,
+            95
+          ],
+          "end_tokens": [
+            237,
+            15
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q19",
+      "doc": "probability-vs-statistics.pdf",
+      "type": "multi-hop",
+      "gold_pages": [
+        20,
+        32
+      ],
+      "gold_rank": 1,
+      "cos_top1": 0.636,
+      "cos_gold": 0.636,
+      "top1_page": [
+        "probability-vs-statistics.pdf",
+        32
+      ],
+      "quote_chunk_rank_top30": 21,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": false
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 0,
+        "chars": 1101,
+        "char_ratio": 0.0,
+        "flag": false
+      },
+      "segments": [
+        {
+          "segment": "sai số của trung bình mẫu co lại",
+          "holders": [
+            45
+          ],
+          "end_tokens": [
+            62
+          ],
+          "status": "ok"
+        },
+        {
+          "segment": "Khoảng tin cậy 95%dựng từ Định lý 6.3",
+          "holders": [
+            74
+          ],
+          "end_tokens": [
+            58
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q20",
+      "doc": "probability-vs-statistics.pdf",
+      "type": "multi-hop",
+      "gold_pages": [
+        23,
+        26
+      ],
+      "gold_rank": 5,
+      "cos_top1": 0.5935,
+      "cos_gold": 0.5862,
+      "top1_page": [
+        "probability-vs-statistics.pdf",
+        52
+      ],
+      "quote_chunk_rank_top30": null,
+      "hit@4": false,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 3,
+          "paren_close_glue": 2,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 1,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 12,
+        "chars": 1157,
+        "char_ratio": 0.01037,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "khi ước lượng chia cho nbị chệch xuống dưới",
+          "holders": [
+            52
+          ],
+          "end_tokens": [
+            134
+          ],
+          "status": "ok"
+        },
+        {
+          "segment": "MLEchia chon, nênbị chệch theo Bổ",
+          "holders": [
+            60
+          ],
+          "end_tokens": [
+            206
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q21",
+      "doc": "kmeans-vs-knn.pdf",
+      "type": "fact",
+      "gold_pages": [
+        1
+      ],
+      "gold_rank": 1,
+      "cos_top1": 0.7139,
+      "cos_gold": 0.7139,
+      "top1_page": [
+        "kmeans-vs-knn.pdf",
+        1
+      ],
+      "quote_chunk_rank_top30": 1,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": false
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 0,
+        "chars": 595,
+        "char_ratio": 0.0,
+        "flag": false
+      },
+      "segments": [
+        {
+          "segment": "k-NN là học có giám sát (phân loại/hồi quy), K-means là học không giám sát (phân cụm)",
+          "holders": [
+            0
+          ],
+          "end_tokens": [
+            139
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q22",
+      "doc": "kmeans-vs-knn.pdf",
+      "type": "fact",
+      "gold_pages": [
+        27
+      ],
+      "gold_rank": 14,
+      "cos_top1": 0.588,
+      "cos_gold": 0.5333,
+      "top1_page": [
+        "probability-vs-statistics.pdf",
+        4
+      ],
+      "quote_chunk_rank_top30": 16,
+      "hit@4": false,
+      "hit@8": false,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": true,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 1,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 2,
+        "chars": 543,
+        "char_ratio": 0.00368,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "đạt cực tiểu duy nhất tại trung bình cộng",
+          "holders": [
+            71
+          ],
+          "end_tokens": [
+            21
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q23",
+      "doc": "kmeans-vs-knn.pdf",
+      "type": "fact",
+      "gold_pages": [
+        17
+      ],
+      "gold_rank": 1,
+      "cos_top1": 0.5176,
+      "cos_gold": 0.5176,
+      "top1_page": [
+        "kmeans-vs-knn.pdf",
+        17
+      ],
+      "quote_chunk_rank_top30": 1,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 2,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 4,
+        "chars": 511,
+        "char_ratio": 0.00783,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "chọn klẻđể tránh hoà phiếu",
+          "holders": [
+            42
+          ],
+          "end_tokens": [
+            162
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q24",
+      "doc": "kmeans-vs-knn.pdf",
+      "type": "fact",
+      "gold_pages": [
+        30
+      ],
+      "gold_rank": 7,
+      "cos_top1": 0.5387,
+      "cos_gold": 0.402,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        17
+      ],
+      "quote_chunk_rank_top30": 7,
+      "hit@4": false,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 2,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 4,
+        "chars": 483,
+        "char_ratio": 0.00828,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "chỉ đảm bảo hội tụ tới cực tiểu địa phương",
+          "holders": [
+            79
+          ],
+          "end_tokens": [
+            100
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q25",
+      "doc": "kmeans-vs-knn.pdf",
+      "type": "number",
+      "gold_pages": [
+        17
+      ],
+      "gold_rank": null,
+      "cos_top1": 0.6608,
+      "cos_gold": null,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        2
+      ],
+      "quote_chunk_rank_top30": null,
+      "hit@4": false,
+      "hit@8": false,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": true,
+        "E": false
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 0,
+        "chars": 585,
+        "char_ratio": 0.0,
+        "flag": false
+      },
+      "segments": [
+        {
+          "segment": "tiệm cận sai số không quá gấp đôi bộ phân loại tối ưu lý thuyết",
+          "holders": [
+            41
+          ],
+          "end_tokens": [
+            171
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q26",
+      "doc": "kmeans-vs-knn.pdf",
+      "type": "number",
+      "gold_pages": [
+        34
+      ],
+      "gold_rank": 8,
+      "cos_top1": 0.5699,
+      "cos_gold": 0.5014,
+      "top1_page": [
+        "kmeans-vs-knn.pdf",
+        39
+      ],
+      "quote_chunk_rank_top30": 8,
+      "hit@4": false,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 8,
+          "paren_close_glue": 2,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 20,
+        "chars": 1163,
+        "char_ratio": 0.0172,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "E[J]≤8(lnK+ 2)Jopt",
+          "holders": [
+            86,
+            87
+          ],
+          "end_tokens": [
+            263,
+            23
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q27",
+      "doc": "kmeans-vs-knn.pdf",
+      "type": "number",
+      "gold_pages": [
+        20
+      ],
+      "gold_rank": 5,
+      "cos_top1": 0.5974,
+      "cos_gold": 0.5749,
+      "top1_page": [
+        "bao-cao-bien-doi-gradient.pdf",
+        2
+      ],
+      "quote_chunk_rank_top30": 15,
+      "hit@4": false,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 0,
+          "paren_close_glue": 3,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 6,
+        "chars": 589,
+        "char_ratio": 0.01019,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "Khi dvượt≈20, KD-Tree suy biến về vét cạn",
+          "holders": [
+            49
+          ],
+          "end_tokens": [
+            114
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q28",
+      "doc": "kmeans-vs-knn.pdf",
+      "type": "multi-hop",
+      "gold_pages": [
+        11,
+        20
+      ],
+      "gold_rank": 1,
+      "cos_top1": 0.5323,
+      "cos_gold": 0.5323,
+      "top1_page": [
+        "kmeans-vs-knn.pdf",
+        11
+      ],
+      "quote_chunk_rank_top30": 1,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 1,
+          "paren_close_glue": 3,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 0,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 8,
+        "chars": 1171,
+        "char_ratio": 0.00683,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "vớid≳20–30, hãy giảm chiều trước (PCA, t-SNE/UMAP",
+          "holders": [
+            27
+          ],
+          "end_tokens": [
+            152
+          ],
+          "status": "ok"
+        },
+        {
+          "segment": "Khi dvượt≈20, KD-Tree suy biến về vét cạn",
+          "holders": [
+            49
+          ],
+          "end_tokens": [
+            114
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q29",
+      "doc": "kmeans-vs-knn.pdf",
+      "type": "multi-hop",
+      "gold_pages": [
+        27,
+        30
+      ],
+      "gold_rank": 26,
+      "cos_top1": 0.6148,
+      "cos_gold": 0.5305,
+      "top1_page": [
+        "kmeans-vs-knn.pdf",
+        50
+      ],
+      "quote_chunk_rank_top30": 26,
+      "hit@4": false,
+      "hit@8": false,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": true,
+        "C8": true,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 5,
+          "paren_close_glue": 0,
+          "diacritic_paren_open": 4,
+          "digit_diacritic_glue": 1,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 20,
+        "chars": 1590,
+        "char_ratio": 0.01258,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "Bổ đề 8.2 là lý do bước cập nhật dùng trung bình",
+          "holders": [
+            71
+          ],
+          "end_tokens": [
+            149
+          ],
+          "status": "ok"
+        },
+        {
+          "segment": "VậyJđơn điệu không tăng",
+          "holders": [
+            78,
+            79
+          ],
+          "end_tokens": [
+            219,
+            9
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "id": "q30",
+      "doc": "kmeans-vs-knn.pdf",
+      "type": "multi-hop",
+      "gold_pages": [
+        27,
+        39
+      ],
+      "gold_rank": 1,
+      "cos_top1": 0.6247,
+      "cos_gold": 0.6247,
+      "top1_page": [
+        "kmeans-vs-knn.pdf",
+        39
+      ],
+      "quote_chunk_rank_top30": 4,
+      "hit@4": true,
+      "hit@8": true,
+      "matches_report": true,
+      "flags": {
+        "A": false,
+        "B": false,
+        "C4": false,
+        "C8": false,
+        "D": false,
+        "E": true
+      },
+      "E_detail": {
+        "counts": {
+          "lower_upper_glue": 4,
+          "paren_close_glue": 1,
+          "diacritic_paren_open": 0,
+          "digit_diacritic_glue": 1,
+          "split_symbol_lines": 0
+        },
+        "matched_chars": 12,
+        "chars": 1119,
+        "char_ratio": 0.01072,
+        "flag": true
+      },
+      "segments": [
+        {
+          "segment": "nghiệm tối ưu là trung vị theo từng chiều",
+          "holders": [
+            71
+          ],
+          "end_tokens": [
+            173
+          ],
+          "status": "ok"
+        },
+        {
+          "segment": "Ngoại lai kéo lệch trọng tâm Trung bình không bền",
+          "holders": [
+            98
+          ],
+          "end_tokens": [
+            137
+          ],
+          "status": "ok"
+        }
+      ]
+    }
+  ]
+}
